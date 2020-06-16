@@ -1,4 +1,4 @@
-object Form1: TForm1
+object fmInstall: TfmInstall
   Left = 0
   Top = 0
   BorderStyle = bsDialog
@@ -13,6 +13,9 @@ object Form1: TForm1
   Font.Style = []
   OldCreateOrder = False
   Position = poMainFormCenter
+  DesignSize = (
+    645
+    309)
   PixelsPerInch = 96
   TextHeight = 13
   object Panel1: TPanel
@@ -23,7 +26,6 @@ object Form1: TForm1
     Align = alBottom
     BevelOuter = bvNone
     TabOrder = 0
-    ExplicitTop = 268
     DesignSize = (
       645
       37)
@@ -52,27 +54,27 @@ object Form1: TForm1
   end
   object mmInfo: TMemo
     Left = 16
-    Top = 33
-    Width = 185
-    Height = 89
-    Lines.Strings = (
-      'Memo1')
+    Top = 39
+    Width = 609
+    Height = 196
+    Anchors = [akLeft, akTop, akRight, akBottom]
     TabOrder = 1
   end
   object btnInstall: TButton
     Left = 16
-    Top = 128
-    Width = 75
+    Top = 241
+    Width = 129
     Height = 25
-    Caption = 'Install'
+    Caption = 'Install Python'
     TabOrder = 2
   end
-  object btnUpdate: TButton
-    Left = 126
-    Top = 128
-    Width = 75
+  object btnUpdateInfo: TButton
+    Left = 16
+    Top = 8
+    Width = 129
     Height = 25
-    Caption = 'Update'
+    Caption = 'Update Version Info'
     TabOrder = 3
+    OnClick = btnUpdateInfoClick
   end
 end

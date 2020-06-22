@@ -1,6 +1,3 @@
 [submodule "python4delphi"]
 	path = python4delphi
 	url = https://github.com/pyscripter/python4delphi
-[submodule "patroni-windows-packaging"]
-	path = patroni-windows-packaging
-	url = https://github.com/cybertec-postgresql/patroni-windows-packaging

@@ -1,0 +1,3 @@
+dcs_api: etcd://{self.etcd_address}
+namespace: /service/
+scope: {self.cluster.clustername}

@@ -1,0 +1,66 @@
+scope: {self.cluster.clustername}
+#namespace: /service/
+name: {self.nodename}
+
+restapi:
+  listen: {self.listen_address}:8008
+  connect_address: {self.connect_address}:8008
+#  certfile: /etc/ssl/certs/ssl-cert-snakeoil.pem
+#  keyfile: /etc/ssl/private/ssl-cert-snakeoil.key
+#  authentication:
+#    username: username
+#    password: password
+
+{self.dcsconfig}
+
+bootstrap:
+  # this section will be written into Etcd:/<namespace>/<scope>/config after initializing new cluster
+  # and all other cluster members will use it as a `global configuration`
+  dcs:
+    ttl: 30
+    loop_wait: 10
+    retry_timeout: 10
+    maximum_lag_on_failover: 1048576
+#    master_start_timeout: 300
+#    synchronous_mode: false
+    postgresql:
+      use_pg_rewind: true
+      use_slots: true
+      parameters:
+#        wal_level: hot_standby
+#        hot_standby: "on"
+#        wal_keep_segments: 8
+#        max_wal_senders: 5
+#        max_replication_slots: 5
+#        wal_log_hints: "on"
+#        archive_mode: "on"
+#        archive_timeout: 1800s
+#        archive_command: mkdir -p ../wal_archive && test ! -f ../wal_archive/%f && cp %p ../wal_archive/%f
+#      recovery_conf:
+#        restore_command: cp ../wal_archive/%f %p
+{self.bootstrap_config}
+
+postgresql:
+  listen: {self.listen_address}:5432
+  connect_address: {self.connect_address}:5432
+  data_dir: {self.data_dir}
+  bin_dir: {self.bin_dir}
+  pgpass: /tmp/pgpass0
+  authentication:
+    replication:
+      username: {self.cluster.replication_user}
+      password: {self.cluster.replication_pw}
+    superuser:
+      username: {self.cluster.superuser_user}
+      password: {self.cluster.superuser_pw}
+{self.postgresql_parameters}
+
+#watchdog:
+#  mode: automatic # Allowed values: off, automatic, required
+#  device: /dev/watchdog
+
+tags:
+    nofailover: {self.nofailover_tag}
+    noloadbalance: false
+    clonefrom: false
+    nosync: false

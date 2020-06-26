@@ -5,17 +5,34 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls, System.StrUtils, PythonVersions,
-  Console;
+  Console, dxGDIPlusClasses, Vcl.ComCtrls, Vcl.ExtActns, System.Actions, Vcl.ActnList, SynEdit,
+  SynMemo, SynEditHighlighter, SynHighlighterJSON;
 
 type
   TfmInstall = class(TForm)
-    Button2: TButton;
-    Button3: TButton;
+    btnNext: TButton;
+    btnBack: TButton;
     Panel1: TPanel;
-    mmInfo: TMemo;
+    imgHeader: TImage;
+    pcWizard: TPageControl;
+    tabPython: TTabSheet;
     btnInstall: TButton;
-    btnUpdateInfo: TButton;
-    procedure btnUpdateInfoClick(Sender: TObject);
+    mmInfo: TMemo;
+    ActionList1: TActionList;
+    acBack: TPreviousTab;
+    acNext: TNextTab;
+    tabNodes: TTabSheet;
+    mmDBNodes: TMemo;
+    Label1: TLabel;
+    mmEctdNodes: TMemo;
+    Label2: TLabel;
+    Button1: TButton;
+    acFinish: TAction;
+    TabSheet1: TTabSheet;
+    SynMemo1: TSynMemo;
+    SynJSONSyn1: TSynJSONSyn;
+    procedure UpdateInfo(Sender: TObject);
+    procedure acFinishUpdate(Sender: TObject);
   private
   public
     { Public declarations }
@@ -31,7 +48,12 @@ implementation
 
 {$R *.dfm}
 
-procedure TfmInstall.btnUpdateInfoClick(Sender: TObject);
+procedure TfmInstall.acFinishUpdate(Sender: TObject);
+begin
+  (Sender as TAction).Enabled := pcWizard.ActivePageIndex = pcWizard.PageCount - 1;
+end;
+
+procedure TfmInstall.UpdateInfo(Sender: TObject);
 var
     v:  TPythonVersion;
     vv: TPythonVersions;

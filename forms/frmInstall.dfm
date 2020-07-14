@@ -3,7 +3,7 @@ object fmInstall: TfmInstall
   Top = 0
   Caption = 'Patroni Environment Seup'
   ClientHeight = 661
-  ClientWidth = 765
+  ClientWidth = 575
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -17,7 +17,7 @@ object fmInstall: TfmInstall
   object imgHeader: TImage
     Left = 0
     Top = 0
-    Width = 765
+    Width = 575
     Height = 105
     Align = alTop
     Picture.Data = {
@@ -1949,18 +1949,16 @@ object fmInstall: TfmInstall
   object Panel1: TPanel
     Left = 0
     Top = 624
-    Width = 765
+    Width = 575
     Height = 37
     Align = alBottom
     BevelOuter = bvNone
     TabOrder = 0
-    ExplicitTop = 397
-    ExplicitWidth = 635
     DesignSize = (
-      765
+      575
       37)
     object btnNext: TButton
-      Left = 420
+      Left = 230
       Top = 6
       Width = 75
       Height = 25
@@ -1969,10 +1967,9 @@ object fmInstall: TfmInstall
       Default = True
       ModalResult = 1
       TabOrder = 0
-      ExplicitLeft = 329
     end
     object btnBack: TButton
-      Left = 501
+      Left = 149
       Top = 6
       Width = 75
       Height = 25
@@ -1981,10 +1978,9 @@ object fmInstall: TfmInstall
       Cancel = True
       ModalResult = 2
       TabOrder = 1
-      ExplicitLeft = 468
     end
     object Button1: TButton
-      Left = 637
+      Left = 447
       Top = 6
       Width = 115
       Height = 25
@@ -1993,26 +1989,25 @@ object fmInstall: TfmInstall
       Default = True
       ModalResult = 1
       TabOrder = 2
-      ExplicitLeft = 644
     end
   end
   object pcWizard: TPageControl
     Left = 0
     Top = 105
-    Width = 765
+    Width = 575
     Height = 519
-    ActivePage = TabSheet1
+    ActivePage = tabNodes
     Align = alClient
     TabOrder = 1
-    ExplicitWidth = 635
-    ExplicitHeight = 292
     object tabPython: TTabSheet
       Caption = 'tabPython'
       OnShow = UpdateInfo
-      ExplicitWidth = 627
-      ExplicitHeight = 264
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 757
+      ExplicitHeight = 0
       DesignSize = (
-        757
+        567
         491)
       object btnInstall: TButton
         Left = 11
@@ -2025,64 +2020,165 @@ object fmInstall: TfmInstall
       object mmInfo: TMemo
         Left = 11
         Top = 3
-        Width = 729
+        Width = 539
         Height = 443
         Anchors = [akLeft, akTop, akRight, akBottom]
         TabOrder = 1
-        ExplicitWidth = 599
-        ExplicitHeight = 216
+        ExplicitWidth = 729
       end
     end
     object tabNodes: TTabSheet
       Caption = 'tabNodes'
       ImageIndex = 1
-      ExplicitWidth = 627
-      ExplicitHeight = 264
-      object Label1: TLabel
-        Left = 40
-        Top = 45
-        Width = 97
+      object lbClusterName: TLabel
+        Left = 14
+        Top = 10
+        Width = 64
         Height = 13
-        Caption = 'Database Nodes IPs'
+        Caption = 'Cluster Name'
+        FocusControl = edClusterName
       end
-      object Label2: TLabel
-        Left = 336
-        Top = 44
-        Width = 72
+      object lbNodes: TLabel
+        Left = 14
+        Top = 117
+        Width = 67
         Height = 13
-        Caption = 'ectd Nodes IPs'
+        Caption = 'Cluster Nodes'
       end
-      object mmDBNodes: TMemo
-        Left = 40
-        Top = 64
-        Width = 185
-        Height = 89
-        Lines.Strings = (
-          '10.234.10.160'
-          '10.234.10.161')
+      object lbBinDir: TLabel
+        Left = 182
+        Top = 10
+        Width = 119
+        Height = 13
+        Caption = 'PostgreSQL bin directory'
+        FocusControl = edClusterName
+      end
+      object tlNodes: TcxTreeList
+        Left = 14
+        Top = 136
+        Width = 529
+        Height = 217
+        Bands = <
+          item
+          end>
+        Navigator.Buttons.CustomButtons = <>
+        Navigator.Buttons.Filter.Enabled = False
+        Navigator.Visible = True
+        OptionsData.Appending = True
+        OptionsData.ImmediatePost = True
+        OptionsData.Inserting = True
+        OptionsView.ColumnAutoWidth = True
+        OptionsView.Indicator = True
+        OptionsView.TreeLineStyle = tllsNone
         TabOrder = 0
+        OnNodeChanged = tlNodesNodeChanged
+        Data = {
+          00000500EB0100000F00000044617461436F6E74726F6C6C6572310500000012
+          000000546378537472696E6756616C7565547970651200000054637853747269
+          6E6756616C75655479706512000000546378537472696E6756616C7565547970
+          6512000000546378537472696E6756616C75655479706513000000546378426F
+          6F6C65616E56616C75655479706503000000445855464D540000090000006400
+          61007400610062006100730065003100000B000000310030002E003100350036
+          002E00360032002E003900000400000054007200750065000004000000540072
+          00750065000001445855464D5400000900000064006100740061006200610073
+          0065003200000C000000310030002E003100350036002E00360032002E003100
+          3000000400000054007200750065000004000000540072007500650000014458
+          55464D540000070000007700690074006E00650073007300000C000000310030
+          002E003100350036002E00360032002E00310031000005000000460061006C00
+          7300650000040000005400720075006500000103000000000000000808000000
+          0000000000FFFFFFFFFFFFFFFFFFFFFFFF0100000008080000000000000000FF
+          FFFFFFFFFFFFFFFFFFFFFF02000000080A0000000000000000FFFFFFFFFFFFFF
+          FFFFFFFFFF1A0803000000}
+        object tlcName: TcxTreeListColumn
+          Caption.Text = 'Node Name'
+          DataBinding.ValueType = 'String'
+          Width = 100
+          Position.ColIndex = 0
+          Position.RowIndex = 0
+          Position.BandIndex = 0
+          Summary.FooterSummaryItems = <>
+          Summary.GroupFooterSummaryItems = <>
+        end
+        object tlcHost: TcxTreeListColumn
+          PropertiesClassName = 'TcxTextEditProperties'
+          Caption.Text = 'Host or IP address'
+          DataBinding.ValueType = 'String'
+          Width = 136
+          Position.ColIndex = 1
+          Position.RowIndex = 0
+          Position.BandIndex = 0
+          Summary.FooterSummaryItems = <>
+          Summary.GroupFooterSummaryItems = <>
+        end
+        object tlcDatabase: TcxTreeListColumn
+          PropertiesClassName = 'TcxCheckBoxProperties'
+          Properties.DisplayGrayed = 'True'
+          Properties.ImmediatePost = True
+          Properties.ValueGrayed = 'True'
+          Caption.Text = 'Database'
+          DataBinding.ValueType = 'String'
+          Width = 100
+          Position.ColIndex = 2
+          Position.RowIndex = 0
+          Position.BandIndex = 0
+          Summary.FooterSummaryItems = <>
+          Summary.GroupFooterSummaryItems = <>
+        end
+        object tlcEtcd: TcxTreeListColumn
+          PropertiesClassName = 'TcxCheckBoxProperties'
+          Properties.ValueGrayed = 'True'
+          Caption.Text = 'Etcd'
+          DataBinding.ValueType = 'String'
+          Width = 100
+          Position.ColIndex = 3
+          Position.RowIndex = 0
+          Position.BandIndex = 0
+          Summary.FooterSummaryItems = <>
+          Summary.GroupFooterSummaryItems = <>
+        end
+        object tlcFailover: TcxTreeListColumn
+          PropertiesClassName = 'TcxCheckBoxProperties'
+          Properties.DisplayGrayed = 'True'
+          Properties.ImmediatePost = True
+          Properties.ValueGrayed = 'True'
+          Caption.Text = 'Failover'
+          DataBinding.ValueType = 'Boolean'
+          Width = 100
+          Position.ColIndex = 4
+          Position.RowIndex = 0
+          Position.BandIndex = 0
+          Summary.FooterSummaryItems = <>
+          Summary.GroupFooterSummaryItems = <>
+        end
       end
-      object mmEctdNodes: TMemo
-        Left = 336
-        Top = 63
-        Width = 185
-        Height = 89
-        Lines.Strings = (
-          '10.234.10.160'
-          '10.234.10.161'
-          '10.234.10.162')
+      object edClusterName: TEdit
+        Left = 14
+        Top = 29
+        Width = 121
+        Height = 21
         TabOrder = 1
+        Text = 'pgcluster'
+      end
+      object cbBinDir: TcxShellComboBox
+        Left = 182
+        Top = 29
+        Properties.Root.BrowseFolder = bfProgramFiles
+        Properties.ShowFullPath = sfpAlways
+        TabOrder = 2
+        Width = 361
       end
     end
     object TabSheet1: TTabSheet
       Caption = 'TabSheet1'
       ImageIndex = 2
-      ExplicitWidth = 627
-      ExplicitHeight = 264
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 757
+      ExplicitHeight = 0
       object SynMemo1: TSynMemo
         Left = 0
         Top = 0
-        Width = 757
+        Width = 567
         Height = 491
         Align = alClient
         Font.Charset = DEFAULT_CHARSET
@@ -2171,10 +2267,8 @@ object fmInstall: TfmInstall
           '    clonefrom: false'
           '    nosync: false')
         FontSmoothing = fsmNone
-        ExplicitLeft = -3
-        ExplicitTop = -2
-        ExplicitWidth = 724
-        ExplicitHeight = 466
+        ExplicitLeft = 72
+        ExplicitTop = 3
       end
     end
   end
@@ -2206,7 +2300,7 @@ object fmInstall: TfmInstall
     Options.AutoDetectLineLimit = 0
     Options.LineCommentarStart = '#'
     Options.Visible = False
-    Left = 552
-    Top = 136
+    Left = 648
+    Top = 16
   end
 end

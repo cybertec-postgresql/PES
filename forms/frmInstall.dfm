@@ -2024,7 +2024,42 @@ object fmInstall: TfmInstall
         Height = 443
         Anchors = [akLeft, akTop, akRight, akBottom]
         TabOrder = 1
-        ExplicitWidth = 729
+      end
+    end
+    object tabPostgres: TTabSheet
+      Caption = 'tabPostgres'
+      ImageIndex = 3
+      object lbBinDir: TLabel
+        Left = 14
+        Top = 18
+        Width = 119
+        Height = 13
+        Caption = 'PostgreSQL bin directory'
+        FocusControl = edClusterName
+      end
+      object Label1: TLabel
+        Left = 14
+        Top = 66
+        Width = 127
+        Height = 13
+        Caption = 'PostgreSQL data directory'
+        FocusControl = edClusterName
+      end
+      object cbBinDir: TcxShellComboBox
+        Left = 14
+        Top = 37
+        Properties.Root.BrowseFolder = bfProgramFiles
+        Properties.ShowFullPath = sfpAlways
+        TabOrder = 0
+        Width = 361
+      end
+      object cxShellComboBox1: TcxShellComboBox
+        Left = 14
+        Top = 85
+        Properties.Root.BrowseFolder = bfProgramFiles
+        Properties.ShowFullPath = sfpAlways
+        TabOrder = 1
+        Width = 361
       end
     end
     object tabNodes: TTabSheet
@@ -2044,14 +2079,6 @@ object fmInstall: TfmInstall
         Width = 67
         Height = 13
         Caption = 'Cluster Nodes'
-      end
-      object lbBinDir: TLabel
-        Left = 182
-        Top = 10
-        Width = 119
-        Height = 13
-        Caption = 'PostgreSQL bin directory'
-        FocusControl = edClusterName
       end
       object tlNodes: TcxTreeList
         Left = 14
@@ -2159,22 +2186,10 @@ object fmInstall: TfmInstall
         TabOrder = 1
         Text = 'pgcluster'
       end
-      object cbBinDir: TcxShellComboBox
-        Left = 182
-        Top = 29
-        Properties.Root.BrowseFolder = bfProgramFiles
-        Properties.ShowFullPath = sfpAlways
-        TabOrder = 2
-        Width = 361
-      end
     end
     object TabSheet1: TTabSheet
       Caption = 'TabSheet1'
       ImageIndex = 2
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 757
-      ExplicitHeight = 0
       object SynMemo1: TSynMemo
         Left = 0
         Top = 0

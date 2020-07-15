@@ -44,8 +44,11 @@ type
     lbClusterName: TLabel;
     lbNodes: TLabel;
     tlcName: TcxTreeListColumn;
-    cbBinDir: TcxShellComboBox;
+    tabPostgres: TTabSheet;
     lbBinDir: TLabel;
+    cbBinDir: TcxShellComboBox;
+    Label1: TLabel;
+    cxShellComboBox1: TcxShellComboBox;
     procedure UpdateInfo(Sender: TObject);
     procedure acFinishUpdate(Sender: TObject);
     procedure tlcEtcdPropertiesValidate(Sender: TObject; var DisplayValue: Variant;
@@ -57,22 +60,11 @@ type
     { Public declarations }
   end;
 
-  TNode = class(TPersistent)
-  private
-    FIP: string;
-    FHasEtcd: boolean;
-    FNoFailover: boolean;
-    FHasDatabase: boolean;
-  published
-    property IP: string read FIP write FIP;
-    property HasDatabase: boolean read FHasDatabase write FHasDatabase;
-    property HasEtcd: boolean read FHasEtcd write FHasEtcd;
-    property NoFailover: boolean read FNoFailover write FNoFailover;
-  end;
+
 
 var
   fmInstall: TfmInstall;
-  Nodes: TObjectList<TNode>;
+
 
 const
   PYTHON_VERSION: string = '3.7.5';

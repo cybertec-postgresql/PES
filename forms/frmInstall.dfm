@@ -1996,7 +1996,7 @@ object fmInstall: TfmInstall
     Top = 105
     Width = 575
     Height = 519
-    ActivePage = tabPostgres
+    ActivePage = tabNodes
     Align = alClient
     TabOrder = 1
     object tabPython: TTabSheet
@@ -2041,6 +2041,38 @@ object fmInstall: TfmInstall
         Caption = 'PostgreSQL data directory'
         FocusControl = edClusterName
       end
+      object Label2: TLabel
+        Left = 14
+        Top = 117
+        Width = 73
+        Height = 13
+        Caption = 'Replication role'
+        FocusControl = edClusterName
+      end
+      object Label3: TLabel
+        Left = 166
+        Top = 117
+        Width = 101
+        Height = 13
+        Caption = 'Replication password'
+        FocusControl = edClusterName
+      end
+      object Label4: TLabel
+        Left = 14
+        Top = 165
+        Width = 70
+        Height = 13
+        Caption = 'Superuser role'
+        FocusControl = edClusterName
+      end
+      object Label5: TLabel
+        Left = 166
+        Top = 165
+        Width = 98
+        Height = 13
+        Caption = 'Superuser password'
+        FocusControl = edClusterName
+      end
       object cbBinDir: TcxShellComboBox
         Left = 14
         Top = 37
@@ -2049,7 +2081,7 @@ object fmInstall: TfmInstall
         TabOrder = 0
         Width = 361
       end
-      object cxShellComboBox1: TcxShellComboBox
+      object cbDataDir: TcxShellComboBox
         Left = 14
         Top = 85
         Properties.Root.BrowseFolder = bfProgramFiles
@@ -2057,10 +2089,42 @@ object fmInstall: TfmInstall
         TabOrder = 1
         Width = 361
       end
+      object edReplicationRole: TEdit
+        Left = 14
+        Top = 136
+        Width = 121
+        Height = 21
+        TabOrder = 2
+        Text = 'replicator'
+      end
+      object edReplicationPassword: TEdit
+        Left = 166
+        Top = 136
+        Width = 121
+        Height = 21
+        TabOrder = 3
+      end
+      object edSuperuserRole: TEdit
+        Left = 14
+        Top = 184
+        Width = 121
+        Height = 21
+        TabOrder = 4
+        Text = 'postgres'
+      end
+      object edSuperuserPassword: TEdit
+        Left = 166
+        Top = 184
+        Width = 121
+        Height = 21
+        TabOrder = 5
+      end
     end
     object tabNodes: TTabSheet
       Caption = 'tabNodes'
       ImageIndex = 1
+      ExplicitLeft = 8
+      ExplicitTop = 22
       object lbClusterName: TLabel
         Left = 14
         Top = 10
@@ -2071,14 +2135,22 @@ object fmInstall: TfmInstall
       end
       object lbNodes: TLabel
         Left = 14
-        Top = 117
+        Top = 61
         Width = 67
         Height = 13
         Caption = 'Cluster Nodes'
       end
+      object Label6: TLabel
+        Left = 166
+        Top = 10
+        Width = 167
+        Height = 13
+        Caption = 'Cluster Token (empty to generate)'
+        FocusControl = edClusterToken
+      end
       object tlNodes: TcxTreeList
         Left = 14
-        Top = 136
+        Top = 80
         Width = 529
         Height = 217
         Bands = <
@@ -2180,6 +2252,23 @@ object fmInstall: TfmInstall
         Width = 121
         Height = 21
         TabOrder = 1
+        Text = 'pgcluster'
+      end
+      object btnGenerateConfigs: TButton
+        Left = 376
+        Top = 27
+        Width = 105
+        Height = 25
+        Caption = 'Generate Configs'
+        TabOrder = 2
+        OnClick = btnGenerateConfigsClick
+      end
+      object edClusterToken: TEdit
+        Left = 166
+        Top = 29
+        Width = 167
+        Height = 21
+        TabOrder = 3
         Text = 'pgcluster'
       end
     end

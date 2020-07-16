@@ -6,15 +6,10 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls, System.StrUtils, PythonVersions,
   Console, Vcl.ComCtrls, Vcl.ExtActns, System.Actions, Vcl.ActnList, SynEdit,
-  SynMemo, SynEditHighlighter, SynHighlighterJSON, Vcl.CheckLst, Winapi.UxTheme, System.ImageList,
-  Vcl.ImgList, dxGDIPlusClasses, Vcl.Grids, Data.Bind.Components, Data.Bind.ObjectScope,
-  System.Generics.Collections, Data.Bind.EngExt, Vcl.Bind.DBEngExt, Vcl.Bind.Grid, System.Rtti,
-  System.Bindings.Outputs, Vcl.Bind.Editors, Data.Bind.Grid, Data.Bind.Controls, Vcl.Buttons,
-  Vcl.Bind.Navigator, Data.Bind.GenData, Data.DB, Vcl.DBGrids, Vcl.DBCtrls, Vcl.Mask, Vcl.DBCGrids,
-  Datasnap.DBClient, cxGraphics, cxControls, cxLookAndFeels, cxLookAndFeelPainters, cxCustomData,
-  cxStyles, cxTL, cxTextEdit, cxCheckBox, cxTLdxBarBuiltInMenu, cxInplaceContainer, cxEdit,
-  Winapi.ShlObj, cxShellCommon, dxBreadcrumbEdit, dxShellBreadcrumbEdit, cxContainer, cxMaskEdit,
-  cxDropDownEdit, cxShellComboBox;
+  SynMemo, SynEditHighlighter, SynHighlighterJSON, Winapi.ShlObj, cxShellCommon, cxGraphics,
+  cxControls, cxLookAndFeels, cxLookAndFeelPainters, cxContainer, cxEdit, cxCustomData, cxStyles,
+  cxTL, cxTextEdit, cxCheckBox, cxTLdxBarBuiltInMenu, cxInplaceContainer, cxMaskEdit,
+  cxDropDownEdit, cxShellComboBox, dxGDIPlusClasses;
 
 type
   TfmInstall = class(TForm)
@@ -48,13 +43,25 @@ type
     lbBinDir: TLabel;
     cbBinDir: TcxShellComboBox;
     Label1: TLabel;
-    cxShellComboBox1: TcxShellComboBox;
+    cbDataDir: TcxShellComboBox;
+    btnGenerateConfigs: TButton;
+    Label2: TLabel;
+    edReplicationRole: TEdit;
+    Label3: TLabel;
+    edReplicationPassword: TEdit;
+    Label4: TLabel;
+    edSuperuserRole: TEdit;
+    Label5: TLabel;
+    edSuperuserPassword: TEdit;
+    Label6: TLabel;
+    edClusterToken: TEdit;
     procedure UpdateInfo(Sender: TObject);
     procedure acFinishUpdate(Sender: TObject);
     procedure tlcEtcdPropertiesValidate(Sender: TObject; var DisplayValue: Variant;
       var ErrorText: TCaption; var Error: Boolean);
     procedure tlNodesNodeChanged(Sender: TcxCustomTreeList; ANode: TcxTreeListNode;
       AColumn: TcxTreeListColumn);
+    procedure btnGenerateConfigsClick(Sender: TObject);
   private
   public
     { Public declarations }
@@ -71,13 +78,50 @@ const
 
 implementation
 
-uses Math;
+uses Math, template, IOUtils;
 
 {$R *.dfm}
 
 procedure TfmInstall.acFinishUpdate(Sender: TObject);
 begin
   (Sender as TAction).Enabled := pcWizard.ActivePageIndex = pcWizard.PageCount - 1;
+end;
+
+procedure TfmInstall.btnGenerateConfigsClick(Sender: TObject);
+var
+  Cluster: TCluster;
+  Node: TNode;
+  N: TcxTreeListNode;
+  I: Integer;
+begin
+  Cluster := TCluster.Create;
+  try
+    Cluster.ClusterName := edClusterName.Text;
+    Cluster.PostgresDir := cbBinDir.Path;
+    Cluster.DataDir := cbDataDir.Path;
+    Cluster.ReplicationRole := edReplicationRole.Text;
+    Cluster.ReplicationPassword := edReplicationPassword.Text;
+    Cluster.SuperUser := edSuperuserRole.Text;
+    Cluster.SuperUserPassword := edSuperuserPassword.Text;
+    Cluster.EtcdClusterToken := edClusterToken.Text;
+    Cluster.Existing := False;
+    Cluster.PostgresParameters := '';
+    for I := 0 to tlNodes.AbsoluteCount-1 do
+    begin
+      N := tlNodes.AbsoluteItems[I];
+      Node := TNode.Create(Cluster);
+      Node.Name := N.Texts[tlcName.ItemIndex];
+      Node.IP := N.Texts[tlcHost.ItemIndex];
+      Node.HasDatabase := N.Values[tlcDatabase.ItemIndex] = True;
+      Node.HasEtcd := N.Values[tlcEtcd.ItemIndex] = True;
+      Node.NoFailover := N.Values[tlcFailover.ItemIndex] = False;
+      Cluster.Nodes.Add(Node);
+    end;
+    { TODO : Add writing to the files}
+    IOutils.TDirectory.CreateDirectory(Cluster.ClusterName);
+  finally
+    Cluster.Free;
+  end;
 end;
 
 procedure TfmInstall.tlcEtcdPropertiesValidate(Sender: TObject; var DisplayValue: Variant;

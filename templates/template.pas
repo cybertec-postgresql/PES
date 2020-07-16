@@ -27,6 +27,7 @@ type
   public
     constructor Create(Owner: TSettings);
     function GetPatroniConfig(): string;
+    function GetPatroniCtlConfig(): string;
   published
     property Name: string read FName write FName;
     property IP: string read FIP write FIP;
@@ -177,6 +178,7 @@ end;
 
 function TNode.GetPatroniConfig: string;
 begin
+  if not FHasDatabase then Exit;
   Result := TFile.ReadAllText('patroni.template', TEncoding.UTF8);
   Result := StrUtils.ReplaceStr(Result, '{cluster.clustername}', FOwner.ClusterName);
   Result := StrUtils.ReplaceStr(Result, '{nodename}', FName);
@@ -192,6 +194,14 @@ begin
   Result := StrUtils.ReplaceStr(Result, '{cluster.superuser_pw}', FOwner.SuperUserPassword);
   Result := StrUtils.ReplaceStr(Result, '{postgresql_parameters}', FOwner.PostgresParameters);
   Result := StrUtils.ReplaceStr(Result, '{nofailover_tag}', FNoFailover.ToString(True));
+end;
+
+function TNode.GetPatroniCtlConfig: string;
+begin
+  if not FHasDatabase then Exit;
+  Result := TFile.ReadAllText('patroni_ctl.template', TEncoding.UTF8);
+  Result := StrUtils.ReplaceStr(Result, '{etcd_address}', 'localhost:2379');
+  Result := StrUtils.ReplaceStr(Result, '{cluster.clustername}', FOwner.ClusterName);
 end;
 
 end.

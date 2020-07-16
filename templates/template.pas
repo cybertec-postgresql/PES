@@ -8,6 +8,8 @@ uses
   System.Generics.Collections;
 
 type
+  TSettings = class;
+
   TNode = class(TPersistent)
   private
     FIP: string;
@@ -16,11 +18,15 @@ type
     FHasDatabase: boolean;
     FListenAddress: string;
     FName: string;
-  public
-    constructor Create;
+    FOwner: TSettings;
     function GetEtcdConnectUrl: string;
     function GetEtcdListenClientUrl: string;
     function GetEtcdListenPeerUrls: string;
+    function GetDCSConfig(): string;
+    function GetBootstrapConfig(): string;
+  public
+    constructor Create(Owner: TSettings);
+    function GetPatroniConfig(): string;
   published
     property Name: string read FName write FName;
     property IP: string read FIP write FIP;
@@ -40,12 +46,17 @@ type
     FSuperUser: string;
     FSuperUserPassword: string;
     FEtcdClusterToken: string;
+    FClusterName: string;
+    FExisting: boolean;
+    FPostgresParameters: string;
   public
     constructor Create;
     destructor Destroy; override;
     function GetEtcdInitialCluster: string;
+    function GetEtcdHostListPatroni: string;
   published
     property Nodes: TObjectList<TNode> read FNodes;
+    property ClusterName: string read FClusterName write FClusterName;
     property PostgresDir: string read FPostgresDir write FPostgresDir;
     property DataDir: string read FDataDir write FDataDir;
     property ReplicationRole: string read FReplicationRole write FReplicationRole;
@@ -53,9 +64,13 @@ type
     property SuperUser: string read FSuperUser write FSuperUser;
     property SuperUserPassword: string read FSuperUserPassword write FSuperUserPassword;
     property EtcdClusterToken: string read FEtcdClusterToken write FEtcdClusterToken;
+    property Existing: boolean read FExisting write FExisting;
+    property PostgresParameters: string read FPostgresParameters write FPostgresParameters;
   end;
 
 implementation
+
+uses StrUtils, IOUtils;
 
 function RandomPassword(const Len: integer = 12): string;
 var
@@ -83,6 +98,21 @@ begin
   inherited;
 end;
 
+function TSettings.GetEtcdHostListPatroni: string;
+var SL: TStrings;
+  I: Integer;
+begin
+  SL := TStringList.Create;
+  try
+    for I := 0 to FNodes.Count - 1 do
+      if FNodes[I].HasEtcd then
+        SL.Append(FNodes[I].FIP + ':2379');
+    Result := SL.CommaText;
+  finally
+    SL.Free;
+  end;
+end;
+
 function TSettings.GetEtcdInitialCluster: string;
 var
   i, n: integer;
@@ -104,9 +134,23 @@ end;
 
 { TNode }
 
-constructor TNode.Create;
+constructor TNode.Create(Owner: TSettings);
 begin
+  if not Assigned(Owner) then
+    raise Exception.Create('Node owner cannot be nil');
   FListenAddress := '0.0.0.0';
+end;
+
+function TNode.GetBootstrapConfig: string;
+begin
+  if FOwner.Existing then Exit;
+  Result := TFile.ReadAllText('patroni_bootstrap.template', TEncoding.UTF8);
+end;
+
+function TNode.GetDCSConfig: string;
+var SL: TStrings;
+begin
+  Result := 'etcd:'#13#10#9'hosts: ' + FOwner.GetEtcdHostListPatroni();
 end;
 
 function TNode.GetEtcdConnectUrl: string;
@@ -129,6 +173,25 @@ begin
     Result := 'http://0.0.0.0:2380'
   else
     Result := Format('http://%s:2380,http://localhost:2380', [FListenAddress])
+end;
+
+function TNode.GetPatroniConfig: string;
+begin
+  Result := TFile.ReadAllText('patroni.template', TEncoding.UTF8);
+  Result := StrUtils.ReplaceStr(Result, '{cluster.clustername}', FOwner.ClusterName);
+  Result := StrUtils.ReplaceStr(Result, '{nodename}', FName);
+  Result := StrUtils.ReplaceStr(Result, '{listen_address}', FListenAddress);
+  Result := StrUtils.ReplaceStr(Result, '{connect_address}', FIP);
+  Result := StrUtils.ReplaceStr(Result, '{dcsconfig}', GetDCSConfig);
+  Result := StrUtils.ReplaceStr(Result, '{bootstrap_config}', GetBootstrapConfig);
+  Result := StrUtils.ReplaceStr(Result, '{data_dir}', FOwner.DataDir);
+  Result := StrUtils.ReplaceStr(Result, '{bin_dir}', FOwner.PostgresDir);
+  Result := StrUtils.ReplaceStr(Result, '{cluster.replication_user}', FOwner.ReplicationRole);
+  Result := StrUtils.ReplaceStr(Result, '{cluster.replication_pw}', FOwner.ReplicationPassword);
+  Result := StrUtils.ReplaceStr(Result, '{cluster.superuser_user}', FOwner.SuperUser);
+  Result := StrUtils.ReplaceStr(Result, '{cluster.superuser_pw}', FOwner.SuperUserPassword);
+  Result := StrUtils.ReplaceStr(Result, '{postgresql_parameters}', FOwner.PostgresParameters);
+  Result := StrUtils.ReplaceStr(Result, '{nofailover_tag}', FNoFailover.ToString(True));
 end;
 
 end.

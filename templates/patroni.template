@@ -1,17 +1,17 @@
-scope: {self.cluster.clustername}
+scope: {cluster.clustername}
 #namespace: /service/
-name: {self.nodename}
+name: {nodename}
 
 restapi:
-  listen: {self.listen_address}:8008
-  connect_address: {self.connect_address}:8008
+  listen: {listen_address}:8008
+  connect_address: {connect_address}:8008
 #  certfile: /etc/ssl/certs/ssl-cert-snakeoil.pem
 #  keyfile: /etc/ssl/private/ssl-cert-snakeoil.key
 #  authentication:
 #    username: username
 #    password: password
 
-{self.dcsconfig}
+{dcsconfig}
 
 bootstrap:
   # this section will be written into Etcd:/<namespace>/<scope>/config after initializing new cluster
@@ -38,29 +38,29 @@ bootstrap:
 #        archive_command: mkdir -p ../wal_archive && test ! -f ../wal_archive/%f && cp %p ../wal_archive/%f
 #      recovery_conf:
 #        restore_command: cp ../wal_archive/%f %p
-{self.bootstrap_config}
+{bootstrap_config}
 
 postgresql:
-  listen: {self.listen_address}:5432
-  connect_address: {self.connect_address}:5432
-  data_dir: {self.data_dir}
-  bin_dir: {self.bin_dir}
+  listen: {listen_address}:5432
+  connect_address: {connect_address}:5432
+  data_dir: {data_dir}
+  bin_dir: {bin_dir}
   pgpass: pgpass0
   authentication:
     replication:
-      username: {self.cluster.replication_user}
-      password: {self.cluster.replication_pw}
+      username: {cluster.replication_user}
+      password: {cluster.replication_pw}
     superuser:
-      username: {self.cluster.superuser_user}
-      password: {self.cluster.superuser_pw}
-{self.postgresql_parameters}
+      username: {cluster.superuser_user}
+      password: {cluster.superuser_pw}
+{postgresql_parameters}
 
 #watchdog:
 #  mode: automatic # Allowed values: off, automatic, required
 #  device: /dev/watchdog
 
 tags:
-    nofailover: {self.nofailover_tag}
+    nofailover: {nofailover_tag}
     noloadbalance: false
     clonefrom: false
     nosync: false

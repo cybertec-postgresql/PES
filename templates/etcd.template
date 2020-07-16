@@ -1,11 +1,8 @@
-## etcd(1) daemon options
-## See "/usr/share/doc/etcd/Documentation/configuration.md.gz".
-
-ETCD_NAME="{self.nodename}"
-ETCD_LISTEN_PEER_URLS="{self.etcd_listen_peer_urls}"
-ETCD_LISTEN_CLIENT_URLS="{self.etcd_listen_client_urls}"
-ETCD_INITIAL_ADVERTISE_PEER_URLS="{self.etcd_connect_url}"
-ETCD_INITIAL_CLUSTER="{self.cluster.etcd_initial_cluster}"
-ETCD_INITIAL_CLUSTER_STATE="new"
-ETCD_INITIAL_CLUSTER_TOKEN="{self.cluster.etcd_cluster_token}"
-ETCD_ADVERTISE_CLIENT_URLS="http://{self.connect_address}:2379"
+name: "{self.nodename}"
+listen-peer-urls: "{self.etcd_listen_peer_urls}"
+listen-client-urls: "{self.etcd_listen_client_urls}"
+initial-advertise-peer-urls: "{self.etcd_connect_url}"
+initial-cluster: "{self.cluster.etcd_initial_cluster}"
+initial-cluster-state: "new"
+initial-cluster-token: "{self.cluster.etcd_cluster_token}"
+advertise-client-urls: "http://{self.connect_address}:2379"

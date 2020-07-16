@@ -45,7 +45,7 @@ postgresql:
   connect_address: {self.connect_address}:5432
   data_dir: {self.data_dir}
   bin_dir: {self.bin_dir}
-  pgpass: /tmp/pgpass0
+  pgpass: pgpass0
   authentication:
     replication:
       username: {self.cluster.replication_user}

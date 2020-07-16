@@ -44,7 +44,6 @@ type
     constructor Create;
     destructor Destroy; override;
     function GetEtcdInitialCluster: string;
-
   published
     property Nodes: TObjectList<TNode> read FNodes;
     property PostgresDir: string read FPostgresDir write FPostgresDir;
@@ -86,14 +85,21 @@ end;
 
 function TSettings.GetEtcdInitialCluster: string;
 var
-  i: integer;
+  i, n: integer;
 begin
-  if FNodes.Count = 0 then Exit;
-  Result := FNodes[0].Name + '=' + FNodes[0].GetEtcdConnectUrl();
-  for i := 1 to FNodes.Count - 1 do
-  begin
-    Result := Result + ',' + FNodes[i].Name + '=' + FNodes[i].GetEtcdConnectUrl();
-  end;
+  if FNodes.Count = 0 then
+    raise Exception.Create('Etcd cluster is empty. Add Etcd nodes to cluster');
+  for I := 0 to FNodes.Count - 1 do
+    if FNodes[I].HasEtcd then
+    begin
+      Result := Result + Format('%s=%s,', [FNodes[I].Name, FNodes[I].GetEtcdConnectUrl()]);
+      inc(n);
+    end;
+  if n mod 2 = 0 then
+    raise Exception.CreateFmt('Etcd cluster size %d not supported.'+
+        'Use odd number of nodes up to 7')
+  else
+    Result.Remove(Length(Result)-1);
 end;
 
 { TNode }

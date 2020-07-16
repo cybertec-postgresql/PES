@@ -1996,16 +1996,12 @@ object fmInstall: TfmInstall
     Top = 105
     Width = 575
     Height = 519
-    ActivePage = tabNodes
+    ActivePage = tabPostgres
     Align = alClient
     TabOrder = 1
     object tabPython: TTabSheet
       Caption = 'tabPython'
       OnShow = UpdateInfo
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 757
-      ExplicitHeight = 0
       DesignSize = (
         567
         491)
@@ -2282,8 +2278,6 @@ object fmInstall: TfmInstall
           '    clonefrom: false'
           '    nosync: false')
         FontSmoothing = fsmNone
-        ExplicitLeft = 72
-        ExplicitTop = 3
       end
     end
   end

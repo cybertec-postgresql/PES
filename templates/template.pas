@@ -20,12 +20,13 @@ type
     FName: string;
     FOwner: TSettings;
     function GetEtcdConnectUrl: string;
-    function GetEtcdListenClientUrl: string;
+    function GetEtcdListenClientUrls: string;
     function GetEtcdListenPeerUrls: string;
     function GetDCSConfig(): string;
     function GetBootstrapConfig(): string;
   public
     constructor Create(Owner: TSettings);
+    function GetEtcdConfig(): string;
     function GetPatroniConfig(): string;
     function GetPatroniCtlConfig(): string;
   published
@@ -154,13 +155,26 @@ begin
   Result := 'etcd:'#13#10#9'hosts: ' + FOwner.GetEtcdHostListPatroni();
 end;
 
+function TNode.GetEtcdConfig: string;
+begin
+  if not FHasDatabase then Exit;
+  Result := TFile.ReadAllText('etcd.template', TEncoding.UTF8);
+  Result := StrUtils.ReplaceStr(Result, '{nodename}', FName);
+  Result := StrUtils.ReplaceStr(Result, '{etcd_listen_peer_urls}', GetEtcdListenPeerUrls);
+  Result := StrUtils.ReplaceStr(Result, '{etcd_listen_client_urls}', GetEtcdListenClientUrls);
+  Result := StrUtils.ReplaceStr(Result, '{etcd_connect_url}', GetEtcdConnectUrl);
+  Result := StrUtils.ReplaceStr(Result, '{cluster.etcd_initial_cluster}', FOwner.GetEtcdInitialCluster);
+  Result := StrUtils.ReplaceStr(Result, '{cluster.etcd_cluster_token}', FOwner.EtcdClusterToken);
+  Result := StrUtils.ReplaceStr(Result, '{connect_address}', FIP);
+end;
+
 function TNode.GetEtcdConnectUrl: string;
 begin
   if not FHasEtcd then raise Exception.Create('Node doesn''n has etcd member');
   Result := 'http://' + FIP + ':2380';
 end;
 
-function TNode.GetEtcdListenClientUrl: string;
+function TNode.GetEtcdListenClientUrls: string;
 begin
   if FListenAddress = '0.0.0.0' then
     Result := 'http://0.0.0.0:2379'

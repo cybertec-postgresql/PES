@@ -55,6 +55,7 @@ type
     edSuperuserPassword: TEdit;
     Label6: TLabel;
     edClusterToken: TEdit;
+    btnLoadConfig: TButton;
     procedure UpdateInfo(Sender: TObject);
     procedure acFinishUpdate(Sender: TObject);
     procedure tlcEtcdPropertiesValidate(Sender: TObject; var DisplayValue: Variant;
@@ -62,9 +63,10 @@ type
     procedure tlNodesNodeChanged(Sender: TcxCustomTreeList; ANode: TcxTreeListNode;
       AColumn: TcxTreeListColumn);
     procedure btnGenerateConfigsClick(Sender: TObject);
+    procedure btnLoadConfigClick(Sender: TObject);
   private
   public
-    procedure Invalidate(ACluster: TCluster);
+    procedure InvalidateCluster(ACluster: TCluster);
   end;
 
 
@@ -94,9 +96,9 @@ var
   N: TcxTreeListNode;
   I: Integer;
 begin
-  Cluster := TCluster.Create;
+  Cluster := TCluster.Create(Self);
   try
-    Cluster.ClusterName := edClusterName.Text;
+    Cluster.Name := edClusterName.Text;
     Cluster.PostgresDir := cbBinDir.Path;
     Cluster.DataDir := cbDataDir.Path;
     Cluster.ReplicationRole := edReplicationRole.Text;
@@ -115,16 +117,29 @@ begin
       Node.HasDatabase := N.Values[tlcDatabase.ItemIndex] = True;
       Node.HasEtcd := N.Values[tlcEtcd.ItemIndex] = True;
       Node.NoFailover := N.Values[tlcFailover.ItemIndex] = False;
-      Cluster.Nodes.Add(Node);
+      //Cluster.Nodes.Add(Node);
     end;
-    { TODO : Add writing to the files}
     IOutils.TDirectory.CreateDirectory(Cluster.ClusterName);
+    Cluster.SaveToFile(Cluster.ClusterName+'\cluster.txt');
   finally
     Cluster.Free;
   end;
 end;
 
-procedure TfmInstall.Invalidate(ACluster: TCluster);
+procedure TfmInstall.btnLoadConfigClick(Sender: TObject);
+var
+  Cluster: TCluster;
+begin
+  Cluster := TCluster.Create(Self);
+  try
+    Cluster.LoadFromFile('pgcluster\cluster.txt');
+    InvalidateCluster(Cluster);
+  finally
+    Cluster.Free;
+  end;
+end;
+
+procedure TfmInstall.InvalidateCluster(ACluster: TCluster);
 var
   I: Integer;
   N: TNode;
@@ -140,11 +155,12 @@ begin
   // False := Cluster.Existing;
   // '' := Cluster.PostgresParameters;
   tlNodes.BeginUpdate;
+  tlNodes.Clear;
   try
-    for I := 0 to ACluster.Nodes.Count - 1 do
+    for I := 0 to ACluster.ComponentCount - 1 do
       with tlNodes.Add do
       begin
-        N := ACluster.Nodes[I];
+        N := ACluster.Components[I] as TNode;
         Texts[tlcName.ItemIndex] := N.Name;
         Texts[tlcHost.ItemIndex] := N.IP;
         Values[tlcDatabase.ItemIndex] := N.HasDatabase;

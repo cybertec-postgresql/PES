@@ -2002,10 +2002,6 @@ object fmInstall: TfmInstall
     object tabPython: TTabSheet
       Caption = 'tabPython'
       OnShow = UpdateInfo
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       DesignSize = (
         567
         491)
@@ -2029,10 +2025,6 @@ object fmInstall: TfmInstall
     object tabPostgres: TTabSheet
       Caption = 'tabPostgres'
       ImageIndex = 3
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object lbBinDir: TLabel
         Left = 14
         Top = 18
@@ -2261,9 +2253,9 @@ object fmInstall: TfmInstall
         Text = 'pgcluster'
       end
       object btnGenerateConfigs: TButton
-        Left = 376
+        Left = 352
         Top = 27
-        Width = 105
+        Width = 95
         Height = 25
         Caption = 'Generate Configs'
         TabOrder = 2
@@ -2277,14 +2269,19 @@ object fmInstall: TfmInstall
         TabOrder = 3
         Text = 'pgcluster'
       end
+      object btnLoadConfig: TButton
+        Left = 453
+        Top = 27
+        Width = 90
+        Height = 25
+        Caption = 'Load Configs'
+        TabOrder = 4
+        OnClick = btnLoadConfigClick
+      end
     end
     object TabSheet1: TTabSheet
       Caption = 'TabSheet1'
       ImageIndex = 2
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object SynMemo1: TSynMemo
         Left = 0
         Top = 0

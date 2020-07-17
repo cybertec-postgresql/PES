@@ -9,27 +9,24 @@ uses
 type
   TCluster = class;
 
-  TNode = class(TPersistent)
+  TNode = class(TComponent)
   private
     FIP: string;
     FHasEtcd: boolean;
     FNoFailover: boolean;
     FHasDatabase: boolean;
     FListenAddress: string;
-    FName: string;
-    FOwner: TCluster;
     function GetEtcdConnectUrl: string;
     function GetEtcdListenClientUrls: string;
     function GetEtcdListenPeerUrls: string;
     function GetDCSConfig(): string;
     function GetBootstrapConfig(): string;
   public
-    constructor Create(Owner: TCluster);
+    constructor Create(AOwner: TComponent); override;
     function GetEtcdConfig(): string;
     function GetPatroniConfig(): string;
     function GetPatroniCtlConfig(): string;
   published
-    property Name: string read FName write FName;
     property IP: string read FIP write FIP;
     property HasDatabase: boolean read FHasDatabase write FHasDatabase;
     property HasEtcd: boolean read FHasEtcd write FHasEtcd;
@@ -37,9 +34,8 @@ type
   end;
 
 
-  TCluster = class(TPersistent)
+  TCluster = class(TComponent)
   private
-    FNodes: TObjectList<TNode>;
     FPostgresDir: string;
     FDataDir: string;
     FReplicationRole: string;
@@ -53,15 +49,19 @@ type
     procedure SetEtcdClusterToken(const Value: string);
     procedure SetReplicationPassword(const Value: string);
     procedure SetSuperUserPassword(const Value: string);
-    procedure SetClusterName(const Value: string);
+    function GetNode(Index: Integer): TNode;
+    function GetClusterName: string;
+    procedure GetChildren(Proc: TGetChildProc; Root: TComponent); override;
   public
-    constructor Create;
+    constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     function GetEtcdInitialCluster: string;
     function GetEtcdHostListPatroni: string;
+    procedure SaveToFile(AFileName: string);
+    procedure LoadFromFile(AFileName: string);
+    property ClusterName: string read GetClusterName;
+    property Nodes[Index: Integer]: TNode read GetNode;
   published
-    property Nodes: TObjectList<TNode> read FNodes;
-    property ClusterName: string read FClusterName write SetClusterName;
     property PostgresDir: string read FPostgresDir write FPostgresDir;
     property DataDir: string read FDataDir write FDataDir;
     property ReplicationRole: string read FReplicationRole write FReplicationRole;
@@ -87,20 +87,23 @@ end;
 
 { TSettings }
 
-constructor TCluster.Create;
+constructor TCluster.Create(AOwner: TComponent);
 begin
-  FNodes := TObjectList<TNode>.Create();
+  inherited Create(AOwner);
+//  FNodes := TObjectList<TNode>.Create();
   FSuperUser := 'postgres';
-  FSuperUserPassword := RandomPassword();
   FReplicationRole := 'replicator';
-  FReplicationPassword := RandomPassword();
-  FEtcdClusterToken := RandomPassword();
 end;
 
 destructor TCluster.Destroy;
 begin
-  FNodes.Free;
+//  FNodes.Free;
   inherited;
+end;
+
+function TCluster.GetClusterName: string;
+begin
+  Result := Name;
 end;
 
 function TCluster.GetEtcdHostListPatroni: string;
@@ -109,9 +112,9 @@ var SL: TStrings;
 begin
   SL := TStringList.Create;
   try
-    for I := 0 to FNodes.Count - 1 do
-      if FNodes[I].HasEtcd then
-        SL.Append(FNodes[I].FIP + ':2379');
+    for I := 0 to ComponentCount - 1 do
+      if Nodes[I].HasEtcd then
+        SL.Append(Nodes[I].FIP + ':2379');
     Result := SL.CommaText;
   finally
     SL.Free;
@@ -122,13 +125,13 @@ function TCluster.GetEtcdInitialCluster: string;
 var
   i, n: integer;
 begin
-  if FNodes.Count = 0 then
+  if ComponentCount = 0 then
     raise Exception.Create('Etcd cluster is empty. Add Etcd nodes to cluster');
   n := 0;
-  for I := 0 to FNodes.Count - 1 do
-    if FNodes[I].HasEtcd then
+  for I := 0 to ComponentCount - 1 do
+    if Nodes[I].HasEtcd then
     begin
-      Result := Result + Format('%s=%s,', [FNodes[I].Name, FNodes[I].GetEtcdConnectUrl()]);
+      Result := Result + Format('%s=%s,', [Nodes[I].Name, Nodes[I].GetEtcdConnectUrl()]);
       inc(n);
     end;
   if n mod 2 = 0 then
@@ -138,10 +141,9 @@ begin
     Result.Remove(Length(Result)-1);
 end;
 
-procedure TCluster.SetClusterName(const Value: string);
+function TCluster.GetNode(Index: Integer): TNode;
 begin
-  if Value = '' then raise Exception.Create('Cluster name cannot be empty!');
-  FClusterName := Value;
+  Result := Components[Index] as TNode;
 end;
 
 procedure TCluster.SetEtcdClusterToken(const Value: string);
@@ -161,34 +163,36 @@ end;
 
 { TNode }
 
-constructor TNode.Create(Owner: TCluster);
+constructor TNode.Create(AOwner: TComponent);
 begin
-  if not Assigned(Owner) then
+  if not Assigned(AOwner) then
     raise Exception.Create('Node owner cannot be nil');
+  inherited Create(AOwner as TCluster);
   FListenAddress := '0.0.0.0';
+  SetSubComponent(True);
 end;
 
 function TNode.GetBootstrapConfig: string;
 begin
-  if FOwner.Existing then Exit;
+  if TCluster(Owner).Existing then Exit;
   Result := TFile.ReadAllText('patroni_bootstrap.template', TEncoding.UTF8);
 end;
 
 function TNode.GetDCSConfig: string;
 begin
-  Result := 'etcd:'#13#10#9'hosts: ' + FOwner.GetEtcdHostListPatroni();
+  Result := 'etcd:'#13#10#9'hosts: ' + TCluster(Owner).GetEtcdHostListPatroni();
 end;
 
 function TNode.GetEtcdConfig: string;
 begin
   if not FHasDatabase then Exit;
   Result := TFile.ReadAllText('etcd.template', TEncoding.UTF8);
-  Result := ReplaceStr(Result, '{nodename}', FName);
+  Result := ReplaceStr(Result, '{nodename}', Name);
   Result := ReplaceStr(Result, '{etcd_listen_peer_urls}', GetEtcdListenPeerUrls);
   Result := ReplaceStr(Result, '{etcd_listen_client_urls}', GetEtcdListenClientUrls);
   Result := ReplaceStr(Result, '{etcd_connect_url}', GetEtcdConnectUrl);
-  Result := ReplaceStr(Result, '{cluster.etcd_initial_cluster}', FOwner.GetEtcdInitialCluster);
-  Result := ReplaceStr(Result, '{cluster.etcd_cluster_token}', FOwner.EtcdClusterToken);
+  Result := ReplaceStr(Result, '{cluster.etcd_initial_cluster}', TCluster(Owner).GetEtcdInitialCluster);
+  Result := ReplaceStr(Result, '{cluster.etcd_cluster_token}', TCluster(Owner).EtcdClusterToken);
   Result := ReplaceStr(Result, '{connect_address}', FIP);
 end;
 
@@ -218,19 +222,19 @@ function TNode.GetPatroniConfig: string;
 begin
   if not FHasDatabase then Exit;
   Result := TFile.ReadAllText('patroni.template', TEncoding.UTF8);
-  Result := ReplaceStr(Result, '{cluster.clustername}', FOwner.ClusterName);
-  Result := ReplaceStr(Result, '{nodename}', FName);
+  Result := ReplaceStr(Result, '{cluster.clustername}', TCluster(Owner).ClusterName);
+  Result := ReplaceStr(Result, '{nodename}', Name);
   Result := ReplaceStr(Result, '{listen_address}', FListenAddress);
   Result := ReplaceStr(Result, '{connect_address}', FIP);
   Result := ReplaceStr(Result, '{dcsconfig}', GetDCSConfig);
   Result := ReplaceStr(Result, '{bootstrap_config}', GetBootstrapConfig);
-  Result := ReplaceStr(Result, '{data_dir}', FOwner.DataDir);
-  Result := ReplaceStr(Result, '{bin_dir}', FOwner.PostgresDir);
-  Result := ReplaceStr(Result, '{cluster.replication_user}', FOwner.ReplicationRole);
-  Result := ReplaceStr(Result, '{cluster.replication_pw}', FOwner.ReplicationPassword);
-  Result := ReplaceStr(Result, '{cluster.superuser_user}', FOwner.SuperUser);
-  Result := ReplaceStr(Result, '{cluster.superuser_pw}', FOwner.SuperUserPassword);
-  Result := ReplaceStr(Result, '{postgresql_parameters}', FOwner.PostgresParameters);
+  Result := ReplaceStr(Result, '{data_dir}', TCluster(Owner).DataDir);
+  Result := ReplaceStr(Result, '{bin_dir}', TCluster(Owner).PostgresDir);
+  Result := ReplaceStr(Result, '{cluster.replication_user}', TCluster(Owner).ReplicationRole);
+  Result := ReplaceStr(Result, '{cluster.replication_pw}', TCluster(Owner).ReplicationPassword);
+  Result := ReplaceStr(Result, '{cluster.superuser_user}', TCluster(Owner).SuperUser);
+  Result := ReplaceStr(Result, '{cluster.superuser_pw}', TCluster(Owner).SuperUserPassword);
+  Result := ReplaceStr(Result, '{postgresql_parameters}', TCluster(Owner).PostgresParameters);
   Result := ReplaceStr(Result, '{nofailover_tag}', FNoFailover.ToString(True));
 end;
 
@@ -239,7 +243,66 @@ begin
   if not FHasDatabase then Exit;
   Result := TFile.ReadAllText('patroni_ctl.template', TEncoding.UTF8);
   Result := ReplaceStr(Result, '{etcd_address}', 'localhost:2379');
-  Result := ReplaceStr(Result, '{cluster.clustername}', FOwner.ClusterName);
+  Result := ReplaceStr(Result, '{cluster.clustername}', TCluster(Owner).ClusterName);
+end;
+
+procedure TCluster.LoadFromFile(AFileName: string);
+var
+  StrStream:TStringStream;
+  BinStream: TMemoryStream;
+begin
+  RegisterClasses([TNode]);
+  StrStream := TStringStream.Create(TFile.ReadAllText(AFileName));
+  try
+    BinStream := TMemoryStream.Create;
+    try
+      ObjectTextToBinary(StrStream, BinStream);
+      BinStream.Seek(0, soFromBeginning);
+      BinStream.ReadComponent(Self);
+    finally
+      BinStream.Free;
+    end;
+  finally
+    StrStream.Free;
+  end;
+end;
+
+procedure TCluster.SaveToFile(AFileName: string);
+var
+  BinStream:TMemoryStream;
+  StrStream: TStringStream;
+  s: string;
+begin
+  BinStream := TMemoryStream.Create;
+  try
+    StrStream := TStringStream.Create(s);
+    try
+      BinStream.WriteComponent(Self);
+      BinStream.Seek(0, soFromBeginning);
+      ObjectBinaryToText(BinStream, StrStream);
+      StrStream.Seek(0, soFromBeginning);
+      StrStream.SaveToFile(AFileName);
+    finally
+      StrStream.Free;
+    end;
+  finally
+    BinStream.Free
+  end;
+end;
+
+procedure TCluster.GetChildren(Proc: TGetChildProc; Root: TComponent);
+var
+  I: Integer;
+  Node: TNode;
+begin
+  if @Proc = nil then
+    raise Exception.CreateFmt('Parameter %s cannot be nil', ['Proc']);
+  for I := 0 to ComponentCount - 1 do
+  begin
+    Node := Nodes[I];
+    if Node.Owner = Root then
+      Proc(Node);
+  end;
 end;
 
 end.

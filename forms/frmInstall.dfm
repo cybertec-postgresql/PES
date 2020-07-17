@@ -2002,6 +2002,10 @@ object fmInstall: TfmInstall
     object tabPython: TTabSheet
       Caption = 'tabPython'
       OnShow = UpdateInfo
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       DesignSize = (
         567
         491)
@@ -2025,6 +2029,10 @@ object fmInstall: TfmInstall
     object tabPostgres: TTabSheet
       Caption = 'tabPostgres'
       ImageIndex = 3
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object lbBinDir: TLabel
         Left = 14
         Top = 18
@@ -2123,8 +2131,6 @@ object fmInstall: TfmInstall
     object tabNodes: TTabSheet
       Caption = 'tabNodes'
       ImageIndex = 1
-      ExplicitLeft = 8
-      ExplicitTop = 22
       object lbClusterName: TLabel
         Left = 14
         Top = 10
@@ -2275,6 +2281,10 @@ object fmInstall: TfmInstall
     object TabSheet1: TTabSheet
       Caption = 'TabSheet1'
       ImageIndex = 2
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object SynMemo1: TSynMemo
         Left = 0
         Top = 0

@@ -5,7 +5,7 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls, System.StrUtils, PythonVersions,
-  Console, Vcl.ComCtrls, Vcl.ExtActns, System.Actions, Vcl.ActnList, SynEdit,
+  Console, template, Vcl.ComCtrls, Vcl.ExtActns, System.Actions, Vcl.ActnList, SynEdit,
   SynMemo, SynEditHighlighter, SynHighlighterJSON, Winapi.ShlObj, cxShellCommon, cxGraphics,
   cxControls, cxLookAndFeels, cxLookAndFeelPainters, cxContainer, cxEdit, cxCustomData, cxStyles,
   cxTL, cxTextEdit, cxCheckBox, cxTLdxBarBuiltInMenu, cxInplaceContainer, cxMaskEdit,
@@ -64,7 +64,7 @@ type
     procedure btnGenerateConfigsClick(Sender: TObject);
   private
   public
-    { Public declarations }
+    procedure Invalidate(ACluster: TCluster);
   end;
 
 
@@ -78,7 +78,7 @@ const
 
 implementation
 
-uses Math, template, IOUtils;
+uses Math, IOUtils;
 
 {$R *.dfm}
 
@@ -122,6 +122,39 @@ begin
   finally
     Cluster.Free;
   end;
+end;
+
+procedure TfmInstall.Invalidate(ACluster: TCluster);
+var
+  I: Integer;
+  N: TNode;
+begin
+  edClusterName.Text := ACluster.ClusterName;
+  cbBinDir.Path := ACluster.PostgresDir;
+  cbDataDir.Path := ACluster.DataDir;
+  edReplicationRole.Text := ACluster.ReplicationRole;
+  edReplicationPassword.Text := ACluster.ReplicationPassword;
+  edSuperuserRole.Text := ACluster.SuperUser;
+  edSuperuserPassword.Text := ACluster.SuperUserPassword;
+  edClusterToken.Text := ACluster.EtcdClusterToken;
+  // False := Cluster.Existing;
+  // '' := Cluster.PostgresParameters;
+  tlNodes.BeginUpdate;
+  try
+    for I := 0 to ACluster.Nodes.Count - 1 do
+      with tlNodes.Add do
+      begin
+        N := ACluster.Nodes[I];
+        Texts[tlcName.ItemIndex] := N.Name;
+        Texts[tlcHost.ItemIndex] := N.IP;
+        Values[tlcDatabase.ItemIndex] := N.HasDatabase;
+        Values[tlcEtcd.ItemIndex] := N.HasEtcd;
+        Values[tlcFailover.ItemIndex] := not N.NoFailover;
+      end;
+  finally
+    tlNodes.EndUpdate;
+  end;
+
 end;
 
 procedure TfmInstall.tlcEtcdPropertiesValidate(Sender: TObject; var DisplayValue: Variant;

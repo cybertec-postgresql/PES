@@ -3,11 +3,32 @@ unit template;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, System.StrUtils,
-  System.Generics.Collections;
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
+  System.Classes, System.StrUtils,
+  System.Generics.Collections, System.Net.Socket;
 
 type
   TCluster = class;
+
+  TVIPManager = class(TComponent)
+  private
+    FVirtualIP: TIPAddress;
+    FMask: string;
+    FInterfaceName: string;
+    FKey: string;
+    FNodeName: string;
+    FEndPoints: string;
+    function GetVirtualIP: string;
+    procedure SetVirtualIP(const Value: string);
+  public
+  published
+    property IP: string read GetVirtualIP write SetVirtualIP;
+    property Mask: string read FMask write FMask;
+    property InterfaceName: string read FInterfaceName write FInterfaceName;
+    property Key: string read FKey write FKey;
+    property NodeName: string read FNodeName write FNodeName;
+    property EndPoints: string read FEndPoints write FEndPoints;
+  end;
 
   TNode = class(TComponent)
   private
@@ -33,7 +54,6 @@ type
     property NoFailover: boolean read FNoFailover write FNoFailover;
   end;
 
-
   TCluster = class(TComponent)
   private
     FPostgresDir: string;
@@ -43,24 +63,27 @@ type
     FSuperUser: string;
     FSuperUserPassword: string;
     FEtcdClusterToken: string;
-    FClusterName: string;
     FExisting: boolean;
     FPostgresParameters: string;
+    FVIPManager: TVIPManager;
     procedure SetEtcdClusterToken(const Value: string);
     procedure SetReplicationPassword(const Value: string);
     procedure SetSuperUserPassword(const Value: string);
     function GetNode(Index: Integer): TNode;
-    function GetClusterName: string;
+    procedure SetVIPManager(const Value: TVIPManager);
+    function GetNodeCount: integer;
+  protected
     procedure GetChildren(Proc: TGetChildProc; Root: TComponent); override;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
+    procedure Notification(AComponent: TComponent; Operation: TOperation); override;
     function GetEtcdInitialCluster: string;
     function GetEtcdHostListPatroni: string;
     procedure SaveToFile(AFileName: string);
     procedure LoadFromFile(AFileName: string);
-    property ClusterName: string read GetClusterName;
     property Nodes[Index: Integer]: TNode read GetNode;
+    property NodeCount: integer read GetNodeCount;
   published
     property PostgresDir: string read FPostgresDir write FPostgresDir;
     property DataDir: string read FDataDir write FDataDir;
@@ -71,13 +94,14 @@ type
     property EtcdClusterToken: string read FEtcdClusterToken write SetEtcdClusterToken;
     property Existing: boolean read FExisting write FExisting;
     property PostgresParameters: string read FPostgresParameters write FPostgresParameters;
+    property VIPManager: TVIPManager read FVIPManager write SetVIPManager;
   end;
 
 implementation
 
-uses IOUtils;
+uses IOUtils, Winapi.WinSock2;
 
-function RandomPassword(const Len: integer = 12): string;
+function RandomPassword(const Len: Integer = 12): string;
 var
   I: Integer;
 begin
@@ -90,24 +114,20 @@ end;
 constructor TCluster.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-//  FNodes := TObjectList<TNode>.Create();
+  // FNodes := TObjectList<TNode>.Create();
   FSuperUser := 'postgres';
   FReplicationRole := 'replicator';
 end;
 
 destructor TCluster.Destroy;
 begin
-//  FNodes.Free;
+  // FNodes.Free;
   inherited;
 end;
 
-function TCluster.GetClusterName: string;
-begin
-  Result := Name;
-end;
-
 function TCluster.GetEtcdHostListPatroni: string;
-var SL: TStrings;
+var
+  SL: TStrings;
   I: Integer;
 begin
   SL := TStringList.Create;
@@ -123,7 +143,7 @@ end;
 
 function TCluster.GetEtcdInitialCluster: string;
 var
-  i, n: integer;
+  I, n: Integer;
 begin
   if ComponentCount = 0 then
     raise Exception.Create('Etcd cluster is empty. Add Etcd nodes to cluster');
@@ -131,19 +151,37 @@ begin
   for I := 0 to ComponentCount - 1 do
     if Nodes[I].HasEtcd then
     begin
-      Result := Result + Format('%s=%s,', [Nodes[I].Name, Nodes[I].GetEtcdConnectUrl()]);
+      Result := Result + Format('%s=%s,',
+        [Nodes[I].Name, Nodes[I].GetEtcdConnectUrl()]);
       inc(n);
     end;
   if n mod 2 = 0 then
-    raise Exception.CreateFmt('Etcd cluster size %d not supported.'+
-        'Use odd number of nodes up to 7', [n])
+    raise Exception.CreateFmt('Etcd cluster size %d not supported.' +
+      'Use odd number of nodes up to 7', [n])
   else
-    Result.Remove(Length(Result)-1);
+    Result.Remove(Length(Result) - 1);
 end;
 
 function TCluster.GetNode(Index: Integer): TNode;
+var
+  AComp: TComponent;
+  i: integer;
 begin
-  Result := Components[Index] as TNode;
+  Result := nil;
+  i := 0;
+  for AComp in Self do
+    if AComp is TNode then
+    begin
+      if i = Index then Exit(AComp as TNode);
+      Inc(i);
+    end;
+end;
+
+function TCluster.GetNodeCount: integer;
+begin
+  Result := ComponentCount;
+  if Assigned(FVIPManager) and (FVIPManager.Owner = Self) then
+    Dec(Result);
 end;
 
 procedure TCluster.SetEtcdClusterToken(const Value: string);
@@ -161,6 +199,14 @@ begin
   FSuperUserPassword := ifthen(Value = '', RandomPassword(), Value)
 end;
 
+procedure TCluster.SetVIPManager(const Value: TVIPManager);
+begin
+  if not Assigned(Value) then
+    Exit;
+  FVIPManager := Value;
+  FVIPManager.FreeNotification(Self);
+end;
+
 { TNode }
 
 constructor TNode.Create(AOwner: TComponent);
@@ -174,7 +220,8 @@ end;
 
 function TNode.GetBootstrapConfig: string;
 begin
-  if TCluster(Owner).Existing then Exit;
+  if TCluster(Owner).Existing then
+    Exit;
   Result := TFile.ReadAllText('patroni_bootstrap.template', TEncoding.UTF8);
 end;
 
@@ -185,20 +232,26 @@ end;
 
 function TNode.GetEtcdConfig: string;
 begin
-  if not FHasDatabase then Exit;
+  if not FHasDatabase then
+    Exit;
   Result := TFile.ReadAllText('etcd.template', TEncoding.UTF8);
   Result := ReplaceStr(Result, '{nodename}', Name);
-  Result := ReplaceStr(Result, '{etcd_listen_peer_urls}', GetEtcdListenPeerUrls);
-  Result := ReplaceStr(Result, '{etcd_listen_client_urls}', GetEtcdListenClientUrls);
+  Result := ReplaceStr(Result, '{etcd_listen_peer_urls}',
+    GetEtcdListenPeerUrls);
+  Result := ReplaceStr(Result, '{etcd_listen_client_urls}',
+    GetEtcdListenClientUrls);
   Result := ReplaceStr(Result, '{etcd_connect_url}', GetEtcdConnectUrl);
-  Result := ReplaceStr(Result, '{cluster.etcd_initial_cluster}', TCluster(Owner).GetEtcdInitialCluster);
-  Result := ReplaceStr(Result, '{cluster.etcd_cluster_token}', TCluster(Owner).EtcdClusterToken);
+  Result := ReplaceStr(Result, '{cluster.etcd_initial_cluster}',
+    TCluster(Owner).GetEtcdInitialCluster);
+  Result := ReplaceStr(Result, '{cluster.etcd_cluster_token}',
+    TCluster(Owner).EtcdClusterToken);
   Result := ReplaceStr(Result, '{connect_address}', FIP);
 end;
 
 function TNode.GetEtcdConnectUrl: string;
 begin
-  if not FHasEtcd then raise Exception.Create('Node doesn''n has etcd member');
+  if not FHasEtcd then
+    raise Exception.Create('Node doesn''n has etcd member');
   Result := 'http://' + FIP + ':2380';
 end;
 
@@ -222,7 +275,7 @@ function TNode.GetPatroniConfig: string;
 begin
   if not FHasDatabase then Exit;
   Result := TFile.ReadAllText('patroni.template', TEncoding.UTF8);
-  Result := ReplaceStr(Result, '{cluster.clustername}', TCluster(Owner).ClusterName);
+  Result := ReplaceStr(Result, '{cluster.clustername}', TCluster(Owner).Name);
   Result := ReplaceStr(Result, '{nodename}', Name);
   Result := ReplaceStr(Result, '{listen_address}', FListenAddress);
   Result := ReplaceStr(Result, '{connect_address}', FIP);
@@ -243,7 +296,7 @@ begin
   if not FHasDatabase then Exit;
   Result := TFile.ReadAllText('patroni_ctl.template', TEncoding.UTF8);
   Result := ReplaceStr(Result, '{etcd_address}', 'localhost:2379');
-  Result := ReplaceStr(Result, '{cluster.clustername}', TCluster(Owner).ClusterName);
+  Result := ReplaceStr(Result, '{cluster.clustername}', TCluster(Owner).Name);
 end;
 
 procedure TCluster.LoadFromFile(AFileName: string);
@@ -267,9 +320,16 @@ begin
   end;
 end;
 
+procedure TCluster.Notification(AComponent: TComponent; Operation: TOperation);
+begin
+  inherited;
+  if (AComponent = FVIPManager) and (Operation = opRemove) then
+    FVIPManager := nil;
+end;
+
 procedure TCluster.SaveToFile(AFileName: string);
 var
-  BinStream:TMemoryStream;
+  BinStream: TMemoryStream;
   StrStream: TStringStream;
   s: string;
 begin
@@ -297,11 +357,31 @@ var
 begin
   if @Proc = nil then
     raise Exception.CreateFmt('Parameter %s cannot be nil', ['Proc']);
+  if Assigned(FVIPManager) then Proc(FVIPManager);
   for I := 0 to ComponentCount - 1 do
   begin
     Node := Nodes[I];
     if Node.Owner = Root then
       Proc(Node);
+  end;
+end;
+
+{ TVIPManager }
+
+function TVIPManager.GetVirtualIP: string;
+begin
+  Result := FVirtualIP.Address
+end;
+
+procedure TVIPManager.SetVirtualIP(const Value: string);
+begin
+  FVirtualIP := TIPAddress.LookupAddress(Value);
+  if (FVirtualIP.Addr.S_addr = INADDR_NONE) or
+    (FVirtualIP.Addr.S_addr = INADDR_ANY) then
+  begin
+    FVirtualIP := TIPAddress.LookupName(Value);
+    if FVirtualIP.Addr.S_addr = INADDR_ANY then
+      raise Exception.Create('Incorrect IP or domain name value');
   end;
 end;
 

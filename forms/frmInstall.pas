@@ -8,8 +8,8 @@ uses
   Console, template, Vcl.ComCtrls, Vcl.ExtActns, System.Actions, Vcl.ActnList, SynEdit,
   SynMemo, SynEditHighlighter, SynHighlighterJSON, Winapi.ShlObj, cxShellCommon, cxGraphics,
   cxControls, cxLookAndFeels, cxLookAndFeelPainters, cxContainer, cxEdit, cxCustomData, cxStyles,
-  cxTL, cxTextEdit, cxCheckBox, cxTLdxBarBuiltInMenu, cxInplaceContainer, cxMaskEdit,
-  cxDropDownEdit, cxShellComboBox, dxGDIPlusClasses;
+  cxTL, cxTextEdit, cxCheckBox, cxInplaceContainer, cxMaskEdit,
+  cxDropDownEdit, cxShellComboBox, dxGDIPlusClasses, cxTLdxBarBuiltInMenu;
 
 type
   TfmInstall = class(TForm)
@@ -21,7 +21,7 @@ type
     tabPython: TTabSheet;
     btnInstall: TButton;
     mmInfo: TMemo;
-    ActionList1: TActionList;
+    alActions: TActionList;
     acBack: TPreviousTab;
     acNext: TNextTab;
     tabNodes: TTabSheet;
@@ -56,6 +56,17 @@ type
     Label6: TLabel;
     edClusterToken: TEdit;
     btnLoadConfig: TButton;
+    tabVIPManager: TTabSheet;
+    Label7: TLabel;
+    edVIPKey: TEdit;
+    edVIPMask: TEdit;
+    Label8: TLabel;
+    Label9: TLabel;
+    edVIPInterface: TEdit;
+    edVIP: TEdit;
+    Label10: TLabel;
+    chkEnableVIP: TCheckBox;
+    acVIP: TAction;
     procedure UpdateInfo(Sender: TObject);
     procedure acFinishUpdate(Sender: TObject);
     procedure tlcEtcdPropertiesValidate(Sender: TObject; var DisplayValue: Variant;
@@ -64,6 +75,7 @@ type
       AColumn: TcxTreeListColumn);
     procedure btnGenerateConfigsClick(Sender: TObject);
     procedure btnLoadConfigClick(Sender: TObject);
+    procedure acVIPUpdate(Sender: TObject);
   private
   public
     procedure InvalidateCluster(ACluster: TCluster);
@@ -89,12 +101,27 @@ begin
   (Sender as TAction).Enabled := pcWizard.ActivePageIndex = pcWizard.PageCount - 1;
 end;
 
+// disable/enable VIP manager controls
+procedure TfmInstall.acVIPUpdate(Sender: TObject);
+var
+  i: Integer;
+begin
+  for i := 0 to tabVIPManager.ControlCount - 1 do
+    if tabVIPManager.Controls[i] is TLabel then
+      with TLabel(tabVIPManager.Controls[i]) do
+      begin
+        Enabled := chkEnableVIP.Checked;
+        if Assigned(FocusControl) then FocusControl.Enabled := Enabled;
+      end;
+end;
+
 procedure TfmInstall.btnGenerateConfigsClick(Sender: TObject);
 var
   Cluster: TCluster;
   Node: TNode;
   N: TcxTreeListNode;
   I: Integer;
+  VIPManager: TVIPManager;
 begin
   Cluster := TCluster.Create(Self);
   try
@@ -108,6 +135,13 @@ begin
     Cluster.EtcdClusterToken := edClusterToken.Text;
     Cluster.Existing := False;
     Cluster.PostgresParameters := '';
+    if chkEnableVIP.Checked then
+    begin
+      VIPManager := TVIPManager.Create(Self);
+      VIPManager.IP := edVIP.Text;
+      VIPManager.Mask := edVIPMask.Text;
+      Cluster.VIPManager := VIPManager;
+    end;
     for I := 0 to tlNodes.AbsoluteCount-1 do
     begin
       N := tlNodes.AbsoluteItems[I];
@@ -119,8 +153,8 @@ begin
       Node.NoFailover := N.Values[tlcFailover.ItemIndex] = False;
       //Cluster.Nodes.Add(Node);
     end;
-    IOutils.TDirectory.CreateDirectory(Cluster.ClusterName);
-    Cluster.SaveToFile(Cluster.ClusterName+'\cluster.txt');
+    IOutils.TDirectory.CreateDirectory(Cluster.Name);
+    Cluster.SaveToFile(Cluster.Name+'\cluster.txt');
   finally
     Cluster.Free;
   end;
@@ -144,7 +178,7 @@ var
   I: Integer;
   N: TNode;
 begin
-  edClusterName.Text := ACluster.ClusterName;
+  edClusterName.Text := ACluster.Name;
   cbBinDir.Path := ACluster.PostgresDir;
   cbDataDir.Path := ACluster.DataDir;
   edReplicationRole.Text := ACluster.ReplicationRole;
@@ -152,21 +186,34 @@ begin
   edSuperuserRole.Text := ACluster.SuperUser;
   edSuperuserPassword.Text := ACluster.SuperUserPassword;
   edClusterToken.Text := ACluster.EtcdClusterToken;
-  // False := Cluster.Existing;
-  // '' := Cluster.PostgresParameters;
+
+  chkEnableVIP.Checked := Assigned(ACluster.VIPManager);
+  if chkEnableVIP.Checked then
+  begin
+    edVIP.Text := ACluster.VIPManager.IP;
+    edVIPMask.Text := ACluster.VIPManager.Mask;
+  end;
+
   tlNodes.BeginUpdate;
   tlNodes.Clear;
   try
     for I := 0 to ACluster.ComponentCount - 1 do
-      with tlNodes.Add do
-      begin
-        N := ACluster.Components[I] as TNode;
-        Texts[tlcName.ItemIndex] := N.Name;
-        Texts[tlcHost.ItemIndex] := N.IP;
-        Values[tlcDatabase.ItemIndex] := N.HasDatabase;
-        Values[tlcEtcd.ItemIndex] := N.HasEtcd;
-        Values[tlcFailover.ItemIndex] := not N.NoFailover;
-      end;
+      if ACluster.Components[I] is TNode then
+        with tlNodes.Add do
+        begin
+          N := ACluster.Components[I] as TNode;
+          Texts[tlcName.ItemIndex] := N.Name;
+          Texts[tlcHost.ItemIndex] := N.IP;
+          Values[tlcDatabase.ItemIndex] := N.HasDatabase;
+          Values[tlcEtcd.ItemIndex] := N.HasEtcd;
+          Values[tlcFailover.ItemIndex] := not N.NoFailover;
+        end
+      else
+        begin
+          ACluster.VIPManager := ACluster.Components[I] as TVIPManager;
+          edVIP.Text := ACluster.VIPManager.IP;
+          edVIPMask.Text := ACluster.VIPManager.Mask;
+        end;
   finally
     tlNodes.EndUpdate;
   end;

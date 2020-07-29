@@ -2000,7 +2000,7 @@ object fmInstall: TfmInstall
     Align = alClient
     TabOrder = 1
     object tabPython: TTabSheet
-      Caption = 'tabPython'
+      Caption = 'Python'
       OnShow = UpdateInfo
       DesignSize = (
         567
@@ -2023,7 +2023,7 @@ object fmInstall: TfmInstall
       end
     end
     object tabPostgres: TTabSheet
-      Caption = 'tabPostgres'
+      Caption = 'PostgreSQL'
       ImageIndex = 3
       object lbBinDir: TLabel
         Left = 14
@@ -2121,7 +2121,7 @@ object fmInstall: TfmInstall
       end
     end
     object tabNodes: TTabSheet
-      Caption = 'tabNodes'
+      Caption = 'Cluster Nodes'
       ImageIndex = 1
       object lbClusterName: TLabel
         Left = 14
@@ -2279,6 +2279,85 @@ object fmInstall: TfmInstall
         OnClick = btnLoadConfigClick
       end
     end
+    object tabVIPManager: TTabSheet
+      Caption = 'VIP Manager'
+      ImageIndex = 4
+      object Label7: TLabel
+        Left = 22
+        Top = 77
+        Width = 41
+        Height = 13
+        Caption = 'DCS Key'
+        FocusControl = edVIPKey
+      end
+      object Label8: TLabel
+        Left = 302
+        Top = 79
+        Width = 67
+        Height = 13
+        Caption = 'Network Mask'
+        FocusControl = edVIPMask
+      end
+      object Label9: TLabel
+        Left = 302
+        Top = 125
+        Width = 75
+        Height = 13
+        Caption = 'Interface Name'
+        FocusControl = edVIPInterface
+      end
+      object Label10: TLabel
+        Left = 22
+        Top = 125
+        Width = 43
+        Height = 13
+        Caption = 'Virtual IP'
+        FocusControl = edVIP
+      end
+      object edVIPKey: TEdit
+        Left = 22
+        Top = 96
+        Width = 240
+        Height = 21
+        TabOrder = 0
+        Text = '/service/pgcluster/leader'
+      end
+      object edVIPMask: TEdit
+        Left = 302
+        Top = 98
+        Width = 240
+        Height = 21
+        TabOrder = 1
+        Text = '255.255.255.0'
+      end
+      object edVIPInterface: TEdit
+        Left = 302
+        Top = 146
+        Width = 240
+        Height = 21
+        TabOrder = 2
+        Text = 'Ethernet'
+      end
+      object edVIP: TEdit
+        Left = 22
+        Top = 144
+        Width = 240
+        Height = 21
+        TabOrder = 3
+        Text = '10.0.0.42'
+      end
+      object chkEnableVIP: TCheckBox
+        Left = 16
+        Top = 32
+        Width = 185
+        Height = 17
+        Caption = 'Enable VIP Manager'
+        Checked = True
+        State = cbChecked
+        TabOrder = 4
+        OnClick = acVIPUpdate
+      end
+    end
     object TabSheet1: TTabSheet
       Caption = 'TabSheet1'
       ImageIndex = 2
@@ -2377,7 +2456,7 @@ object fmInstall: TfmInstall
       end
     end
   end
-  object ActionList1: TActionList
+  object alActions: TActionList
     Left = 592
     Top = 16
     object acBack: TPreviousTab
@@ -2398,6 +2477,11 @@ object fmInstall: TfmInstall
       Category = 'Tab'
       Caption = '&Finish'
       OnUpdate = acFinishUpdate
+    end
+    object acVIP: TAction
+      AutoCheck = True
+      Caption = 'Disable VIP Manager'
+      OnUpdate = acVIPUpdate
     end
   end
   object SynJSONSyn1: TSynJSONSyn

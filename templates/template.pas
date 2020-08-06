@@ -80,7 +80,9 @@ type
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
     function GetEtcdInitialCluster: string;
     function GetEtcdHostListPatroni: string;
+    procedure SaveToStream(AStream: TStream);
     procedure SaveToFile(AFileName: string);
+    procedure LoadFromStream(AStream: TStream);
     procedure LoadFromFile(AFileName: string);
     property Nodes[Index: Integer]: TNode read GetNode;
     property NodeCount: integer read GetNodeCount;
@@ -301,22 +303,29 @@ end;
 
 procedure TCluster.LoadFromFile(AFileName: string);
 var
-  StrStream:TStringStream;
-  BinStream: TMemoryStream;
+  StrStream: TStringStream;
 begin
   RegisterClasses([TNode]);
   StrStream := TStringStream.Create(TFile.ReadAllText(AFileName));
   try
-    BinStream := TMemoryStream.Create;
-    try
-      ObjectTextToBinary(StrStream, BinStream);
-      BinStream.Seek(0, soFromBeginning);
-      BinStream.ReadComponent(Self);
-    finally
-      BinStream.Free;
-    end;
+    LoadFromStream(StrStream);
   finally
     StrStream.Free;
+  end;
+end;
+
+procedure TCluster.LoadFromStream(AStream: TStream);
+var
+  BinStream: TMemoryStream;
+begin
+  if not Assigned(AStream) then raise Exception.Create('Stream object cannot be nil');
+  BinStream := TMemoryStream.Create;
+  try
+    ObjectTextToBinary(AStream, BinStream);
+    BinStream.Seek(0, soFromBeginning);
+    BinStream.ReadComponent(Self);
+  finally
+    BinStream.Free;
   end;
 end;
 
@@ -327,27 +336,33 @@ begin
     FVIPManager := nil;
 end;
 
-procedure TCluster.SaveToFile(AFileName: string);
+procedure TCluster.SaveToStream(AStream: TStream);
 var
   BinStream: TMemoryStream;
-  StrStream: TStringStream;
-  s: string;
 begin
+  if not Assigned(AStream) then raise Exception.Create('Stream object cannot be nil');
   BinStream := TMemoryStream.Create;
   try
-    StrStream := TStringStream.Create(s);
+    BinStream.WriteComponent(Self);
+    BinStream.Seek(0, soFromBeginning);
+    ObjectBinaryToText(BinStream, AStream);
+  finally
+    BinStream.Free
+  end;
+end;
+
+procedure TCluster.SaveToFile(AFileName: string);
+var
+  StrStream: TStringStream;
+begin
+    StrStream := TStringStream.Create();
     try
-      BinStream.WriteComponent(Self);
-      BinStream.Seek(0, soFromBeginning);
-      ObjectBinaryToText(BinStream, StrStream);
+      SaveToStream(StrStream);
       StrStream.Seek(0, soFromBeginning);
       StrStream.SaveToFile(AFileName);
     finally
       StrStream.Free;
     end;
-  finally
-    BinStream.Free
-  end;
 end;
 
 procedure TCluster.GetChildren(Proc: TGetChildProc; Root: TComponent);

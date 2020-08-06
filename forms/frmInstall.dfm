@@ -1999,6 +1999,26 @@ object fmInstall: TfmInstall
     ActivePage = tabNodes
     Align = alClient
     TabOrder = 1
+    object tsTethering: TTabSheet
+      Caption = 'tsTethering'
+      ImageIndex = 5
+      object Memo1: TMemo
+        Left = 16
+        Top = 16
+        Width = 185
+        Height = 89
+        TabOrder = 0
+      end
+      object btnDiscover: TButton
+        Left = 16
+        Top = 126
+        Width = 121
+        Height = 35
+        Caption = 'Discover Setups'
+        TabOrder = 1
+        OnClick = btnDiscoverClick
+      end
+    end
     object tabPython: TTabSheet
       Caption = 'Python'
       OnShow = UpdateInfo
@@ -2470,7 +2490,6 @@ object fmInstall: TfmInstall
       Category = 'Tab'
       TabControl = pcWizard
       Caption = '&Next'
-      Enabled = False
       Hint = 'Next|Go to the next tab'
     end
     object acFinish: TAction
@@ -2483,6 +2502,10 @@ object fmInstall: TfmInstall
       Caption = 'Disable VIP Manager'
       OnUpdate = acVIPUpdate
     end
+    object acGetConfig: TAction
+      Caption = 'acGetConfig'
+      OnExecute = acGetConfigExecute
+    end
   end
   object SynJSONSyn1: TSynJSONSyn
     Options.AutoDetectEnabled = False
@@ -2491,5 +2514,33 @@ object fmInstall: TfmInstall
     Options.Visible = False
     Left = 648
     Top = 16
+  end
+  object tetheringManager: TTetheringManager
+    OnEndManagersDiscovery = tetheringManagerEndManagersDiscovery
+    Text = 'Application Tethering'
+    AllowedAdapters = 'Network'
+    Left = 392
+    Top = 24
+  end
+  object tetheringProfile: TTetheringAppProfile
+    Manager = tetheringManager
+    Text = 'appTethering'
+    Actions = <
+      item
+        Name = 'acNext'
+        IsPublic = True
+        Kind = Mirror
+        Action = acGetConfig
+        NotifyUpdates = False
+      end>
+    Resources = <
+      item
+        Name = 'Cluster'
+        IsPublic = True
+        ResType = Stream
+      end>
+    OnResourceReceived = tetheringProfileResourceReceived
+    Left = 480
+    Top = 24
   end
 end

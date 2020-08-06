@@ -9,7 +9,8 @@ uses
   SynMemo, SynEditHighlighter, SynHighlighterJSON, Winapi.ShlObj, cxShellCommon, cxGraphics,
   cxControls, cxLookAndFeels, cxLookAndFeelPainters, cxContainer, cxEdit, cxCustomData, cxStyles,
   cxTL, cxTextEdit, cxCheckBox, cxInplaceContainer, cxMaskEdit,
-  cxDropDownEdit, cxShellComboBox, dxGDIPlusClasses, cxTLdxBarBuiltInMenu;
+  cxDropDownEdit, cxShellComboBox, dxGDIPlusClasses, cxTLdxBarBuiltInMenu, IPPeerClient,
+  IPPeerServer, System.Tether.Manager, System.Tether.AppProfile;
 
 type
   TfmInstall = class(TForm)
@@ -67,6 +68,12 @@ type
     Label10: TLabel;
     chkEnableVIP: TCheckBox;
     acVIP: TAction;
+    tetheringManager: TTetheringManager;
+    tetheringProfile: TTetheringAppProfile;
+    tsTethering: TTabSheet;
+    Memo1: TMemo;
+    btnDiscover: TButton;
+    acGetConfig: TAction;
     procedure UpdateInfo(Sender: TObject);
     procedure acFinishUpdate(Sender: TObject);
     procedure tlcEtcdPropertiesValidate(Sender: TObject; var DisplayValue: Variant;
@@ -76,6 +83,12 @@ type
     procedure btnGenerateConfigsClick(Sender: TObject);
     procedure btnLoadConfigClick(Sender: TObject);
     procedure acVIPUpdate(Sender: TObject);
+    procedure tetheringManagerEndManagersDiscovery(const Sender: TObject;
+      const ARemoteManagers: TTetheringManagerInfoList);
+    procedure btnDiscoverClick(Sender: TObject);
+    procedure acGetConfigExecute(Sender: TObject);
+    procedure tetheringProfileResourceReceived(const Sender: TObject;
+      const AResource: TRemoteResource);
   private
   public
     procedure InvalidateCluster(ACluster: TCluster);
@@ -101,7 +114,11 @@ begin
   (Sender as TAction).Enabled := pcWizard.ActivePageIndex = pcWizard.PageCount - 1;
 end;
 
-// disable/enable VIP manager controls
+procedure TfmInstall.acGetConfigExecute(Sender: TObject);
+begin
+  btnGenerateConfigsClick(nil);
+end;
+
 procedure TfmInstall.acVIPUpdate(Sender: TObject);
 var
   i: Integer;
@@ -115,6 +132,11 @@ begin
       end;
 end;
 
+procedure TfmInstall.btnDiscoverClick(Sender: TObject);
+begin
+  tetheringManager.DiscoverManagers();
+end;
+
 procedure TfmInstall.btnGenerateConfigsClick(Sender: TObject);
 var
   Cluster: TCluster;
@@ -122,6 +144,7 @@ var
   N: TcxTreeListNode;
   I: Integer;
   VIPManager: TVIPManager;
+  ss: TStringStream;
 begin
   Cluster := TCluster.Create(Self);
   try
@@ -155,6 +178,13 @@ begin
     end;
     IOutils.TDirectory.CreateDirectory(Cluster.Name);
     Cluster.SaveToFile(Cluster.Name+'\cluster.txt');
+    ss := TStringStream.Create;
+    try
+      Cluster.SaveToStream(ss);
+      tetheringProfile.Resources.Items[0].Value := ss.DataString;
+    finally
+      ss.Free;
+    end;
   finally
     Cluster.Free;
   end;
@@ -218,6 +248,38 @@ begin
     tlNodes.EndUpdate;
   end;
 
+end;
+
+procedure TfmInstall.tetheringManagerEndManagersDiscovery(const Sender: TObject;
+  const ARemoteManagers: TTetheringManagerInfoList);
+var
+  i: Integer;
+begin
+  memo1.Lines.Clear;
+  for i := 0 to ARemoteManagers.Count-1 do
+    memo1.Lines.Append(ARemoteManagers[i].ManagerName + ': ' + ARemoteManagers[i].ConnectionString);
+end;
+
+procedure TfmInstall.tetheringProfileResourceReceived(const Sender: TObject; const AResource: TRemoteResource);
+var
+  Cluster: TCluster;
+  ss: TStringStream;
+begin
+  if AResource.ResType = TRemoteResourceType.Data then
+  begin
+    Cluster := TCluster.Create(Self);
+    try
+      ss := TStringStream.Create(AResource.Value.AsString);
+      try
+        Cluster.LoadFromStream(ss);
+        InvalidateCluster(Cluster);
+      finally
+        ss.Free();
+      end;
+    finally
+      Cluster.Free;
+    end;
+  end;
 end;
 
 procedure TfmInstall.tlcEtcdPropertiesValidate(Sender: TObject; var DisplayValue: Variant;

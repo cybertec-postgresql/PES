@@ -321,7 +321,7 @@ begin
   if Column < 0 then
     Exit;
   AnObj := TObject(Sender.GetNodeData(Node));
-  if Assigned(AnObj) and AnObj is TNode then
+  if Assigned(AnObj) and (AnObj is TNode) then
   case Column of
     0: Text := ANode.IP;
     1: Text := ANode.HasDatabase.ToString();

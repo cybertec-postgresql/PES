@@ -70,6 +70,7 @@ type
     vstNodes: TVirtualStringTree;
     edBinDir: TEdit;
     edDataDir: TEdit;
+    btnAddNode: TButton;
     procedure UpdateInfo(Sender: TObject);
     procedure acFinishUpdate(Sender: TObject);
     procedure btnGenerateConfigsClick(Sender: TObject);
@@ -84,6 +85,7 @@ type
     procedure FormCreate(Sender: TObject);
     procedure vstNodesGetText(Sender: TBaseVirtualTree; Node: PVirtualNode;
       Column: TColumnIndex; TextType: TVSTTextType; var CellText: string);
+    procedure btnAddNodeClick(Sender: TObject);
   private
     Cluster: TCluster;
   public
@@ -125,6 +127,11 @@ begin
         if Assigned(FocusControl) then
           FocusControl.Enabled := Enabled;
       end;
+end;
+
+procedure TfmInstall.btnAddNodeClick(Sender: TObject);
+begin
+  vstNodes.AddChild(nil, TNode.Create(Cluster));
 end;
 
 procedure TfmInstall.btnDiscoverClick(Sender: TObject);
@@ -196,6 +203,7 @@ end;
 procedure TfmInstall.FormCreate(Sender: TObject);
 begin
   vstNodes.NodeDataSize := SizeOf(TNode);
+  Cluster := TCluster.Create(Self);
 end;
 
 procedure TfmInstall.InvalidateCluster(ACluster: TCluster);
@@ -307,16 +315,22 @@ procedure TfmInstall.vstNodesGetText(Sender: TBaseVirtualTree;
   var CellText: string);
 var
   ANode: TNode;
+  AnObj: TObject;
 begin
   // Column is -1 if the header is hidden or no columns are defined
-  if Column < 0 then Exit;
-  if TVirtualStringTree(Sender).Header.Columns[Column].Text = 'IP' then
-  begin
-    ANode := TNode(Sender.GetNodeData(Node));
-    Text := ANode.IP;
+  if Column < 0 then
+    Exit;
+  AnObj := TObject(Sender.GetNodeData(Node));
+  if Assigned(AnObj) and AnObj is TNode then
+  case Column of
+    0: Text := ANode.IP;
+    1: Text := ANode.HasDatabase.ToString();
+    2: Text := ANode.HasEtcd.ToString();
+    3: Text := ANode.NoFailover.ToString();
   end;
+
 end;
 
-{ TNode }
+  { TNode }
 
 end.

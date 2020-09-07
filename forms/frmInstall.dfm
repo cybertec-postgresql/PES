@@ -2003,10 +2003,6 @@ object fmInstall: TfmInstall
     object tsTethering: TTabSheet
       Caption = 'tsTethering'
       ImageIndex = 5
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object Memo1: TMemo
         Left = 16
         Top = 16
@@ -2027,10 +2023,6 @@ object fmInstall: TfmInstall
     object tabPython: TTabSheet
       Caption = 'Python'
       OnShow = UpdateInfo
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       DesignSize = (
         567
         491)
@@ -2054,10 +2046,6 @@ object fmInstall: TfmInstall
     object tabPostgres: TTabSheet
       Caption = 'PostgreSQL'
       ImageIndex = 3
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object lbBinDir: TLabel
         Left = 14
         Top = 18
@@ -2156,10 +2144,6 @@ object fmInstall: TfmInstall
     object tabNodes: TTabSheet
       Caption = 'Cluster Nodes'
       ImageIndex = 1
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object lbClusterName: TLabel
         Left = 14
         Top = 10
@@ -2220,33 +2204,49 @@ object fmInstall: TfmInstall
       object vstNodes: TVirtualStringTree
         Left = 14
         Top = 88
-        Width = 336
-        Height = 185
+        Width = 529
+        Height = 194
         Header.AutoSizeIndex = 0
+        Header.Options = [hoColumnResize, hoDrag, hoShowSortGlyphs, hoVisible]
+        Indent = 5
+        LineMode = lmBands
         TabOrder = 4
         OnGetText = vstNodesGetText
         Columns = <
           item
             Position = 0
+            Text = 'IP or Host name'
+            Width = 147
           end
           item
             Position = 1
+            Text = 'Database'
+            Width = 60
           end
           item
             Position = 2
+            Text = 'Etcd'
           end
           item
             Position = 3
+            Text = 'No Failover'
+            Width = 68
           end>
+        DefaultText = 'foobla'
+      end
+      object btnAddNode: TButton
+        Left = 14
+        Top = 288
+        Width = 75
+        Height = 25
+        Caption = 'Add'
+        TabOrder = 5
+        OnClick = btnAddNodeClick
       end
     end
     object tabVIPManager: TTabSheet
       Caption = 'VIP Manager'
       ImageIndex = 4
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object Label7: TLabel
         Left = 22
         Top = 77
@@ -2326,10 +2326,6 @@ object fmInstall: TfmInstall
     object TabSheet1: TTabSheet
       Caption = 'TabSheet1'
       ImageIndex = 2
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object SynEdit1: TSynEdit
         Left = 136
         Top = 232

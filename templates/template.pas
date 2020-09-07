@@ -80,6 +80,7 @@ type
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
     function GetEtcdInitialCluster: string;
     function GetEtcdHostListPatroni: string;
+    function GetEtcdNodeCount: integer;
     procedure SaveToStream(AStream: TStream);
     procedure SaveToFile(AFileName: string);
     procedure LoadFromStream(AStream: TStream);
@@ -162,6 +163,15 @@ begin
       'Use odd number of nodes up to 7', [n])
   else
     Result.Remove(Length(Result) - 1);
+end;
+
+function TCluster.GetEtcdNodeCount: integer;
+var
+  I: Integer;
+begin
+  for I := 0 to ComponentCount - 1 do
+    if Nodes[I].HasEtcd then
+      inc(Result);
 end;
 
 function TCluster.GetNode(Index: Integer): TNode;

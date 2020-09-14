@@ -2212,6 +2212,7 @@ object fmInstall: TfmInstall
         LineMode = lmBands
         TabOrder = 4
         TreeOptions.MiscOptions = [toAcceptOLEDrop, toCheckSupport, toEditable, toFullRepaintOnResize, toInitOnSave, toToggleOnDblClick, toWheelPanning, toEditOnClick]
+        OnFreeNode = vstNodesFreeNode
         OnGetText = vstNodesGetText
         OnGetNodeDataSize = vstNodesGetNodeDataSize
         OnNewText = vstNodesNewText

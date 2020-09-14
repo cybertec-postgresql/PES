@@ -169,6 +169,7 @@ function TCluster.GetEtcdNodeCount: integer;
 var
   I: Integer;
 begin
+  Result := 0;
   for I := 0 to ComponentCount - 1 do
     if Nodes[I].HasEtcd then
       inc(Result);

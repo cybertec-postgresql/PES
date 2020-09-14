@@ -1,4 +1,4 @@
-unit frmInstall;
+﻿unit frmInstall;
 
 interface
 
@@ -90,6 +90,7 @@ type
       var NodeDataSize: Integer);
     procedure vstNodesNewText(Sender: TBaseVirtualTree; Node: PVirtualNode;
       Column: TColumnIndex; NewText: string);
+    procedure vstNodesFreeNode(Sender: TBaseVirtualTree; Node: PVirtualNode);
   private
     Cluster: TCluster;
   public
@@ -145,8 +146,6 @@ end;
 
 procedure TfmInstall.btnGenerateConfigsClick(Sender: TObject);
 var
-  Node: TNode;
-  N: PVirtualNode;
   i: Integer;
   VIPManager: TVIPManager;
   ss: TStringStream;
@@ -191,8 +190,6 @@ begin
 end;
 
 procedure TfmInstall.btnLoadConfigClick(Sender: TObject);
-var
-  Cluster: TCluster;
 begin
   Cluster.Free;
   Cluster := TCluster.Create(Self);
@@ -212,7 +209,6 @@ end;
 procedure TfmInstall.InvalidateCluster(ACluster: TCluster);
 var
   i: Integer;
-  N: TNode;
 begin
   edClusterName.Text := ACluster.Name;
   edBinDir.Text := ACluster.PostgresDir;
@@ -313,6 +309,17 @@ begin
 
 end;
 
+procedure TfmInstall.vstNodesFreeNode(Sender: TBaseVirtualTree;
+  Node: PVirtualNode);
+var
+  AData: pointer;
+begin
+  AData := Sender.GetNodeData(Node);
+  if not Assigned(AData) then
+    Exit;
+  FreeAndNil(TObject(AData^));
+end;
+
 procedure TfmInstall.vstNodesGetNodeDataSize(Sender: TBaseVirtualTree;
   var NodeDataSize: Integer);
 begin
@@ -323,7 +330,6 @@ procedure TfmInstall.vstNodesGetText(Sender: TBaseVirtualTree;
   Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType;
   var CellText: string);
 var
-  ANode: TNode;
   AnObj: TObject;
   AData: pointer;
 begin
@@ -351,7 +357,6 @@ end;
 procedure TfmInstall.vstNodesNewText(Sender: TBaseVirtualTree;
   Node: PVirtualNode; Column: TColumnIndex; NewText: string);
 var
-  ANode: TNode;
   AnObj: TObject;
   AData: pointer;
 begin

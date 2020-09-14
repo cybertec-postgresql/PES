@@ -86,6 +86,10 @@ type
     procedure vstNodesGetText(Sender: TBaseVirtualTree; Node: PVirtualNode;
       Column: TColumnIndex; TextType: TVSTTextType; var CellText: string);
     procedure btnAddNodeClick(Sender: TObject);
+    procedure vstNodesGetNodeDataSize(Sender: TBaseVirtualTree;
+      var NodeDataSize: Integer);
+    procedure vstNodesNewText(Sender: TBaseVirtualTree; Node: PVirtualNode;
+      Column: TColumnIndex; NewText: string);
   private
     Cluster: TCluster;
   public
@@ -202,7 +206,6 @@ end;
 
 procedure TfmInstall.FormCreate(Sender: TObject);
 begin
-  vstNodes.NodeDataSize := SizeOf(TNode);
   Cluster := TCluster.Create(Self);
 end;
 
@@ -310,6 +313,12 @@ begin
 
 end;
 
+procedure TfmInstall.vstNodesGetNodeDataSize(Sender: TBaseVirtualTree;
+  var NodeDataSize: Integer);
+begin
+  NodeDataSize := SizeOf(TNode);
+end;
+
 procedure TfmInstall.vstNodesGetText(Sender: TBaseVirtualTree;
   Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType;
   var CellText: string);
@@ -336,6 +345,28 @@ begin
           CellText := BoolToStr(HasEtcd, True);
         3:
           CellText := BoolToStr(NoFailover, True);
+      end;
+end;
+
+procedure TfmInstall.vstNodesNewText(Sender: TBaseVirtualTree;
+  Node: PVirtualNode; Column: TColumnIndex; NewText: string);
+var
+  ANode: TNode;
+  AnObj: TObject;
+  AData: pointer;
+begin
+  // Column is -1 if the header is hidden or no columns are defined
+  if Column < 0 then
+    Exit;
+  AData := Sender.GetNodeData(Node);
+  if not Assigned(AData) then
+    Exit;
+  AnObj := TObject(AData^);
+  if Assigned(AnObj) and (AnObj is TNode) then
+    with TNode(AnObj) do
+      case Column of
+        0:
+          IP := NewText;
       end;
 end;
 

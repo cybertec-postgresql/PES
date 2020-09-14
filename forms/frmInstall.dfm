@@ -2213,8 +2213,11 @@ object fmInstall: TfmInstall
         TabOrder = 4
         TreeOptions.MiscOptions = [toAcceptOLEDrop, toCheckSupport, toEditable, toFullRepaintOnResize, toInitOnSave, toToggleOnDblClick, toWheelPanning, toEditOnClick]
         OnGetText = vstNodesGetText
+        OnGetNodeDataSize = vstNodesGetNodeDataSize
+        OnNewText = vstNodesNewText
         Columns = <
           item
+            EditNextColumn = 1
             Position = 0
             Text = 'IP or Host name'
             Width = 147

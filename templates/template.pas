@@ -97,7 +97,6 @@ type
     property EtcdClusterToken: string read FEtcdClusterToken write SetEtcdClusterToken;
     property Existing: boolean read FExisting write FExisting;
     property PostgresParameters: string read FPostgresParameters write FPostgresParameters;
-    property VIPManager: TVIPManager read FVIPManager write SetVIPManager;
   end;
 
 implementation
@@ -227,6 +226,9 @@ begin
   if not Assigned(AOwner) then
     raise Exception.Create('Node owner cannot be nil');
   inherited Create(AOwner as TCluster);
+  FIP := '127.0.0.1';
+  FHasEtcd := True;
+  FHasDatabase := True;
   FListenAddress := '0.0.0.0';
   SetSubComponent(True);
 end;
@@ -316,7 +318,7 @@ procedure TCluster.LoadFromFile(AFileName: string);
 var
   StrStream: TStringStream;
 begin
-  RegisterClasses([TNode]);
+  RegisterClasses([TNode, TVIPManager]);
   StrStream := TStringStream.Create(TFile.ReadAllText(AFileName));
   try
     LoadFromStream(StrStream);

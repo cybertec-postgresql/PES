@@ -91,6 +91,8 @@ type
     procedure vstNodesNewText(Sender: TBaseVirtualTree; Node: PVirtualNode;
       Column: TColumnIndex; NewText: string);
     procedure vstNodesFreeNode(Sender: TBaseVirtualTree; Node: PVirtualNode);
+    procedure vstNodesNodeClick(Sender: TBaseVirtualTree;
+      const HitInfo: THitInfo);
   private
     Cluster: TCluster;
   public
@@ -136,7 +138,7 @@ end;
 
 procedure TfmInstall.btnAddNodeClick(Sender: TObject);
 begin
-  vstNodes.AddChild(nil, TNode.Create(Cluster) as TObject);
+  vstNodes.AddChild(nil, TNode.Create(Cluster));
 end;
 
 procedure TfmInstall.btnDiscoverClick(Sender: TObject);
@@ -146,7 +148,6 @@ end;
 
 procedure TfmInstall.btnGenerateConfigsClick(Sender: TObject);
 var
-  i: Integer;
   VIPManager: TVIPManager;
   ss: TStringStream;
 begin
@@ -162,21 +163,9 @@ begin
   Cluster.PostgresParameters := '';
   if chkEnableVIP.Checked then
   begin
-    VIPManager := TVIPManager.Create(Self);
+    VIPManager := TVIPManager.Create(Cluster);
     VIPManager.IP := edVIP.Text;
     VIPManager.Mask := edVIPMask.Text;
-    Cluster.VIPManager := VIPManager;
-  end;
-  for i := 0 to vstNodes.RootNodeCount - 1 do
-  begin
-    // N := tlNodes.AbsoluteItems[I];
-    // Node := TNode.Create(Cluster);
-    // Node.Name := N.Texts[tlcName.ItemIndex];
-    // Node.IP := N.Texts[tlcHost.ItemIndex];
-    // Node.HasDatabase := N.Values[tlcDatabase.ItemIndex] = True;
-    // Node.HasEtcd := N.Values[tlcEtcd.ItemIndex] = True;
-    // Node.NoFailover := N.Values[tlcFailover.ItemIndex] = False;
-    // Cluster.Nodes.Add(Node);
   end;
   IOUtils.TDirectory.CreateDirectory(Cluster.Name);
   Cluster.SaveToFile(Cluster.Name + '\cluster.txt');
@@ -196,8 +185,8 @@ begin
   try
     Cluster.LoadFromFile('pgcluster\cluster.txt');
     InvalidateCluster(Cluster);
-  finally
-    Cluster.Free;
+  except
+    vstNodes.Clear;
   end;
 end;
 
@@ -219,13 +208,6 @@ begin
   edSuperuserPassword.Text := ACluster.SuperUserPassword;
   edClusterToken.Text := ACluster.EtcdClusterToken;
 
-  chkEnableVIP.Checked := Assigned(ACluster.VIPManager);
-  if chkEnableVIP.Checked then
-  begin
-    edVIP.Text := ACluster.VIPManager.IP;
-    edVIPMask.Text := ACluster.VIPManager.Mask;
-  end;
-
   vstNodes.BeginUpdate;
   vstNodes.Clear;
   try
@@ -234,9 +216,8 @@ begin
         vstNodes.AddChild(nil, ACluster.Components[i])
       else
       begin
-        ACluster.VIPManager := ACluster.Components[i] as TVIPManager;
-        edVIP.Text := ACluster.VIPManager.IP;
-        edVIPMask.Text := ACluster.VIPManager.Mask;
+        edVIP.Text := TVIPManager(ACluster.Components[i]).IP;
+        edVIPMask.Text := TVIPManager(ACluster.Components[i]).Mask;
       end;
   finally
     vstNodes.EndUpdate;
@@ -346,11 +327,11 @@ begin
         0:
           CellText := IP;
         1:
-          CellText := BoolToStr(HasDatabase, True);
+          CellText := ifthen(HasDatabase, '✔', '❌');
         2:
-          CellText := BoolToStr(HasEtcd, True);
+          CellText := ifthen(HasEtcd, '✔', '❌');
         3:
-          CellText := BoolToStr(NoFailover, True);
+          CellText := ifthen(NoFailover, '✔', '❌');//BoolToStr(NoFailover, True);
       end;
 end;
 
@@ -372,6 +353,28 @@ begin
       case Column of
         0:
           IP := NewText;
+      end;
+end;
+
+procedure TfmInstall.vstNodesNodeClick(Sender: TBaseVirtualTree;
+  const HitInfo: THitInfo);
+var
+  AnObj: TObject;
+  AData: pointer;
+begin
+  AData := Sender.GetNodeData(HitInfo.HitNode);
+  if not Assigned(AData) then
+    Exit;
+  AnObj := TObject(AData^);
+  if Assigned(AnObj) and (AnObj is TNode) then
+    with TNode(AnObj) do
+      case HitInfo.HitColumn of
+        1:
+          HasDatabase := not HasDatabase;
+        2:
+          HasEtcd := not HasEtcd;
+        3:
+          NoFailover := not NoFailover;
       end;
 end;
 

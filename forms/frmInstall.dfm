@@ -2216,6 +2216,7 @@ object fmInstall: TfmInstall
         OnGetText = vstNodesGetText
         OnGetNodeDataSize = vstNodesGetNodeDataSize
         OnNewText = vstNodesNewText
+        OnNodeClick = vstNodesNodeClick
         Columns = <
           item
             EditNextColumn = 1
@@ -2224,17 +2225,20 @@ object fmInstall: TfmInstall
             Width = 147
           end
           item
+            Alignment = taCenter
             CheckBox = True
             Position = 1
             Text = 'Database'
             Width = 60
           end
           item
+            Alignment = taCenter
             CheckBox = True
             Position = 2
             Text = 'Etcd'
           end
           item
+            Alignment = taCenter
             CheckBox = True
             Position = 3
             Text = 'No Failover'

@@ -65,19 +65,16 @@ type
     FEtcdClusterToken: string;
     FExisting: boolean;
     FPostgresParameters: string;
-    FVIPManager: TVIPManager;
     procedure SetEtcdClusterToken(const Value: string);
     procedure SetReplicationPassword(const Value: string);
     procedure SetSuperUserPassword(const Value: string);
     function GetNode(Index: Integer): TNode;
-    procedure SetVIPManager(const Value: TVIPManager);
     function GetNodeCount: integer;
   protected
     procedure GetChildren(Proc: TGetChildProc; Root: TComponent); override;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    procedure Notification(AComponent: TComponent; Operation: TOperation); override;
     function GetEtcdInitialCluster: string;
     function GetEtcdHostListPatroni: string;
     function GetEtcdNodeCount: integer;
@@ -192,8 +189,7 @@ end;
 function TCluster.GetNodeCount: integer;
 begin
   Result := ComponentCount;
-  if Assigned(FVIPManager) and (FVIPManager.Owner = Self) then
-    Dec(Result);
+  //$MESSAGE WARN ll
 end;
 
 procedure TCluster.SetEtcdClusterToken(const Value: string);
@@ -209,14 +205,6 @@ end;
 procedure TCluster.SetSuperUserPassword(const Value: string);
 begin
   FSuperUserPassword := ifthen(Value = '', RandomPassword(), Value)
-end;
-
-procedure TCluster.SetVIPManager(const Value: TVIPManager);
-begin
-  if not Assigned(Value) then
-    Exit;
-  FVIPManager := Value;
-  FVIPManager.FreeNotification(Self);
 end;
 
 { TNode }
@@ -342,13 +330,6 @@ begin
   end;
 end;
 
-procedure TCluster.Notification(AComponent: TComponent; Operation: TOperation);
-begin
-  inherited;
-  if (AComponent = FVIPManager) and (Operation = opRemove) then
-    FVIPManager := nil;
-end;
-
 procedure TCluster.SaveToStream(AStream: TStream);
 var
   BinStream: TMemoryStream;
@@ -385,7 +366,6 @@ var
 begin
   if @Proc = nil then
     raise Exception.CreateFmt('Parameter %s cannot be nil', ['Proc']);
-  if Assigned(FVIPManager) then Proc(FVIPManager);
   for I := 0 to ComponentCount - 1 do
   begin
     Node := Nodes[I];

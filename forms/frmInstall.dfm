@@ -1947,7 +1947,7 @@ object fmInstall: TfmInstall
     ExplicitTop = 184
     ExplicitWidth = 105
   end
-  object Panel1: TPanel
+  object pnlNavigation: TPanel
     Left = 0
     Top = 624
     Width = 575
@@ -2211,6 +2211,7 @@ object fmInstall: TfmInstall
         Indent = 5
         LineMode = lmBands
         TabOrder = 4
+        TreeOptions.MiscOptions = [toAcceptOLEDrop, toCheckSupport, toEditable, toFullRepaintOnResize, toInitOnSave, toToggleOnDblClick, toWheelPanning, toEditOnClick]
         OnGetText = vstNodesGetText
         Columns = <
           item
@@ -2219,15 +2220,18 @@ object fmInstall: TfmInstall
             Width = 147
           end
           item
+            CheckBox = True
             Position = 1
             Text = 'Database'
             Width = 60
           end
           item
+            CheckBox = True
             Position = 2
             Text = 'Etcd'
           end
           item
+            CheckBox = True
             Position = 3
             Text = 'No Failover'
             Width = 68

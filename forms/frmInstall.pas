@@ -17,7 +17,7 @@ type
   TfmInstall = class(TForm)
     btnNext: TButton;
     btnBack: TButton;
-    Panel1: TPanel;
+    pnlNavigation: TPanel;
     imgHeader: TImage;
     pcWizard: TPageControl;
     tabPython: TTabSheet;
@@ -131,7 +131,7 @@ end;
 
 procedure TfmInstall.btnAddNodeClick(Sender: TObject);
 begin
-  vstNodes.AddChild(nil, TNode.Create(Cluster));
+  vstNodes.AddChild(nil, TNode.Create(Cluster) as TObject);
 end;
 
 procedure TfmInstall.btnDiscoverClick(Sender: TObject);
@@ -316,21 +316,29 @@ procedure TfmInstall.vstNodesGetText(Sender: TBaseVirtualTree;
 var
   ANode: TNode;
   AnObj: TObject;
+  AData: pointer;
 begin
   // Column is -1 if the header is hidden or no columns are defined
   if Column < 0 then
     Exit;
-  AnObj := TObject(Sender.GetNodeData(Node));
+  AData := Sender.GetNodeData(Node);
+  if not Assigned(AData) then
+    Exit;
+  AnObj := TObject(AData^);
   if Assigned(AnObj) and (AnObj is TNode) then
-  case Column of
-    0: Text := ANode.IP;
-    1: Text := ANode.HasDatabase.ToString();
-    2: Text := ANode.HasEtcd.ToString();
-    3: Text := ANode.NoFailover.ToString();
-  end;
-
+    with TNode(AnObj) do
+      case Column of
+        0:
+          CellText := IP;
+        1:
+          CellText := BoolToStr(HasDatabase, True);
+        2:
+          CellText := BoolToStr(HasEtcd, True);
+        3:
+          CellText := BoolToStr(NoFailover, True);
+      end;
 end;
 
-  { TNode }
+{ TNode }
 
 end.

@@ -2101,6 +2101,7 @@ object fmInstall: TfmInstall
         Height = 21
         TabOrder = 1
         Text = 'replicator'
+        OnChange = edClusterChange
       end
       object edReplicationPassword: TEdit
         Left = 166
@@ -2108,6 +2109,7 @@ object fmInstall: TfmInstall
         Width = 121
         Height = 21
         TabOrder = 3
+        OnChange = edClusterChange
       end
       object edSuperuserRole: TEdit
         Left = 14
@@ -2116,6 +2118,7 @@ object fmInstall: TfmInstall
         Height = 21
         TabOrder = 0
         Text = 'postgres'
+        OnChange = edClusterChange
       end
       object edSuperuserPassword: TEdit
         Left = 166
@@ -2123,6 +2126,7 @@ object fmInstall: TfmInstall
         Width = 121
         Height = 21
         TabOrder = 2
+        OnChange = edClusterChange
       end
       object edBinDir: TEdit
         Left = 14
@@ -2131,6 +2135,7 @@ object fmInstall: TfmInstall
         Height = 21
         TabOrder = 4
         Text = 'pgsql/bin'
+        OnChange = edClusterChange
       end
       object edDataDir: TEdit
         Left = 14
@@ -2139,6 +2144,7 @@ object fmInstall: TfmInstall
         Height = 21
         TabOrder = 5
         Text = 'DataDir'
+        OnChange = edClusterChange
       end
     end
     object tabNodes: TTabSheet
@@ -2174,32 +2180,16 @@ object fmInstall: TfmInstall
         Height = 21
         TabOrder = 0
         Text = 'pgcluster'
-      end
-      object btnGenerateConfigs: TButton
-        Left = 352
-        Top = 27
-        Width = 95
-        Height = 25
-        Caption = 'Generate Configs'
-        TabOrder = 1
-        OnClick = btnGenerateConfigsClick
+        OnChange = edClusterChange
       end
       object edClusterToken: TEdit
         Left = 166
         Top = 29
         Width = 167
         Height = 21
-        TabOrder = 3
+        TabOrder = 1
         Text = 'pgcluster'
-      end
-      object btnLoadConfig: TButton
-        Left = 453
-        Top = 27
-        Width = 90
-        Height = 25
-        Caption = 'Load Configs'
-        TabOrder = 2
-        OnClick = btnLoadConfigClick
+        OnChange = edClusterChange
       end
       object vstNodes: TVirtualStringTree
         Left = 14
@@ -2210,7 +2200,7 @@ object fmInstall: TfmInstall
         Header.Options = [hoColumnResize, hoDrag, hoShowSortGlyphs, hoVisible]
         Indent = 5
         LineMode = lmBands
-        TabOrder = 4
+        TabOrder = 2
         TreeOptions.MiscOptions = [toAcceptOLEDrop, toCheckSupport, toEditable, toFullRepaintOnResize, toInitOnSave, toToggleOnDblClick, toWheelPanning, toEditOnClick]
         OnFreeNode = vstNodesFreeNode
         OnGetText = vstNodesGetText
@@ -2252,7 +2242,7 @@ object fmInstall: TfmInstall
         Width = 75
         Height = 25
         Caption = 'Add'
-        TabOrder = 5
+        TabOrder = 3
         OnClick = btnAddNodeClick
       end
       object btnDeleteNode: TButton
@@ -2261,7 +2251,34 @@ object fmInstall: TfmInstall
         Width = 75
         Height = 25
         Action = acDeleteNode
+        TabOrder = 4
+      end
+      object btnGenerateConfigs: TButton
+        Left = 14
+        Top = 451
+        Width = 95
+        Height = 25
+        Caption = 'Generate Configs'
+        TabOrder = 5
+        OnClick = btnGenerateConfigsClick
+      end
+      object btnLoadConfig: TButton
+        Left = 115
+        Top = 451
+        Width = 90
+        Height = 25
+        Caption = 'Load Configs'
         TabOrder = 6
+        OnClick = btnLoadConfigClick
+      end
+      object btnSync: TButton
+        Left = 211
+        Top = 451
+        Width = 90
+        Height = 25
+        Caption = 'Sync Configs'
+        TabOrder = 7
+        OnClick = btnSyncClick
       end
     end
     object tabVIPManager: TTabSheet
@@ -2306,6 +2323,7 @@ object fmInstall: TfmInstall
         Height = 21
         TabOrder = 0
         Text = '/service/pgcluster/leader'
+        OnChange = edVIPChange
       end
       object edVIPMask: TEdit
         Left = 302
@@ -2314,6 +2332,7 @@ object fmInstall: TfmInstall
         Height = 21
         TabOrder = 1
         Text = '255.255.255.0'
+        OnChange = edVIPChange
       end
       object edVIPInterface: TEdit
         Left = 302
@@ -2322,6 +2341,7 @@ object fmInstall: TfmInstall
         Height = 21
         TabOrder = 2
         Text = 'Ethernet'
+        OnChange = edVIPChange
       end
       object edVIP: TEdit
         Left = 22
@@ -2330,6 +2350,7 @@ object fmInstall: TfmInstall
         Height = 21
         TabOrder = 3
         Text = '10.0.0.42'
+        OnChange = edVIPChange
       end
       object chkEnableVIP: TCheckBox
         Left = 16

@@ -37,7 +37,6 @@ type
     tabPostgres: TTabSheet;
     lbBinDir: TLabel;
     Label1: TLabel;
-    btnGenerateConfigs: TButton;
     Label2: TLabel;
     edReplicationRole: TEdit;
     Label3: TLabel;
@@ -48,7 +47,6 @@ type
     edSuperuserPassword: TEdit;
     Label6: TLabel;
     edClusterToken: TEdit;
-    btnLoadConfig: TButton;
     tabVIPManager: TTabSheet;
     Label7: TLabel;
     edVIPKey: TEdit;
@@ -73,6 +71,9 @@ type
     btnAddNode: TButton;
     btnDeleteNode: TButton;
     acDeleteNode: TAction;
+    btnGenerateConfigs: TButton;
+    btnLoadConfig: TButton;
+    btnSync: TButton;
     procedure UpdateInfo(Sender: TObject);
     procedure acFinishUpdate(Sender: TObject);
     procedure btnGenerateConfigsClick(Sender: TObject);
@@ -97,6 +98,9 @@ type
       const HitInfo: THitInfo);
     procedure btnDeleteNodeClick(Sender: TObject);
     procedure acDeleteNodeUpdate(Sender: TObject);
+    procedure edVIPChange(Sender: TObject);
+    procedure edClusterChange(Sender: TObject);
+    procedure btnSyncClick(Sender: TObject);
   private
     Cluster: TCluster;
   public
@@ -135,6 +139,10 @@ procedure TfmInstall.acVIPUpdate(Sender: TObject);
 var
   i: Integer;
 begin
+  if not chkEnableVIP.Checked then
+    Cluster.VIPManager.Free
+  else
+    TVIPManager.Create(Cluster);
   for i := 0 to tabVIPManager.ControlCount - 1 do
     if tabVIPManager.Controls[i] is TLabel then
       with TLabel(tabVIPManager.Controls[i]) do
@@ -161,38 +169,9 @@ begin
 end;
 
 procedure TfmInstall.btnGenerateConfigsClick(Sender: TObject);
-var
-  VIPManager: TVIPManager;
-  ss: TStringStream;
 begin
-  Cluster.Name := edClusterName.Text;
-  Cluster.PostgresDir := edBinDir.Text;
-  Cluster.DataDir := edDataDir.Text;
-  Cluster.ReplicationRole := edReplicationRole.Text;
-  Cluster.ReplicationPassword := edReplicationPassword.Text;
-  Cluster.SuperUser := edSuperuserRole.Text;
-  Cluster.SuperUserPassword := edSuperuserPassword.Text;
-  Cluster.EtcdClusterToken := edClusterToken.Text;
-  Cluster.Existing := False;
-  Cluster.PostgresParameters := '';
-  if chkEnableVIP.Checked then
-  begin
-    VIPManager := Cluster.VIPManager;
-    if not Assigned(VIPManager) then
-      VIPManager := TVIPManager.Create(Cluster);
-    VIPManager.IP := edVIP.Text;
-    VIPManager.Mask := edVIPMask.Text;
-  end else
-    Cluster.VIPManager.Free;
   IOUtils.TDirectory.CreateDirectory(Cluster.Name);
   Cluster.SaveToFile(Cluster.Name + '\cluster.txt');
-  ss := TStringStream.Create;
-  try
-    Cluster.SaveToStream(ss);
-    tetheringProfile.Resources.Items[0].Value := ss.DataString;
-  finally
-    ss.Free;
-  end;
 end;
 
 procedure TfmInstall.btnLoadConfigClick(Sender: TObject);
@@ -205,6 +184,45 @@ begin
   except
     vstNodes.Clear;
   end;
+end;
+
+procedure TfmInstall.btnSyncClick(Sender: TObject);
+var
+  ss: TStringStream;
+begin
+  ss := TStringStream.Create;
+  try
+    Cluster.SaveToStream(ss);
+    tetheringProfile.Resources.Items[0].Value := ss.DataString;
+  finally
+    ss.Free;
+  end;
+end;
+
+procedure TfmInstall.edClusterChange(Sender: TObject);
+begin
+  Cluster.Name := edClusterName.Text;
+  Cluster.PostgresDir := edBinDir.Text;
+  Cluster.DataDir := edDataDir.Text;
+  Cluster.ReplicationRole := edReplicationRole.Text;
+  Cluster.ReplicationPassword := edReplicationPassword.Text;
+  Cluster.SuperUser := edSuperuserRole.Text;
+  Cluster.SuperUserPassword := edSuperuserPassword.Text;
+  Cluster.EtcdClusterToken := edClusterToken.Text;
+  Cluster.Existing := False;
+  Cluster.PostgresParameters := '';
+end;
+
+procedure TfmInstall.edVIPChange(Sender: TObject);
+var
+  vipm: TVIPManager;
+begin
+  vipm := Cluster.VIPManager;
+  if not Assigned(vipm) then Exit;
+  vipm.IP := edVIP.Text;
+  vipm.Mask := edVIPMask.Text;
+  vipm.InterfaceName := edVIPInterface.Text;
+  vipm.Key := edVIPKey.Text;
 end;
 
 procedure TfmInstall.FormCreate(Sender: TObject);

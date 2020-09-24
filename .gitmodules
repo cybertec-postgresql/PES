@@ -1,3 +1,6 @@
 [submodule "python4delphi"]
 	path = python4delphi
 	url = https://github.com/pyscripter/python4delphi
+[submodule "Virtual-TreeView"]
+	path = virtualtreeview
+	url = https://github.com/JAM-Software/Virtual-TreeView.git

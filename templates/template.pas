@@ -21,6 +21,7 @@ type
     function GetVirtualIP: string;
     procedure SetVirtualIP(const Value: string);
   public
+    constructor Create(AOwner: TComponent); override;
   published
     property IP: string read GetVirtualIP write SetVirtualIP;
     property Mask: string read FMask write FMask;
@@ -65,27 +66,27 @@ type
     FEtcdClusterToken: string;
     FExisting: boolean;
     FPostgresParameters: string;
-    FVIPManager: TVIPManager;
     procedure SetEtcdClusterToken(const Value: string);
     procedure SetReplicationPassword(const Value: string);
     procedure SetSuperUserPassword(const Value: string);
     function GetNode(Index: Integer): TNode;
-    procedure SetVIPManager(const Value: TVIPManager);
     function GetNodeCount: integer;
+    function GetVIPManager: TVIPManager;
   protected
     procedure GetChildren(Proc: TGetChildProc; Root: TComponent); override;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    procedure Notification(AComponent: TComponent; Operation: TOperation); override;
     function GetEtcdInitialCluster: string;
     function GetEtcdHostListPatroni: string;
+    function GetEtcdNodeCount: integer;
     procedure SaveToStream(AStream: TStream);
     procedure SaveToFile(AFileName: string);
     procedure LoadFromStream(AStream: TStream);
     procedure LoadFromFile(AFileName: string);
     property Nodes[Index: Integer]: TNode read GetNode;
     property NodeCount: integer read GetNodeCount;
+    property VIPManager: TVIPManager read GetVIPManager;
   published
     property PostgresDir: string read FPostgresDir write FPostgresDir;
     property DataDir: string read FDataDir write FDataDir;
@@ -96,7 +97,6 @@ type
     property EtcdClusterToken: string read FEtcdClusterToken write SetEtcdClusterToken;
     property Existing: boolean read FExisting write FExisting;
     property PostgresParameters: string read FPostgresParameters write FPostgresParameters;
-    property VIPManager: TVIPManager read FVIPManager write SetVIPManager;
   end;
 
 implementation
@@ -116,14 +116,12 @@ end;
 constructor TCluster.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  // FNodes := TObjectList<TNode>.Create();
   FSuperUser := 'postgres';
   FReplicationRole := 'replicator';
 end;
 
 destructor TCluster.Destroy;
 begin
-  // FNodes.Free;
   inherited;
 end;
 
@@ -164,26 +162,49 @@ begin
     Result.Remove(Length(Result) - 1);
 end;
 
+function TCluster.GetEtcdNodeCount: integer;
+var
+  I: Integer;
+begin
+  Result := 0;
+  for I := 0 to ComponentCount - 1 do
+    if Nodes[I].HasEtcd then
+      inc(Result);
+end;
+
 function TCluster.GetNode(Index: Integer): TNode;
 var
-  AComp: TComponent;
+  AComponent: TComponent;
   i: integer;
 begin
   Result := nil;
   i := 0;
-  for AComp in Self do
-    if AComp is TNode then
+  for AComponent in Self do
+    if AComponent is TNode then
     begin
-      if i = Index then Exit(AComp as TNode);
+      if i = Index then Exit(AComponent as TNode);
       Inc(i);
     end;
 end;
 
 function TCluster.GetNodeCount: integer;
+var
+  AComponent: TObject;
 begin
-  Result := ComponentCount;
-  if Assigned(FVIPManager) and (FVIPManager.Owner = Self) then
-    Dec(Result);
+  Result := 0;
+  for AComponent in Self do
+    if AComponent is TNode then
+      Inc(Result);
+end;
+
+function TCluster.GetVIPManager: TVIPManager;
+var
+  AComponent: TObject;
+begin
+  Result := nil;
+  for AComponent in Self do
+    if AComponent is TVIPManager then
+      Exit(AComponent as TVIPManager);
 end;
 
 procedure TCluster.SetEtcdClusterToken(const Value: string);
@@ -201,14 +222,6 @@ begin
   FSuperUserPassword := ifthen(Value = '', RandomPassword(), Value)
 end;
 
-procedure TCluster.SetVIPManager(const Value: TVIPManager);
-begin
-  if not Assigned(Value) then
-    Exit;
-  FVIPManager := Value;
-  FVIPManager.FreeNotification(Self);
-end;
-
 { TNode }
 
 constructor TNode.Create(AOwner: TComponent);
@@ -216,6 +229,9 @@ begin
   if not Assigned(AOwner) then
     raise Exception.Create('Node owner cannot be nil');
   inherited Create(AOwner as TCluster);
+  FIP := '127.0.0.1';
+  FHasEtcd := True;
+  FHasDatabase := True;
   FListenAddress := '0.0.0.0';
   SetSubComponent(True);
 end;
@@ -305,7 +321,7 @@ procedure TCluster.LoadFromFile(AFileName: string);
 var
   StrStream: TStringStream;
 begin
-  RegisterClasses([TNode]);
+  RegisterClasses([TNode, TVIPManager]);
   StrStream := TStringStream.Create(TFile.ReadAllText(AFileName));
   try
     LoadFromStream(StrStream);
@@ -327,13 +343,6 @@ begin
   finally
     BinStream.Free;
   end;
-end;
-
-procedure TCluster.Notification(AComponent: TComponent; Operation: TOperation);
-begin
-  inherited;
-  if (AComponent = FVIPManager) and (Operation = opRemove) then
-    FVIPManager := nil;
 end;
 
 procedure TCluster.SaveToStream(AStream: TStream);
@@ -367,21 +376,23 @@ end;
 
 procedure TCluster.GetChildren(Proc: TGetChildProc; Root: TComponent);
 var
-  I: Integer;
-  Node: TNode;
+  AComponent: TComponent;
 begin
   if @Proc = nil then
     raise Exception.CreateFmt('Parameter %s cannot be nil', ['Proc']);
-  if Assigned(FVIPManager) then Proc(FVIPManager);
-  for I := 0 to ComponentCount - 1 do
-  begin
-    Node := Nodes[I];
-    if Node.Owner = Root then
-      Proc(Node);
-  end;
+  for AComponent in Self do
+    if AComponent.Owner = Root then
+      Proc(AComponent);
 end;
 
 { TVIPManager }
+
+constructor TVIPManager.Create(AOwner: TComponent);
+begin
+  if (AOwner is TCluster) and Assigned(TCluster(AOwner).VIPManager) then
+    raise Exception.Create('Cannot create several instances of VIPManager');
+  inherited;
+end;
 
 function TVIPManager.GetVirtualIP: string;
 begin

@@ -2255,6 +2255,14 @@ object fmInstall: TfmInstall
         TabOrder = 5
         OnClick = btnAddNodeClick
       end
+      object btnDeleteNode: TButton
+        Left = 95
+        Top = 288
+        Width = 75
+        Height = 25
+        Action = acDeleteNode
+        TabOrder = 6
+      end
     end
     object tabVIPManager: TTabSheet
       Caption = 'VIP Manager'
@@ -2469,6 +2477,11 @@ object fmInstall: TfmInstall
     object acGetConfig: TAction
       Caption = 'acGetConfig'
       OnExecute = acGetConfigExecute
+    end
+    object acDeleteNode: TAction
+      Caption = 'Delete'
+      OnExecute = btnDeleteNodeClick
+      OnUpdate = acDeleteNodeUpdate
     end
   end
   object SynJSONSyn1: TSynJSONSyn

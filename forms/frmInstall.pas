@@ -71,6 +71,8 @@ type
     edBinDir: TEdit;
     edDataDir: TEdit;
     btnAddNode: TButton;
+    btnDeleteNode: TButton;
+    acDeleteNode: TAction;
     procedure UpdateInfo(Sender: TObject);
     procedure acFinishUpdate(Sender: TObject);
     procedure btnGenerateConfigsClick(Sender: TObject);
@@ -93,6 +95,8 @@ type
     procedure vstNodesFreeNode(Sender: TBaseVirtualTree; Node: PVirtualNode);
     procedure vstNodesNodeClick(Sender: TBaseVirtualTree;
       const HitInfo: THitInfo);
+    procedure btnDeleteNodeClick(Sender: TObject);
+    procedure acDeleteNodeUpdate(Sender: TObject);
   private
     Cluster: TCluster;
   public
@@ -110,6 +114,11 @@ implementation
 uses Math, IOUtils;
 
 {$R *.dfm}
+
+procedure TfmInstall.acDeleteNodeUpdate(Sender: TObject);
+begin
+  TAction(Sender).Enabled := vstNodes.SelectedCount > 0;
+end;
 
 procedure TfmInstall.acFinishUpdate(Sender: TObject);
 begin
@@ -139,6 +148,11 @@ end;
 procedure TfmInstall.btnAddNodeClick(Sender: TObject);
 begin
   vstNodes.AddChild(nil, TNode.Create(Cluster));
+end;
+
+procedure TfmInstall.btnDeleteNodeClick(Sender: TObject);
+begin
+  vstNodes.DeleteSelectedNodes();
 end;
 
 procedure TfmInstall.btnDiscoverClick(Sender: TObject);

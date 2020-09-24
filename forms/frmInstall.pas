@@ -177,10 +177,13 @@ begin
   Cluster.PostgresParameters := '';
   if chkEnableVIP.Checked then
   begin
-    VIPManager := TVIPManager.Create(Cluster);
+    VIPManager := Cluster.VIPManager;
+    if not Assigned(VIPManager) then
+      VIPManager := TVIPManager.Create(Cluster);
     VIPManager.IP := edVIP.Text;
     VIPManager.Mask := edVIPMask.Text;
-  end;
+  end else
+    Cluster.VIPManager.Free;
   IOUtils.TDirectory.CreateDirectory(Cluster.Name);
   Cluster.SaveToFile(Cluster.Name + '\cluster.txt');
   ss := TStringStream.Create;
@@ -194,8 +197,8 @@ end;
 
 procedure TfmInstall.btnLoadConfigClick(Sender: TObject);
 begin
-  Cluster.Free;
-  Cluster := TCluster.Create(Self);
+  vstNodes.Clear; //this will destroy nodes in cluster
+  Cluster.VIPManager.Free;
   try
     Cluster.LoadFromFile('pgcluster\cluster.txt');
     InvalidateCluster(Cluster);
@@ -222,14 +225,16 @@ begin
   edSuperuserPassword.Text := ACluster.SuperUserPassword;
   edClusterToken.Text := ACluster.EtcdClusterToken;
 
+  chkEnableVIP.Checked := False;
+
   vstNodes.BeginUpdate;
-  vstNodes.Clear;
   try
     for i := 0 to ACluster.ComponentCount - 1 do
       if ACluster.Components[i] is TNode then
         vstNodes.AddChild(nil, ACluster.Components[i])
       else
       begin
+        chkEnableVIP.Checked := True;
         edVIP.Text := TVIPManager(ACluster.Components[i]).IP;
         edVIPMask.Text := TVIPManager(ACluster.Components[i]).Mask;
       end;
@@ -338,14 +343,10 @@ begin
   if Assigned(AnObj) and (AnObj is TNode) then
     with TNode(AnObj) do
       case Column of
-        0:
-          CellText := IP;
-        1:
-          CellText := ifthen(HasDatabase, '✔', '❌');
-        2:
-          CellText := ifthen(HasEtcd, '✔', '❌');
-        3:
-          CellText := ifthen(NoFailover, '✔', '❌');//BoolToStr(NoFailover, True);
+        0: CellText := IP;
+        1: CellText := ifthen(HasDatabase, '✔', '❌');
+        2: CellText := ifthen(HasEtcd, '✔', '❌');
+        3: CellText := ifthen(NoFailover, '✔', '❌');
       end;
 end;
 

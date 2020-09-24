@@ -21,6 +21,7 @@ type
     function GetVirtualIP: string;
     procedure SetVirtualIP(const Value: string);
   public
+    constructor Create(AOwner: TComponent); override;
   published
     property IP: string read GetVirtualIP write SetVirtualIP;
     property Mask: string read FMask write FMask;
@@ -70,6 +71,7 @@ type
     procedure SetSuperUserPassword(const Value: string);
     function GetNode(Index: Integer): TNode;
     function GetNodeCount: integer;
+    function GetVIPManager: TVIPManager;
   protected
     procedure GetChildren(Proc: TGetChildProc; Root: TComponent); override;
   public
@@ -84,6 +86,7 @@ type
     procedure LoadFromFile(AFileName: string);
     property Nodes[Index: Integer]: TNode read GetNode;
     property NodeCount: integer read GetNodeCount;
+    property VIPManager: TVIPManager read GetVIPManager;
   published
     property PostgresDir: string read FPostgresDir write FPostgresDir;
     property DataDir: string read FDataDir write FDataDir;
@@ -113,14 +116,12 @@ end;
 constructor TCluster.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  // FNodes := TObjectList<TNode>.Create();
   FSuperUser := 'postgres';
   FReplicationRole := 'replicator';
 end;
 
 destructor TCluster.Destroy;
 begin
-  // FNodes.Free;
   inherited;
 end;
 
@@ -173,23 +174,37 @@ end;
 
 function TCluster.GetNode(Index: Integer): TNode;
 var
-  AComp: TComponent;
+  AComponent: TComponent;
   i: integer;
 begin
   Result := nil;
   i := 0;
-  for AComp in Self do
-    if AComp is TNode then
+  for AComponent in Self do
+    if AComponent is TNode then
     begin
-      if i = Index then Exit(AComp as TNode);
+      if i = Index then Exit(AComponent as TNode);
       Inc(i);
     end;
 end;
 
 function TCluster.GetNodeCount: integer;
+var
+  AComponent: TObject;
 begin
-  Result := ComponentCount;
-  //$MESSAGE WARN ll
+  Result := 0;
+  for AComponent in Self do
+    if AComponent is TNode then
+      Inc(Result);
+end;
+
+function TCluster.GetVIPManager: TVIPManager;
+var
+  AComponent: TObject;
+begin
+  Result := nil;
+  for AComponent in Self do
+    if AComponent is TVIPManager then
+      Exit(AComponent as TVIPManager);
 end;
 
 procedure TCluster.SetEtcdClusterToken(const Value: string);
@@ -361,20 +376,23 @@ end;
 
 procedure TCluster.GetChildren(Proc: TGetChildProc; Root: TComponent);
 var
-  I: Integer;
-  Node: TNode;
+  AComponent: TComponent;
 begin
   if @Proc = nil then
     raise Exception.CreateFmt('Parameter %s cannot be nil', ['Proc']);
-  for I := 0 to ComponentCount - 1 do
-  begin
-    Node := Nodes[I];
-    if Node.Owner = Root then
-      Proc(Node);
-  end;
+  for AComponent in Self do
+    if AComponent.Owner = Root then
+      Proc(AComponent);
 end;
 
 { TVIPManager }
+
+constructor TVIPManager.Create(AOwner: TComponent);
+begin
+  if (AOwner is TCluster) and Assigned(TCluster(AOwner).VIPManager) then
+    raise Exception.Create('Cannot create several instances of VIPManager');
+  inherited;
+end;
 
 function TVIPManager.GetVirtualIP: string;
 begin

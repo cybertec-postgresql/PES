@@ -2197,7 +2197,7 @@ object fmInstall: TfmInstall
         Width = 529
         Height = 194
         Header.AutoSizeIndex = 0
-        Header.Options = [hoColumnResize, hoDrag, hoShowSortGlyphs, hoVisible]
+        Header.Options = [hoColumnResize, hoDrag, hoShowImages, hoShowSortGlyphs, hoVisible]
         Indent = 5
         LineMode = lmBands
         TabOrder = 2
@@ -2216,20 +2216,17 @@ object fmInstall: TfmInstall
           end
           item
             Alignment = taCenter
-            CheckBox = True
             Position = 1
             Text = 'Database'
             Width = 60
           end
           item
             Alignment = taCenter
-            CheckBox = True
             Position = 2
             Text = 'Etcd'
           end
           item
             Alignment = taCenter
-            CheckBox = True
             Position = 3
             Text = 'No Failover'
             Width = 68

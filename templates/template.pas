@@ -321,7 +321,6 @@ procedure TCluster.LoadFromFile(AFileName: string);
 var
   StrStream: TStringStream;
 begin
-  RegisterClasses([TNode, TVIPManager]);
   StrStream := TStringStream.Create(TFile.ReadAllText(AFileName));
   try
     LoadFromStream(StrStream);
@@ -410,5 +409,9 @@ begin
       raise Exception.Create('Incorrect IP or domain name value');
   end;
 end;
+
+initialization
+
+RegisterClasses([TCluster, TNode, TVIPManager]);
 
 end.

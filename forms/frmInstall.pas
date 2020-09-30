@@ -8,7 +8,7 @@ uses
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls,
   System.StrUtils, PythonVersions,
   Console, template, Vcl.ComCtrls, Vcl.ExtActns, System.Actions, Vcl.ActnList,
-  SynEdit,
+  SynEdit, uTetherModule,
   SynEditHighlighter, SynHighlighterJSON, Winapi.ShlObj, IPPeerClient,
   IPPeerServer, System.Tether.Manager, System.Tether.AppProfile,
   SynEditCodeFolding, VirtualTrees, Vcl.Imaging.jpeg;
@@ -58,11 +58,9 @@ type
     Label10: TLabel;
     chkEnableVIP: TCheckBox;
     acVIP: TAction;
-    tetheringManager: TTetheringManager;
-    tetheringProfile: TTetheringAppProfile;
     tsTethering: TTabSheet;
-    Memo1: TMemo;
-    btnDiscover: TButton;
+    mmRemoteManagers: TMemo;
+    btnConnect: TButton;
     acGetConfig: TAction;
     SynEdit1: TSynEdit;
     vstNodes: TVirtualStringTree;
@@ -74,17 +72,14 @@ type
     btnGenerateConfigs: TButton;
     btnLoadConfig: TButton;
     btnSync: TButton;
-    procedure UpdateInfo(Sender: TObject);
+    tmCheckConnection: TTimer;
+    procedure UpdatePythonInfo(Sender: TObject);
     procedure acFinishUpdate(Sender: TObject);
     procedure btnGenerateConfigsClick(Sender: TObject);
     procedure btnLoadConfigClick(Sender: TObject);
     procedure acVIPUpdate(Sender: TObject);
-    procedure tetheringManagerEndManagersDiscovery(const Sender: TObject;
-      const ARemoteManagers: TTetheringManagerInfoList);
-    procedure btnDiscoverClick(Sender: TObject);
+    procedure btnConnectClick(Sender: TObject);
     procedure acGetConfigExecute(Sender: TObject);
-    procedure tetheringProfileResourceReceived(const Sender: TObject;
-      const AResource: TRemoteResource);
     procedure FormCreate(Sender: TObject);
     procedure vstNodesGetText(Sender: TBaseVirtualTree; Node: PVirtualNode;
       Column: TColumnIndex; TextType: TVSTTextType; var CellText: string);
@@ -101,6 +96,8 @@ type
     procedure edVIPChange(Sender: TObject);
     procedure edClusterChange(Sender: TObject);
     procedure btnSyncClick(Sender: TObject);
+    procedure OnResourceReceived(const Sender: TObject; const AResource: TRemoteResource);
+    procedure tmCheckConnectionTimer(Sender: TObject);
   private
     Cluster: TCluster;
   public
@@ -163,9 +160,9 @@ begin
   vstNodes.DeleteSelectedNodes();
 end;
 
-procedure TfmInstall.btnDiscoverClick(Sender: TObject);
+procedure TfmInstall.btnConnectClick(Sender: TObject);
 begin
-  tetheringManager.DiscoverManagers();
+  dmTether.Connect();
 end;
 
 procedure TfmInstall.btnGenerateConfigsClick(Sender: TObject);
@@ -193,7 +190,8 @@ begin
   ss := TStringStream.Create;
   try
     Cluster.SaveToStream(ss);
-    tetheringProfile.Resources.Items[0].Value := ss.DataString;
+    ss.Position := 0;
+    dmTether.SendStream(ss);
   finally
     ss.Free;
   end;
@@ -228,6 +226,7 @@ end;
 procedure TfmInstall.FormCreate(Sender: TObject);
 begin
   Cluster := TCluster.Create(Self);
+  dmTether.TetheringAppProfile.OnResourceReceived := OnResourceReceived;
 end;
 
 procedure TfmInstall.InvalidateCluster(ACluster: TCluster);
@@ -262,41 +261,41 @@ begin
 
 end;
 
-procedure TfmInstall.tetheringManagerEndManagersDiscovery(const Sender: TObject;
-  const ARemoteManagers: TTetheringManagerInfoList);
-var
-  i: Integer;
-begin
-  Memo1.Lines.Clear;
-  for i := 0 to ARemoteManagers.Count - 1 do
-    Memo1.Lines.Append(ARemoteManagers[i].ManagerName + ': ' + ARemoteManagers
-      [i].ConnectionString);
-end;
-
-procedure TfmInstall.tetheringProfileResourceReceived(const Sender: TObject;
+procedure TfmInstall.OnResourceReceived(const Sender: TObject;
   const AResource: TRemoteResource);
-var
-  Cluster: TCluster;
-  ss: TStringStream;
 begin
-  if AResource.ResType = TRemoteResourceType.Data then
-  begin
-    Cluster := TCluster.Create(Self);
-    try
-      ss := TStringStream.Create(AResource.Value.AsString);
-      try
-        Cluster.LoadFromStream(ss);
-        InvalidateCluster(Cluster);
-      finally
-        ss.Free();
-      end;
-    finally
-      Cluster.Free;
-    end;
+  if AResource.Hint <> dmTether.ResourceName then
+    Exit;
+  vstNodes.Clear; // this will destroy nodes in cluster
+  Cluster.VIPManager.Free;
+  try
+    Cluster.LoadFromStream(AResource.Value.AsStream);
+    InvalidateCluster(Cluster);
+  except
+    vstNodes.Clear;
   end;
 end;
 
-procedure TfmInstall.UpdateInfo(Sender: TObject);
+procedure TfmInstall.tmCheckConnectionTimer(Sender: TObject);
+var
+  AManager: TTetheringManagerInfo;
+begin
+  if not dmTether.IsConnected() then
+  begin
+    mmRemoteManagers.Lines.Text := 'You are not connected';
+    Exit;
+  end;
+  mmRemoteManagers.Lines.BeginUpdate;
+  try
+    mmRemoteManagers.Lines.Clear;
+    for AManager in dmTether.TetherManager.RemoteManagers do
+      mmRemoteManagers.Lines.Append(' - ' + AManager.ConnectionString);
+  finally
+    mmRemoteManagers.Lines.EndUpdate;
+  end;
+end;
+
+procedure TfmInstall.UpdatePythonInfo(Sender: TObject);
 var
   v: TPythonVersion;
   vv: TPythonVersions;

@@ -2003,26 +2003,26 @@ object fmInstall: TfmInstall
     object tsTethering: TTabSheet
       Caption = 'tsTethering'
       ImageIndex = 5
-      object Memo1: TMemo
+      object mmRemoteManagers: TMemo
         Left = 16
         Top = 16
-        Width = 185
-        Height = 89
+        Width = 329
+        Height = 353
         TabOrder = 0
       end
-      object btnDiscover: TButton
-        Left = 16
-        Top = 126
+      object btnConnect: TButton
+        Left = 437
+        Top = 16
         Width = 121
         Height = 35
-        Caption = 'Discover Setups'
+        Caption = 'Connect'
         TabOrder = 1
-        OnClick = btnDiscoverClick
+        OnClick = btnConnectClick
       end
     end
     object tabPython: TTabSheet
       Caption = 'Python'
-      OnShow = UpdateInfo
+      OnShow = UpdatePythonInfo
       DesignSize = (
         567
         491)
@@ -2376,13 +2376,6 @@ object fmInstall: TfmInstall
         Font.Style = []
         Font.Quality = fqClearTypeNatural
         TabOrder = 0
-        CodeFolding.GutterShapeSize = 11
-        CodeFolding.CollapsedLineColor = clGrayText
-        CodeFolding.FolderBarLinesColor = clGrayText
-        CodeFolding.IndentGuidesColor = clGray
-        CodeFolding.IndentGuides = True
-        CodeFolding.ShowCollapsedLine = False
-        CodeFolding.ShowHintMark = True
         UseCodeFolding = False
         Gutter.Font.Charset = DEFAULT_CHARSET
         Gutter.Font.Color = clWindowText
@@ -2494,7 +2487,6 @@ object fmInstall: TfmInstall
     end
     object acGetConfig: TAction
       Caption = 'acGetConfig'
-      OnExecute = acGetConfigExecute
     end
     object acDeleteNode: TAction
       Caption = 'Delete'
@@ -2510,32 +2502,9 @@ object fmInstall: TfmInstall
     Left = 648
     Top = 16
   end
-  object tetheringManager: TTetheringManager
-    OnEndManagersDiscovery = tetheringManagerEndManagersDiscovery
-    Text = 'Application Tethering'
-    AllowedAdapters = 'Network'
-    Left = 392
-    Top = 24
-  end
-  object tetheringProfile: TTetheringAppProfile
-    Manager = tetheringManager
-    Text = 'appTethering'
-    Actions = <
-      item
-        Name = 'acNext'
-        IsPublic = True
-        Kind = Mirror
-        Action = acGetConfig
-        NotifyUpdates = False
-      end>
-    Resources = <
-      item
-        Name = 'Cluster'
-        IsPublic = True
-        ResType = Stream
-      end>
-    OnResourceReceived = tetheringProfileResourceReceived
-    Left = 480
+  object tmCheckConnection: TTimer
+    OnTimer = tmCheckConnectionTimer
+    Left = 275
     Top = 24
   end
 end

@@ -2354,11 +2354,9 @@ object fmInstall: TfmInstall
         Top = 32
         Width = 185
         Height = 17
+        Action = acVIP
         Caption = 'Enable VIP Manager'
-        Checked = True
-        State = cbChecked
         TabOrder = 4
-        OnClick = acVIPUpdate
       end
     end
     object TabSheet1: TTabSheet
@@ -2483,6 +2481,7 @@ object fmInstall: TfmInstall
     object acVIP: TAction
       AutoCheck = True
       Caption = 'Disable VIP Manager'
+      OnExecute = acVIPCheck
       OnUpdate = acVIPUpdate
     end
     object acGetConfig: TAction

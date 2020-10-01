@@ -77,7 +77,7 @@ type
     procedure acFinishUpdate(Sender: TObject);
     procedure btnGenerateConfigsClick(Sender: TObject);
     procedure btnLoadConfigClick(Sender: TObject);
-    procedure acVIPUpdate(Sender: TObject);
+    procedure acVIPCheck(Sender: TObject);
     procedure btnConnectClick(Sender: TObject);
     procedure acGetConfigExecute(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -98,6 +98,7 @@ type
     procedure btnSyncClick(Sender: TObject);
     procedure OnResourceReceived(const Sender: TObject; const AResource: TRemoteResource);
     procedure tmCheckConnectionTimer(Sender: TObject);
+    procedure acVIPUpdate(Sender: TObject);
   private
     Cluster: TCluster;
   public
@@ -123,8 +124,7 @@ end;
 
 procedure TfmInstall.acFinishUpdate(Sender: TObject);
 begin
-  (Sender as TAction).Enabled := pcWizard.ActivePageIndex = pcWizard.
-    PageCount - 1;
+  (Sender as TAction).Enabled := pcWizard.ActivePageIndex = pcWizard.PageCount - 1;
 end;
 
 procedure TfmInstall.acGetConfigExecute(Sender: TObject);
@@ -132,14 +132,19 @@ begin
   btnGenerateConfigsClick(nil);
 end;
 
-procedure TfmInstall.acVIPUpdate(Sender: TObject);
-var
-  i: Integer;
+procedure TfmInstall.acVIPCheck(Sender: TObject);
 begin
   if not chkEnableVIP.Checked then
     Cluster.VIPManager.Free
   else
     TVIPManager.Create(Cluster);
+end;
+
+procedure TfmInstall.acVIPUpdate(Sender: TObject);
+var
+  i: Integer;
+begin
+  chkEnableVIP.Checked := Assigned(Cluster.VIPManager);
   for i := 0 to tabVIPManager.ControlCount - 1 do
     if tabVIPManager.Controls[i] is TLabel then
       with TLabel(tabVIPManager.Controls[i]) do

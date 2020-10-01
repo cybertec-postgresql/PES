@@ -1,7 +1,7 @@
 object fmInstall: TfmInstall
   Left = 0
   Top = 0
-  Caption = 'Patroni Environment Seup'
+  Caption = 'Patroni Environment Setup'
   ClientHeight = 661
   ClientWidth = 575
   Color = clBtnFace

@@ -4,14 +4,11 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
-  System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls,
-  System.StrUtils, PythonVersions,
-  Console, template, Vcl.ComCtrls, Vcl.ExtActns, System.Actions, Vcl.ActnList,
-  SynEdit, uTetherModule,
-  SynEditHighlighter, SynHighlighterJSON, Winapi.ShlObj, IPPeerClient,
-  IPPeerServer, System.Tether.Manager, System.Tether.AppProfile,
-  SynEditCodeFolding, VirtualTrees, Vcl.Imaging.jpeg;
+  System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls,
+  System.StrUtils, PythonVersions,Console, template, Vcl.ComCtrls, Vcl.ExtActns, System.Actions,
+  Vcl.ActnList, SynEdit, uTetherModule, SynEditHighlighter, SynHighlighterJSON, Winapi.ShlObj,
+  IPPeerClient, IPPeerServer, System.Tether.Manager, System.Tether.AppProfile, SynEditCodeFolding,
+  VirtualTrees, Vcl.Imaging.jpeg;
 
 type
   TfmInstall = class(TForm)

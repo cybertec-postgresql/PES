@@ -12,15 +12,13 @@ type
 
   TVIPManager = class(TComponent)
   private
-    FVirtualIP: TIPAddress;
     FIP: string;
     FMask: string;
     FInterfaceName: string;
     FKey: string;
     FNodeName: string;
     FEndPoints: string;
-    function GetVirtualIP: string;
-    procedure SetVirtualIP(const Value: string);
+    FEnabled: boolean;
   public
     constructor Create(AOwner: TComponent); override;
   published
@@ -30,6 +28,7 @@ type
     property Key: string read FKey write FKey;
     property NodeName: string read FNodeName write FNodeName;
     property EndPoints: string read FEndPoints write FEndPoints;
+    property Enabled: boolean read FEnabled write FEnabled;
   end;
 
   TNode = class(TComponent)
@@ -67,12 +66,12 @@ type
     FEtcdClusterToken: string;
     FExisting: boolean;
     FPostgresParameters: string;
+    FVIPManager: TVIPManager;
     procedure SetEtcdClusterToken(const Value: string);
     procedure SetReplicationPassword(const Value: string);
     procedure SetSuperUserPassword(const Value: string);
     function GetNode(Index: Integer): TNode;
     function GetNodeCount: integer;
-    function GetVIPManager: TVIPManager;
   protected
     procedure GetChildren(Proc: TGetChildProc; Root: TComponent); override;
   public
@@ -87,7 +86,6 @@ type
     procedure LoadFromFile(AFileName: string);
     property Nodes[Index: Integer]: TNode read GetNode;
     property NodeCount: integer read GetNodeCount;
-    property VIPManager: TVIPManager read GetVIPManager;
   published
     property PostgresDir: string read FPostgresDir write FPostgresDir;
     property DataDir: string read FDataDir write FDataDir;
@@ -98,6 +96,7 @@ type
     property EtcdClusterToken: string read FEtcdClusterToken write SetEtcdClusterToken;
     property Existing: boolean read FExisting write FExisting;
     property PostgresParameters: string read FPostgresParameters write FPostgresParameters;
+    property VIPManager: TVIPManager read FVIPManager;
   end;
 
 implementation
@@ -117,6 +116,9 @@ end;
 constructor TCluster.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
+  Name := 'pgcluster'; { do not localize }
+  FVIPManager := TVIPManager.Create(Self);
+  FVIPManager.FreeNotification(Self);
   FSuperUser := 'postgres';
   FReplicationRole := 'replicator';
 end;
@@ -174,38 +176,13 @@ begin
 end;
 
 function TCluster.GetNode(Index: Integer): TNode;
-var
-  AComponent: TComponent;
-  i: integer;
 begin
-  Result := nil;
-  i := 0;
-  for AComponent in Self do
-    if AComponent is TNode then
-    begin
-      if i = Index then Exit(AComponent as TNode);
-      Inc(i);
-    end;
+  Result := Components[Index] as TNode;
 end;
 
 function TCluster.GetNodeCount: integer;
-var
-  AComponent: TObject;
 begin
-  Result := 0;
-  for AComponent in Self do
-    if AComponent is TNode then
-      Inc(Result);
-end;
-
-function TCluster.GetVIPManager: TVIPManager;
-var
-  AComponent: TObject;
-begin
-  Result := nil;
-  for AComponent in Self do
-    if AComponent is TVIPManager then
-      Exit(AComponent as TVIPManager);
+  Result := ComponentCount;
 end;
 
 procedure TCluster.SetEtcdClusterToken(const Value: string);
@@ -381,7 +358,7 @@ begin
   if @Proc = nil then
     raise Exception.CreateFmt('Parameter %s cannot be nil', ['Proc']);
   for AComponent in Self do
-    if AComponent.Owner = Root then
+    if (AComponent is TNode) and (AComponent.Owner = Root) then
       Proc(AComponent);
 end;
 
@@ -389,27 +366,23 @@ end;
 
 constructor TVIPManager.Create(AOwner: TComponent);
 begin
-  if (AOwner is TCluster) and Assigned(TCluster(AOwner).VIPManager) then
-    raise Exception.Create('Cannot create several instances of VIPManager');
-  inherited;
+  inherited Create(AOwner);
+  Name := 'VIPManager';  { do not localize }
+  SetSubComponent(True);
 end;
 
-function TVIPManager.GetVirtualIP: string;
-begin
-  Result := FVirtualIP.Address
-end;
 
-procedure TVIPManager.SetVirtualIP(const Value: string);
-begin
-  FVirtualIP := TIPAddress.LookupAddress(Value);
-  if (FVirtualIP.Addr.S_addr = INADDR_NONE) or
-    (FVirtualIP.Addr.S_addr = INADDR_ANY) then
-  begin
-    FVirtualIP := TIPAddress.LookupName(Value);
-    if FVirtualIP.Addr.S_addr = INADDR_ANY then
-      raise Exception.Create('Incorrect IP or domain name value');
-  end;
-end;
+//procedure TVIPManager.SetVirtualIP(const Value: string);
+//begin
+//  FVirtualIP := TIPAddress.LookupAddress(Value);
+//  if (FVirtualIP.Addr.S_addr = INADDR_NONE) or
+//    (FVirtualIP.Addr.S_addr = INADDR_ANY) then
+//  begin
+//    FVirtualIP := TIPAddress.LookupName(Value);
+//    if FVirtualIP.Addr.S_addr = INADDR_ANY then
+//      raise Exception.Create('Incorrect IP or domain name value');
+//  end;
+//end;
 
 initialization
 

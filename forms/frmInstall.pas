@@ -134,17 +134,13 @@ end;
 
 procedure TfmInstall.acVIPCheck(Sender: TObject);
 begin
-  if not chkEnableVIP.Checked then
-    Cluster.VIPManager.Free
-  else
-    TVIPManager.Create(Cluster);
+  Cluster.VIPManager.Enabled := chkEnableVIP.Checked;
 end;
 
 procedure TfmInstall.acVIPUpdate(Sender: TObject);
 var
   i: Integer;
 begin
-  chkEnableVIP.Checked := Assigned(Cluster.VIPManager);
   for i := 0 to tabVIPManager.ControlCount - 1 do
     if tabVIPManager.Controls[i] is TLabel then
       with TLabel(tabVIPManager.Controls[i]) do
@@ -217,15 +213,11 @@ begin
 end;
 
 procedure TfmInstall.edVIPChange(Sender: TObject);
-var
-  vipm: TVIPManager;
 begin
-  vipm := Cluster.VIPManager;
-  if not Assigned(vipm) then Exit;
-  vipm.IP := edVIP.Text;
-  vipm.Mask := edVIPMask.Text;
-  vipm.InterfaceName := edVIPInterface.Text;
-  vipm.Key := edVIPKey.Text;
+  Cluster.VIPManager.IP := edVIP.Text;
+  Cluster.VIPManager.Mask := edVIPMask.Text;
+  Cluster.VIPManager.InterfaceName := edVIPInterface.Text;
+  Cluster.VIPManager.Key := edVIPKey.Text;
 end;
 
 procedure TfmInstall.FormCreate(Sender: TObject);

@@ -1997,7 +1997,7 @@ object fmInstall: TfmInstall
     Top = 105
     Width = 575
     Height = 519
-    ActivePage = tabNodes
+    ActivePage = tabVIPManager
     Align = alClient
     TabOrder = 1
     object tsTethering: TTabSheet
@@ -2101,7 +2101,7 @@ object fmInstall: TfmInstall
         Height = 21
         TabOrder = 1
         Text = 'replicator'
-        OnChange = edClusterChange
+        OnChange = UpdateCluster
       end
       object edReplicationPassword: TEdit
         Left = 166
@@ -2109,7 +2109,7 @@ object fmInstall: TfmInstall
         Width = 121
         Height = 21
         TabOrder = 3
-        OnChange = edClusterChange
+        OnChange = UpdateCluster
       end
       object edSuperuserRole: TEdit
         Left = 14
@@ -2118,7 +2118,7 @@ object fmInstall: TfmInstall
         Height = 21
         TabOrder = 0
         Text = 'postgres'
-        OnChange = edClusterChange
+        OnChange = UpdateCluster
       end
       object edSuperuserPassword: TEdit
         Left = 166
@@ -2126,7 +2126,7 @@ object fmInstall: TfmInstall
         Width = 121
         Height = 21
         TabOrder = 2
-        OnChange = edClusterChange
+        OnChange = UpdateCluster
       end
       object edBinDir: TEdit
         Left = 14
@@ -2135,7 +2135,7 @@ object fmInstall: TfmInstall
         Height = 21
         TabOrder = 4
         Text = 'pgsql/bin'
-        OnChange = edClusterChange
+        OnChange = UpdateCluster
       end
       object edDataDir: TEdit
         Left = 14
@@ -2144,7 +2144,7 @@ object fmInstall: TfmInstall
         Height = 21
         TabOrder = 5
         Text = 'DataDir'
-        OnChange = edClusterChange
+        OnChange = UpdateCluster
       end
     end
     object tabNodes: TTabSheet
@@ -2180,7 +2180,7 @@ object fmInstall: TfmInstall
         Height = 21
         TabOrder = 0
         Text = 'pgcluster'
-        OnChange = edClusterChange
+        OnChange = UpdateCluster
       end
       object edClusterToken: TEdit
         Left = 166
@@ -2189,7 +2189,7 @@ object fmInstall: TfmInstall
         Height = 21
         TabOrder = 1
         Text = 'pgcluster'
-        OnChange = edClusterChange
+        OnChange = UpdateCluster
       end
       object vstNodes: TVirtualStringTree
         Left = 14
@@ -2320,7 +2320,7 @@ object fmInstall: TfmInstall
         Height = 21
         TabOrder = 0
         Text = '/service/pgcluster/leader'
-        OnChange = edVIPChange
+        OnChange = UpdateCluster
       end
       object edVIPMask: TEdit
         Left = 302
@@ -2329,7 +2329,7 @@ object fmInstall: TfmInstall
         Height = 21
         TabOrder = 1
         Text = '255.255.255.0'
-        OnChange = edVIPChange
+        OnChange = UpdateCluster
       end
       object edVIPInterface: TEdit
         Left = 302
@@ -2338,7 +2338,7 @@ object fmInstall: TfmInstall
         Height = 21
         TabOrder = 2
         Text = 'Ethernet'
-        OnChange = edVIPChange
+        OnChange = UpdateCluster
       end
       object edVIP: TEdit
         Left = 22
@@ -2347,7 +2347,7 @@ object fmInstall: TfmInstall
         Height = 21
         TabOrder = 3
         Text = '10.0.0.42'
-        OnChange = edVIPChange
+        OnChange = UpdateCluster
       end
       object chkEnableVIP: TCheckBox
         Left = 16

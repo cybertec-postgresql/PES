@@ -90,12 +90,11 @@ type
       const HitInfo: THitInfo);
     procedure btnDeleteNodeClick(Sender: TObject);
     procedure acDeleteNodeUpdate(Sender: TObject);
-    procedure edVIPChange(Sender: TObject);
-    procedure edClusterChange(Sender: TObject);
     procedure btnSyncClick(Sender: TObject);
     procedure OnResourceReceived(const Sender: TObject; const AResource: TRemoteResource);
     procedure tmCheckConnectionTimer(Sender: TObject);
     procedure acVIPUpdate(Sender: TObject);
+    procedure UpdateCluster(Sender: TObject);
   private
     Cluster: TCluster;
   public
@@ -195,31 +194,10 @@ begin
   end;
 end;
 
-procedure TfmInstall.edClusterChange(Sender: TObject);
-begin
-  Cluster.Name := edClusterName.Text;
-  Cluster.PostgresDir := edBinDir.Text;
-  Cluster.DataDir := edDataDir.Text;
-  Cluster.ReplicationRole := edReplicationRole.Text;
-  Cluster.ReplicationPassword := edReplicationPassword.Text;
-  Cluster.SuperUser := edSuperuserRole.Text;
-  Cluster.SuperUserPassword := edSuperuserPassword.Text;
-  Cluster.EtcdClusterToken := edClusterToken.Text;
-  Cluster.Existing := False;
-  Cluster.PostgresParameters := '';
-end;
-
-procedure TfmInstall.edVIPChange(Sender: TObject);
-begin
-  Cluster.VIPManager.IP := edVIP.Text;
-  Cluster.VIPManager.Mask := edVIPMask.Text;
-  Cluster.VIPManager.InterfaceName := edVIPInterface.Text;
-  Cluster.VIPManager.Key := edVIPKey.Text;
-end;
-
 procedure TfmInstall.FormCreate(Sender: TObject);
 begin
   Cluster := TCluster.Create(Self);
+  UpdateCluster(Cluster);
   dmTether.TetheringAppProfile.OnResourceReceived := OnResourceReceived;
 end;
 
@@ -287,6 +265,24 @@ begin
   finally
     mmRemoteManagers.Lines.EndUpdate;
   end;
+end;
+
+procedure TfmInstall.UpdateCluster;
+begin
+  Cluster.Name := edClusterName.Text;
+  Cluster.PostgresDir := edBinDir.Text;
+  Cluster.DataDir := edDataDir.Text;
+  Cluster.ReplicationRole := edReplicationRole.Text;
+  Cluster.ReplicationPassword := edReplicationPassword.Text;
+  Cluster.SuperUser := edSuperuserRole.Text;
+  Cluster.SuperUserPassword := edSuperuserPassword.Text;
+  Cluster.EtcdClusterToken := edClusterToken.Text;
+  Cluster.Existing := False;
+  Cluster.PostgresParameters := '';
+  Cluster.VIPManager.IP := edVIP.Text;
+  Cluster.VIPManager.Mask := edVIPMask.Text;
+  Cluster.VIPManager.InterfaceName := edVIPInterface.Text;
+  Cluster.VIPManager.Key := edVIPKey.Text;
 end;
 
 procedure TfmInstall.UpdatePythonInfo(Sender: TObject);

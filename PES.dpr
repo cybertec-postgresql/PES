@@ -8,13 +8,15 @@ uses
   MethodCallBack in 'python4delphi\PythonForDelphi\Components\Sources\Core\MethodCallBack.pas',
   console in 'helpers\console.pas',
   template in 'templates\template.pas',
-  VirtualTrees in 'virtualtreeview\Source\VirtualTrees.pas';
+  VirtualTrees in 'virtualtreeview\Source\VirtualTrees.pas',
+  uTetherModule in 'forms\uTetherModule.pas' {dmTether: TDataModule};
 
 {$R *.res}
 
 begin
   Application.Initialize;
   Application.MainFormOnTaskbar := True;
+  Application.CreateForm(TdmTether, dmTether);
   Application.CreateForm(TfmInstall, fmInstall);
   Application.Run;
 end.

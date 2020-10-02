@@ -13,6 +13,7 @@ type
   TVIPManager = class(TComponent)
   private
     FVirtualIP: TIPAddress;
+    FIP: string;
     FMask: string;
     FInterfaceName: string;
     FKey: string;
@@ -23,7 +24,7 @@ type
   public
     constructor Create(AOwner: TComponent); override;
   published
-    property IP: string read GetVirtualIP write SetVirtualIP;
+    property IP: string read FIP write FIP;
     property Mask: string read FMask write FMask;
     property InterfaceName: string read FInterfaceName write FInterfaceName;
     property Key: string read FKey write FKey;
@@ -321,7 +322,6 @@ procedure TCluster.LoadFromFile(AFileName: string);
 var
   StrStream: TStringStream;
 begin
-  RegisterClasses([TNode, TVIPManager]);
   StrStream := TStringStream.Create(TFile.ReadAllText(AFileName));
   try
     LoadFromStream(StrStream);
@@ -410,5 +410,9 @@ begin
       raise Exception.Create('Incorrect IP or domain name value');
   end;
 end;
+
+initialization
+
+RegisterClasses([TCluster, TNode, TVIPManager]);
 
 end.

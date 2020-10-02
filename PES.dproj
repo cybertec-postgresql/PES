@@ -6,7 +6,7 @@
         <MainSource>PES.dpr</MainSource>
         <Base>True</Base>
         <Config Condition="'$(Config)'==''">Debug</Config>
-        <Platform Condition="'$(Platform)'==''">Win64</Platform>
+        <Platform Condition="'$(Platform)'==''">Win32</Platform>
         <TargetedPlatforms>3</TargetedPlatforms>
         <AppType>Application</AppType>
     </PropertyGroup>
@@ -159,6 +159,11 @@
         <DCCReference Include="templates\template.pas"/>
         <DCCReference Include="virtualtreeview\Source\VirtualTrees.pas">
             <Form>$R *.res</Form>
+        </DCCReference>
+        <DCCReference Include="forms\uTetherModule.pas">
+            <Form>dmTether</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TDataModule</DesignClass>
         </DCCReference>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>

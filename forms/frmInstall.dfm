@@ -1997,22 +1997,34 @@ object fmInstall: TfmInstall
     Top = 105
     Width = 575
     Height = 519
-    ActivePage = tabVIPManager
+    ActivePage = tsTethering
     Align = alClient
     TabOrder = 1
     object tsTethering: TTabSheet
-      Caption = 'tsTethering'
+      Caption = 'Tethering'
       ImageIndex = 5
+      DesignSize = (
+        567
+        491)
       object mmRemoteManagers: TMemo
-        Left = 16
+        Left = 10
         Top = 16
-        Width = 329
+        Width = 542
         Height = 353
+        Anchors = [akLeft, akTop, akRight]
+        Lines.Strings = (
+          
+            'Connect to PES instances running on the other nodes within your ' +
+            'network to sync '
+          'settings with them and test cluster health online.'
+          ''
+          'Connected PES instances and their IPs will appear here.')
+        ReadOnly = True
         TabOrder = 0
       end
       object btnConnect: TButton
-        Left = 437
-        Top = 16
+        Left = 10
+        Top = 375
         Width = 121
         Height = 35
         Caption = 'Connect'

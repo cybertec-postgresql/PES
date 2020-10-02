@@ -87,15 +87,15 @@ type
     property Nodes[Index: Integer]: TNode read GetNode;
     property NodeCount: integer read GetNodeCount;
   published
-    property PostgresDir: string read FPostgresDir write FPostgresDir;
     property DataDir: string read FDataDir write FDataDir;
-    property ReplicationRole: string read FReplicationRole write FReplicationRole;
-    property ReplicationPassword: string read FReplicationPassword write SetReplicationPassword;
-    property SuperUser: string read FSuperUser write FSuperUser;
-    property SuperUserPassword: string read FSuperUserPassword write SetSuperUserPassword;
     property EtcdClusterToken: string read FEtcdClusterToken write SetEtcdClusterToken;
     property Existing: boolean read FExisting write FExisting;
+    property PostgresDir: string read FPostgresDir write FPostgresDir;
     property PostgresParameters: string read FPostgresParameters write FPostgresParameters;
+    property ReplicationPassword: string read FReplicationPassword write SetReplicationPassword;
+    property ReplicationRole: string read FReplicationRole write FReplicationRole;
+    property SuperUser: string read FSuperUser write FSuperUser;
+    property SuperUserPassword: string read FSuperUserPassword write SetSuperUserPassword;
     property VIPManager: TVIPManager read FVIPManager;
   end;
 

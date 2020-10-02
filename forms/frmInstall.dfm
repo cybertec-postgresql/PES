@@ -2,8 +2,8 @@ object fmInstall: TfmInstall
   Left = 0
   Top = 0
   Caption = 'Patroni Environment Setup'
-  ClientHeight = 661
-  ClientWidth = 575
+  ClientHeight = 594
+  ClientWidth = 572
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -18,7 +18,7 @@ object fmInstall: TfmInstall
   object imgHeader: TImage
     Left = 0
     Top = 0
-    Width = 575
+    Width = 572
     Height = 105
     Align = alTop
     Picture.Data = {
@@ -1949,17 +1949,19 @@ object fmInstall: TfmInstall
   end
   object pnlNavigation: TPanel
     Left = 0
-    Top = 624
-    Width = 575
+    Top = 557
+    Width = 572
     Height = 37
     Align = alBottom
     BevelOuter = bvNone
     TabOrder = 0
+    ExplicitTop = 624
+    ExplicitWidth = 575
     DesignSize = (
-      575
+      572
       37)
     object btnNext: TButton
-      Left = 230
+      Left = 227
       Top = 6
       Width = 75
       Height = 25
@@ -1968,9 +1970,10 @@ object fmInstall: TfmInstall
       Default = True
       ModalResult = 1
       TabOrder = 0
+      ExplicitLeft = 230
     end
     object btnBack: TButton
-      Left = 149
+      Left = 146
       Top = 6
       Width = 75
       Height = 25
@@ -1979,9 +1982,10 @@ object fmInstall: TfmInstall
       Cancel = True
       ModalResult = 2
       TabOrder = 1
+      ExplicitLeft = 149
     end
     object Button1: TButton
-      Left = 447
+      Left = 444
       Top = 6
       Width = 115
       Height = 25
@@ -1990,28 +1994,38 @@ object fmInstall: TfmInstall
       Default = True
       ModalResult = 1
       TabOrder = 2
+      ExplicitLeft = 447
     end
   end
   object pcWizard: TPageControl
     Left = 0
     Top = 105
-    Width = 575
-    Height = 519
-    ActivePage = tsTethering
+    Width = 572
+    Height = 452
+    ActivePage = tabPython
     Align = alClient
     TabOrder = 1
+    ExplicitWidth = 575
+    ExplicitHeight = 519
     object tsTethering: TTabSheet
       Caption = 'Tethering'
       ImageIndex = 5
+      ExplicitWidth = 567
+      ExplicitHeight = 491
       DesignSize = (
-        567
-        491)
+        564
+        424)
       object mmRemoteManagers: TMemo
         Left = 10
         Top = 16
-        Width = 542
+        Width = 539
         Height = 353
-        Anchors = [akLeft, akTop, akRight]
+        Anchors = [akLeft, akTop, akRight, akBottom]
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Consolas'
+        Font.Style = []
         Lines.Strings = (
           
             'Connect to PES instances running on the other nodes within your ' +
@@ -2019,45 +2033,68 @@ object fmInstall: TfmInstall
           'settings with them and test cluster health online.'
           ''
           'Connected PES instances and their IPs will appear here.')
+        ParentFont = False
         ReadOnly = True
         TabOrder = 0
+        ExplicitWidth = 542
+        ExplicitHeight = 417
       end
       object btnConnect: TButton
         Left = 10
-        Top = 375
+        Top = 380
         Width = 121
         Height = 35
+        Anchors = [akLeft, akBottom]
         Caption = 'Connect'
         TabOrder = 1
         OnClick = btnConnectClick
+        ExplicitTop = 439
       end
     end
     object tabPython: TTabSheet
       Caption = 'Python'
-      OnShow = UpdatePythonInfo
+      ExplicitWidth = 567
+      ExplicitHeight = 491
       DesignSize = (
-        567
-        491)
-      object btnInstall: TButton
-        Left = 11
-        Top = 225
-        Width = 129
-        Height = 25
-        Caption = 'Install Python'
-        TabOrder = 0
-      end
-      object mmInfo: TMemo
-        Left = 11
-        Top = 3
-        Width = 539
-        Height = 443
+        564
+        424)
+      object mmPython: TMemo
+        Left = 10
+        Top = 16
+        Width = 536
+        Height = 363
         Anchors = [akLeft, akTop, akRight, akBottom]
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Consolas'
+        Font.Style = []
+        Lines.Strings = (
+          'Patroni depends on Python and several packages. '
+          ''
+          'Click "Run Check" to see if dependancies are up to date!')
+        ParentFont = False
+        TabOrder = 0
+        ExplicitWidth = 539
+        ExplicitHeight = 430
+      end
+      object btnCheckPython: TButton
+        Left = 10
+        Top = 388
+        Width = 75
+        Height = 25
+        Anchors = [akLeft, akBottom]
+        Caption = 'Run Check'
         TabOrder = 1
+        OnClick = btnCheckPythonClick
+        ExplicitTop = 452
       end
     end
     object tabPostgres: TTabSheet
       Caption = 'PostgreSQL'
       ImageIndex = 3
+      ExplicitWidth = 567
+      ExplicitHeight = 491
       object lbBinDir: TLabel
         Left = 14
         Top = 18
@@ -2162,6 +2199,8 @@ object fmInstall: TfmInstall
     object tabNodes: TTabSheet
       Caption = 'Cluster Nodes'
       ImageIndex = 1
+      ExplicitWidth = 567
+      ExplicitHeight = 491
       object lbClusterName: TLabel
         Left = 14
         Top = 10
@@ -2293,6 +2332,8 @@ object fmInstall: TfmInstall
     object tabVIPManager: TTabSheet
       Caption = 'VIP Manager'
       ImageIndex = 4
+      ExplicitWidth = 567
+      ExplicitHeight = 491
       object Label7: TLabel
         Left = 22
         Top = 77
@@ -2374,11 +2415,13 @@ object fmInstall: TfmInstall
     object TabSheet1: TTabSheet
       Caption = 'TabSheet1'
       ImageIndex = 2
+      ExplicitWidth = 567
+      ExplicitHeight = 491
       object SynEdit1: TSynEdit
-        Left = 136
-        Top = 232
-        Width = 200
-        Height = 150
+        Left = 17
+        Top = 24
+        Width = 538
+        Height = 385
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
         Font.Height = -13
@@ -2514,6 +2557,7 @@ object fmInstall: TfmInstall
     Top = 16
   end
   object tmCheckConnection: TTimer
+    Enabled = False
     OnTimer = tmCheckConnectionTimer
     Left = 275
     Top = 24

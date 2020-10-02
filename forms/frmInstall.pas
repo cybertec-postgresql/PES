@@ -18,8 +18,7 @@ type
     imgHeader: TImage;
     pcWizard: TPageControl;
     tabPython: TTabSheet;
-    btnInstall: TButton;
-    mmInfo: TMemo;
+    mmPython: TMemo;
     alActions: TActionList;
     acBack: TPreviousTab;
     acNext: TNextTab;
@@ -70,7 +69,7 @@ type
     btnLoadConfig: TButton;
     btnSync: TButton;
     tmCheckConnection: TTimer;
-    procedure UpdatePythonInfo(Sender: TObject);
+    btnCheckPython: TButton;
     procedure acFinishUpdate(Sender: TObject);
     procedure btnGenerateConfigsClick(Sender: TObject);
     procedure btnLoadConfigClick(Sender: TObject);
@@ -95,6 +94,7 @@ type
     procedure tmCheckConnectionTimer(Sender: TObject);
     procedure acVIPUpdate(Sender: TObject);
     procedure UpdateCluster(Sender: TObject);
+    procedure btnCheckPythonClick(Sender: TObject);
   private
     Cluster: TCluster;
   public
@@ -109,7 +109,7 @@ const
 
 implementation
 
-uses Math, IOUtils;
+uses Math, IOUtils, PythonEngine, PythonGUIInputOutput;
 
 {$R *.dfm}
 
@@ -157,9 +157,56 @@ begin
   vstNodes.DeleteSelectedNodes();
 end;
 
+procedure TfmInstall.btnCheckPythonClick(Sender: TObject);
+var
+  pyEngine: TPythonEngine;
+  pyGUI: TPythonGUIInputOutput;
+
+  v: TPythonVersion;
+  vv: TPythonVersions;
+begin
+  mmPython.Clear;
+  mmPython.Lines.AddStrings([
+    'Default Python version in system:',
+    '---------------------------------',
+    GetDosOutput('python.exe -c "import sys; print(sys.version)" '), '',
+    'Installed Python versions in system:',
+    '------------------------------------']);
+  vv := GetRegisteredPythonVersions();
+  if length(vv) = 0 then
+  begin
+    mmPython.Lines.Add('No installed Python found!');
+    Exit;
+  end;
+
+  for v in vv do
+    mmPython.Lines.AddStrings(['Name: '+ v.DisplayName,
+        'Installation: ' + v.InstallPath,
+        'Executable: ' + v.PythonExecutable, '']);
+
+  pyEngine := TPythonEngine.Create(Self);
+  pyGUI := TPythonGUIInputOutput.Create(Self);
+  try
+    pyGUI.Output := mmPython;
+    pyGUI.RawOutput := False;
+    pyGUI.UnicodeIO := True;
+    mmPython.Lines.Add('Check Patroni packages installed:');
+    mmPython.Lines.Add('---------------------------------');
+    pyEngine.IO := pyGUI;
+    pyEngine.FatalAbort := False;
+    pyEngine.LoadDll;
+    if pyEngine.Initialized then
+      pyEngine.ExecString(TFile.ReadAllText('check_missing_pkgs.py', TEncoding.UTF8));
+  finally
+    FreeAndNil(pyEngine);
+    FreeAndNil(pyGUI);
+  end;
+end;
+
 procedure TfmInstall.btnConnectClick(Sender: TObject);
 begin
   dmTether.Connect();
+  tmCheckConnection.Enabled := True;
 end;
 
 procedure TfmInstall.btnGenerateConfigsClick(Sender: TObject);
@@ -238,6 +285,7 @@ procedure TfmInstall.OnResourceReceived(const Sender: TObject;
 begin
   if AResource.Hint <> dmTether.ResourceName then
     Exit;
+  tmCheckConnection.Enabled := True;
   vstNodes.Clear; // this will destroy nodes in cluster
   Cluster.VIPManager.Free;
   try
@@ -283,37 +331,6 @@ begin
   Cluster.VIPManager.Mask := edVIPMask.Text;
   Cluster.VIPManager.InterfaceName := edVIPInterface.Text;
   Cluster.VIPManager.Key := edVIPKey.Text;
-end;
-
-procedure TfmInstall.UpdatePythonInfo(Sender: TObject);
-var
-  v: TPythonVersion;
-  vv: TPythonVersions;
-begin
-  mmInfo.Clear;
-  mmInfo.Lines.Add('Default Python version in system:');
-  mmInfo.Lines.Add('---------------------------------');
-  mmInfo.Lines.Add
-    (GetDosOutput('python.exe -c "import sys; print(sys.version)" '));
-  mmInfo.Lines.Add('');
-  mmInfo.Lines.Add('Installed Python versions in system:');
-  mmInfo.Lines.Add('---------------------------------');
-  vv := GetRegisteredPythonVersions();
-  if Length(vv) > 0 then
-    btnInstall.Caption := ifthen(Length(vv) > 0, 'Upgrade Python',
-      'Install Python');
-
-  for v in vv do
-    with mmInfo.Lines do
-    begin
-      btnInstall.Enabled := btnInstall.Enabled and
-        (CompareVersions(v.Version, PYTHON_VERSION) > 0);
-      Add(Format('Name: %s', [v.DisplayName]));
-      Add(Format('Installation: %s', [v.InstallPath]));
-      Add(Format('Executable: %s', [v.PythonExecutable]));
-      Add('');
-    end;
-
 end;
 
 procedure TfmInstall.vstNodesFreeNode(Sender: TBaseVirtualTree;

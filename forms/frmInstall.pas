@@ -69,6 +69,8 @@ type
     tmCheckConnection: TTimer;
     btnCheckPython: TButton;
     btnSync: TButton;
+    OpenDialog: TOpenDialog;
+    SaveDialog: TSaveDialog;
     procedure acFinishUpdate(Sender: TObject);
     procedure btnSaveClick(Sender: TObject);
     procedure btnLoadClick(Sender: TObject);
@@ -204,16 +206,17 @@ end;
 
 procedure TfmInstall.btnSaveClick(Sender: TObject);
 begin
-  IOUtils.TDirectory.CreateDirectory(Cluster.Name);
-  Cluster.SaveToFile(Cluster.Name + '\cluster.txt');
+  if not SaveDialog.Execute then Exit;
+  Cluster.SaveToFile(SaveDialog.FileName);
 end;
 
 procedure TfmInstall.btnLoadClick(Sender: TObject);
 begin
+  if not OpenDialog.Execute then Exit;
   vstNodes.Clear; //this will destroy nodes in cluster
   Cluster.VIPManager.Free;
   try
-    Cluster.LoadFromFile('pgcluster\cluster.txt');
+    Cluster.LoadFromFile(OpenDialog.FileName);
     InvalidateCluster(Cluster);
   except
     vstNodes.Clear;
@@ -236,6 +239,7 @@ end;
 
 procedure TfmInstall.FormCreate(Sender: TObject);
 begin
+  Vcl.Dialogs.ForceCurrentDirectory := True;
   Cluster := TCluster.Create(Self);
   UpdateCluster(Cluster);
   dmTether.TetheringAppProfile.OnResourceReceived := OnResourceReceived;
@@ -410,7 +414,5 @@ begin
           NoFailover := not NoFailover;
       end;
 end;
-
-{ TNode }
 
 end.

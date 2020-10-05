@@ -2007,7 +2007,7 @@ object fmInstall: TfmInstall
     Top = 105
     Width = 572
     Height = 530
-    ActivePage = tsTethering
+    ActivePage = tabVIPManager
     Align = alClient
     TabOrder = 1
     ExplicitHeight = 452
@@ -2546,6 +2546,19 @@ object fmInstall: TfmInstall
     Enabled = False
     OnTimer = tmCheckConnectionTimer
     Left = 275
+    Top = 24
+  end
+  object OpenDialog: TOpenDialog
+    DefaultExt = 'pes'
+    Filter = 'Patroni Environment Setup Files|*.pes|Any file|*.*'
+    InitialDir = '..'
+    Left = 416
+    Top = 24
+  end
+  object SaveDialog: TSaveDialog
+    DefaultExt = 'pes'
+    Filter = 'Patroni Environment Setup Files|*.pes|Any file|*.*'
+    Left = 464
     Top = 24
   end
 end

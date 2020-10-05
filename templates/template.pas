@@ -358,7 +358,7 @@ begin
   if @Proc = nil then
     raise Exception.CreateFmt('Parameter %s cannot be nil', ['Proc']);
   for AComponent in Self do
-    if (AComponent is TNode) and (AComponent.Owner = Root) then
+    if (AComponent.Owner = Root) then
       Proc(AComponent);
 end;
 

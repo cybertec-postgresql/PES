@@ -25,7 +25,7 @@ type
     tabNodes: TTabSheet;
     Button1: TButton;
     acFinish: TAction;
-    TabSheet1: TTabSheet;
+    tabServices: TTabSheet;
     SynJSONSyn1: TSynJSONSyn;
     edClusterName: TEdit;
     lbClusterName: TLabel;
@@ -95,6 +95,9 @@ type
     procedure acVIPUpdate(Sender: TObject);
     procedure UpdateCluster(Sender: TObject);
     procedure btnCheckPythonClick(Sender: TObject);
+    procedure acFinishExecute(Sender: TObject);
+    procedure vstNodesKeyAction(Sender: TBaseVirtualTree; var CharCode: Word;
+      var Shift: TShiftState; var DoDefault: Boolean);
   private
     Cluster: TCluster;
   public
@@ -116,6 +119,23 @@ uses Math, IOUtils, PythonEngine, PythonGUIInputOutput;
 procedure TfmInstall.acDeleteNodeUpdate(Sender: TObject);
 begin
   TAction(Sender).Enabled := vstNodes.SelectedCount > 0;
+end;
+
+procedure TfmInstall.acFinishExecute(Sender: TObject);
+var
+  i: Integer;
+  ANode: TNode;
+begin
+  for i := 0 to Cluster.NodeCount - 1 do
+  begin
+    ANode := Cluster.Nodes[i];
+    IOUtils.TDirectory.CreateDirectory(ANode.Name);
+    TFile.WriteAllText(ANode.Name + '\patroni.yaml', ANode.GetPatroniConfig);
+    TFile.WriteAllText(ANode.Name + '\patronictl.yaml', ANode.GetPatroniCtlConfig);
+    TFile.WriteAllText(ANode.Name + '\etcd.yaml', ANode.GetEtcdConfig);
+    { TODO : Add VIPManager configuration }
+  end;
+
 end;
 
 procedure TfmInstall.acFinishUpdate(Sender: TObject);
@@ -214,7 +234,6 @@ procedure TfmInstall.btnLoadClick(Sender: TObject);
 begin
   if not OpenDialog.Execute then Exit;
   vstNodes.Clear; //this will destroy nodes in cluster
-  Cluster.VIPManager.Free;
   try
     Cluster.LoadFromFile(OpenDialog.FileName);
     InvalidateCluster(Cluster);
@@ -307,7 +326,7 @@ begin
   try
     mmRemoteManagers.Lines.Clear;
     for AManager in dmTether.TetherManager.RemoteManagers do
-      mmRemoteManagers.Lines.Append(' - ' + AManager.ConnectionString);
+      mmRemoteManagers.Lines.Append(AManager.ConnectionString);
   finally
     mmRemoteManagers.Lines.EndUpdate;
   end;
@@ -363,13 +382,36 @@ begin
     Exit;
   AnObj := TObject(AData^);
   if Assigned(AnObj) and (AnObj is TNode) then
-    with TNode(AnObj) do
-      case Column of
-        0: CellText := IP;
-        1: CellText := ifthen(HasDatabase, '✔', '❌');
-        2: CellText := ifthen(HasEtcd, '✔', '❌');
-        3: CellText := ifthen(NoFailover, '✔', '❌');
+    case Column of
+      0: CellText := TNode(AnObj).IP;
+      1: CellText := ifthen(TNode(AnObj).HasDatabase, '✔', '❌');
+      2: CellText := ifthen(TNode(AnObj).HasEtcd, '✔', '❌');
+      3: CellText := ifthen(TNode(AnObj).NoFailover, '✔', '❌');
+      4: CellText := TNode(AnObj).Name;
+    end;
+end;
+
+procedure TfmInstall.vstNodesKeyAction(Sender: TBaseVirtualTree; var CharCode: Word;
+  var Shift: TShiftState; var DoDefault: Boolean);
+var
+  HI: THitInfo;
+begin
+  case CharCode of
+    VK_RIGHT:
+      CharCode := VK_TAB;
+    VK_LEFT:
+      begin
+        CharCode := VK_TAB;
+        Shift := [ssShift];
       end;
+    VK_SPACE:
+      begin
+        HI.HitNode := vstNodes.GetFirstSelected();
+        HI.HitColumn := vstNodes.FocusedColumn;
+        vstNodesNodeClick(Sender, HI);
+        vstNodes.InvalidateNode(HI.HitNode);
+      end;
+  end;
 end;
 
 procedure TfmInstall.vstNodesNewText(Sender: TBaseVirtualTree;

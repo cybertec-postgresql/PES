@@ -1955,7 +1955,6 @@ object fmInstall: TfmInstall
     Align = alBottom
     BevelOuter = bvNone
     TabOrder = 0
-    ExplicitTop = 557
     DesignSize = (
       572
       37)
@@ -2007,14 +2006,12 @@ object fmInstall: TfmInstall
     Top = 105
     Width = 572
     Height = 530
-    ActivePage = tabVIPManager
+    ActivePage = tabNodes
     Align = alClient
     TabOrder = 1
-    ExplicitHeight = 452
     object tsTethering: TTabSheet
       Caption = 'Tethering'
       ImageIndex = 5
-      ExplicitHeight = 424
       DesignSize = (
         564
         502)
@@ -2039,7 +2036,6 @@ object fmInstall: TfmInstall
         ParentFont = False
         ReadOnly = True
         TabOrder = 0
-        ExplicitHeight = 353
       end
       object btnConnect: TButton
         Left = 10
@@ -2050,12 +2046,10 @@ object fmInstall: TfmInstall
         Caption = 'Connect'
         TabOrder = 1
         OnClick = btnConnectClick
-        ExplicitTop = 380
       end
     end
     object tabPython: TTabSheet
       Caption = 'Python'
-      ExplicitHeight = 424
       DesignSize = (
         564
         502)
@@ -2076,7 +2070,6 @@ object fmInstall: TfmInstall
           'Click "Run Check" to see if dependancies are up to date!')
         ParentFont = False
         TabOrder = 0
-        ExplicitHeight = 363
       end
       object btnCheckPython: TButton
         Left = 10
@@ -2087,13 +2080,11 @@ object fmInstall: TfmInstall
         Caption = 'Run Check'
         TabOrder = 1
         OnClick = btnCheckPythonClick
-        ExplicitTop = 388
       end
     end
     object tabPostgres: TTabSheet
       Caption = 'PostgreSQL'
       ImageIndex = 3
-      ExplicitHeight = 424
       object lbBinDir: TLabel
         Left = 14
         Top = 18
@@ -2198,9 +2189,6 @@ object fmInstall: TfmInstall
     object tabNodes: TTabSheet
       Caption = 'Cluster Nodes'
       ImageIndex = 1
-      ExplicitLeft = 20
-      ExplicitTop = 64
-      ExplicitHeight = 424
       object lbClusterName: TLabel
         Left = 14
         Top = 10
@@ -2244,7 +2232,7 @@ object fmInstall: TfmInstall
       end
       object vstNodes: TVirtualStringTree
         Left = 14
-        Top = 88
+        Top = 80
         Width = 529
         Height = 194
         Header.AutoSizeIndex = 0
@@ -2252,35 +2240,44 @@ object fmInstall: TfmInstall
         Indent = 5
         LineMode = lmBands
         TabOrder = 2
-        TreeOptions.MiscOptions = [toAcceptOLEDrop, toCheckSupport, toEditable, toFullRepaintOnResize, toInitOnSave, toToggleOnDblClick, toWheelPanning, toEditOnClick]
+        TreeOptions.MiscOptions = [toAcceptOLEDrop, toCheckSupport, toEditable, toFullRepaintOnResize, toInitOnSave, toWheelPanning, toEditOnClick, toEditOnDblClick]
+        TreeOptions.SelectionOptions = [toExtendedFocus]
+        WantTabs = True
         OnFreeNode = vstNodesFreeNode
         OnGetText = vstNodesGetText
         OnGetNodeDataSize = vstNodesGetNodeDataSize
+        OnKeyAction = vstNodesKeyAction
         OnNewText = vstNodesNewText
         OnNodeClick = vstNodesNodeClick
         Columns = <
           item
             EditNextColumn = 1
-            Position = 0
+            Position = 1
             Text = 'IP or Host name'
             Width = 147
           end
           item
             Alignment = taCenter
-            Position = 1
+            Position = 2
             Text = 'Database'
             Width = 60
           end
           item
             Alignment = taCenter
-            Position = 2
+            Position = 3
             Text = 'Etcd'
           end
           item
             Alignment = taCenter
-            Position = 3
+            Position = 4
             Text = 'No Failover'
             Width = 68
+          end
+          item
+            EditNextColumn = 2
+            Position = 0
+            Text = 'Node Name'
+            Width = 100
           end>
         DefaultText = 'foobla'
       end
@@ -2323,7 +2320,6 @@ object fmInstall: TfmInstall
     object tabVIPManager: TTabSheet
       Caption = 'VIP Manager'
       ImageIndex = 4
-      ExplicitHeight = 424
       object Label7: TLabel
         Left = 22
         Top = 77
@@ -2402,15 +2398,14 @@ object fmInstall: TfmInstall
         TabOrder = 4
       end
     end
-    object TabSheet1: TTabSheet
-      Caption = 'TabSheet1'
+    object tabServices: TTabSheet
+      Caption = 'Services'
       ImageIndex = 2
-      ExplicitHeight = 424
       object SynEdit1: TSynEdit
-        Left = 17
-        Top = 24
-        Width = 538
-        Height = 385
+        Left = 10
+        Top = 16
+        Width = 545
+        Height = 457
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
         Font.Height = -13
@@ -2520,6 +2515,7 @@ object fmInstall: TfmInstall
     object acFinish: TAction
       Category = 'Tab'
       Caption = '&Finish'
+      OnExecute = acFinishExecute
       OnUpdate = acFinishUpdate
     end
     object acVIP: TAction

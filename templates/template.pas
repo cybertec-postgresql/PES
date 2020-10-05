@@ -117,14 +117,14 @@ constructor TCluster.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   Name := 'pgcluster'; { do not localize }
-  FVIPManager := TVIPManager.Create(Self);
-  FVIPManager.FreeNotification(Self);
+  FVIPManager := TVIPManager.Create(nil);
   FSuperUser := 'postgres';
   FReplicationRole := 'replicator';
 end;
 
 destructor TCluster.Destroy;
 begin
+  FVIPManager.Free;
   inherited;
 end;
 
@@ -162,7 +162,7 @@ begin
     raise Exception.CreateFmt('Etcd cluster size %d not supported.' +
       'Use odd number of nodes up to 7', [n])
   else
-    Result.Remove(Length(Result) - 1);
+    Delete(Result, Length(Result), 1);
 end;
 
 function TCluster.GetEtcdNodeCount: integer;
@@ -211,6 +211,7 @@ begin
   FHasEtcd := True;
   FHasDatabase := True;
   FListenAddress := '0.0.0.0';
+  Name := 'node' + IntToStr(TCluster(AOwner).ComponentCount - 1);
   SetSubComponent(True);
 end;
 

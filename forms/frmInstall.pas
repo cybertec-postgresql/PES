@@ -3,12 +3,11 @@
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, Vcl.ExtActns, System.Actions,
   System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls,
-  System.StrUtils, PythonVersions,Console, template, Vcl.ComCtrls, Vcl.ExtActns, System.Actions,
-  Vcl.ActnList, SynEdit, uTetherModule, SynEditHighlighter, SynHighlighterJSON, Winapi.ShlObj,
-  IPPeerClient, IPPeerServer, System.Tether.Manager, System.Tether.AppProfile, SynEditCodeFolding,
-  VirtualTrees, Vcl.Imaging.jpeg;
+  System.StrUtils, PythonVersions, Console, template, Vcl.ComCtrls, Vcl.ActnList, uTetherModule,
+  IPPeerClient, IPPeerServer, System.Tether.Manager, System.Tether.AppProfile, VirtualTrees,
+  Vcl.Imaging.jpeg;
 
 type
   TfmInstall = class(TForm)
@@ -25,21 +24,20 @@ type
     tabNodes: TTabSheet;
     Button1: TButton;
     acFinish: TAction;
-    tabServices: TTabSheet;
-    SynJSONSyn1: TSynJSONSyn;
+    tabConfigs: TTabSheet;
     edClusterName: TEdit;
     lbClusterName: TLabel;
     lbNodes: TLabel;
     tabPostgres: TTabSheet;
-    lbBinDir: TLabel;
-    Label1: TLabel;
-    Label2: TLabel;
+    lblBinDir: TLabel;
+    lblDataDir: TLabel;
+    lblReplicattionRole: TLabel;
     edReplicationRole: TEdit;
-    Label3: TLabel;
+    lblReplicationPwd: TLabel;
     edReplicationPassword: TEdit;
-    Label4: TLabel;
+    lblSuperuserRole: TLabel;
     edSuperuserRole: TEdit;
-    Label5: TLabel;
+    lblSuperuserPwd: TLabel;
     edSuperuserPassword: TEdit;
     Label6: TLabel;
     edClusterToken: TEdit;
@@ -57,7 +55,6 @@ type
     tsTethering: TTabSheet;
     mmRemoteManagers: TMemo;
     btnConnect: TButton;
-    SynEdit1: TSynEdit;
     vstNodes: TVirtualStringTree;
     edBinDir: TEdit;
     edDataDir: TEdit;
@@ -71,6 +68,7 @@ type
     btnSync: TButton;
     OpenDialog: TOpenDialog;
     SaveDialog: TSaveDialog;
+    lblStep: TLabel;
     procedure acFinishUpdate(Sender: TObject);
     procedure btnSaveClick(Sender: TObject);
     procedure btnLoadClick(Sender: TObject);
@@ -98,6 +96,8 @@ type
     procedure acFinishExecute(Sender: TObject);
     procedure vstNodesKeyAction(Sender: TBaseVirtualTree; var CharCode: Word;
       var Shift: TShiftState; var DoDefault: Boolean);
+    procedure btnNextClick(Sender: TObject);
+    procedure btnBackClick(Sender: TObject);
   private
     Cluster: TCluster;
   public
@@ -140,6 +140,7 @@ end;
 
 procedure TfmInstall.acFinishUpdate(Sender: TObject);
 begin
+  lblStep.Caption := pcWizard.ActivePage.Caption;
   (Sender as TAction).Enabled := pcWizard.ActivePageIndex = pcWizard.PageCount - 1;
 end;
 
@@ -165,6 +166,11 @@ end;
 procedure TfmInstall.btnAddNodeClick(Sender: TObject);
 begin
   vstNodes.AddChild(nil, TNode.Create(Cluster));
+end;
+
+procedure TfmInstall.btnBackClick(Sender: TObject);
+begin
+  pcWizard.SelectNextPage(False, False);
 end;
 
 procedure TfmInstall.btnDeleteNodeClick(Sender: TObject);
@@ -240,6 +246,11 @@ begin
   except
     vstNodes.Clear;
   end;
+end;
+
+procedure TfmInstall.btnNextClick(Sender: TObject);
+begin
+  pcWizard.SelectNextPage(True, False);
 end;
 
 procedure TfmInstall.btnSyncClick(Sender: TObject);

@@ -1947,6 +1947,21 @@ object fmInstall: TfmInstall
     ExplicitTop = 184
     ExplicitWidth = 105
   end
+  object lblStep: TLabel
+    Left = 8
+    Top = 8
+    Width = 54
+    Height = 23
+    Caption = 'Label1'
+    Color = clWhite
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWhite
+    Font.Height = -19
+    Font.Name = 'Tahoma'
+    Font.Style = []
+    ParentColor = False
+    ParentFont = False
+  end
   object pnlNavigation: TPanel
     Left = 0
     Top = 635
@@ -1968,6 +1983,7 @@ object fmInstall: TfmInstall
       Default = True
       ModalResult = 1
       TabOrder = 0
+      OnClick = btnNextClick
     end
     object btnBack: TButton
       Left = 146
@@ -1979,6 +1995,7 @@ object fmInstall: TfmInstall
       Cancel = True
       ModalResult = 2
       TabOrder = 1
+      OnClick = btnBackClick
     end
     object Button1: TButton
       Left = 444
@@ -2006,20 +2023,23 @@ object fmInstall: TfmInstall
     Top = 105
     Width = 572
     Height = 530
-    ActivePage = tabNodes
+    ActivePage = tsTethering
     Align = alClient
     TabOrder = 1
     object tsTethering: TTabSheet
       Caption = 'Tethering'
       ImageIndex = 5
+      TabVisible = False
+      ExplicitTop = 24
+      ExplicitHeight = 502
       DesignSize = (
         564
-        502)
+        520)
       object mmRemoteManagers: TMemo
         Left = 10
         Top = 16
         Width = 539
-        Height = 431
+        Height = 449
         Anchors = [akLeft, akTop, akRight, akBottom]
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
@@ -2036,28 +2056,33 @@ object fmInstall: TfmInstall
         ParentFont = False
         ReadOnly = True
         TabOrder = 0
+        ExplicitHeight = 431
       end
       object btnConnect: TButton
         Left = 10
-        Top = 458
+        Top = 476
         Width = 121
         Height = 35
         Anchors = [akLeft, akBottom]
         Caption = 'Connect'
         TabOrder = 1
         OnClick = btnConnectClick
+        ExplicitTop = 458
       end
     end
     object tabPython: TTabSheet
       Caption = 'Python'
+      TabVisible = False
+      ExplicitTop = 24
+      ExplicitHeight = 502
       DesignSize = (
         564
-        502)
+        520)
       object mmPython: TMemo
         Left = 10
         Top = 16
         Width = 536
-        Height = 441
+        Height = 459
         Anchors = [akLeft, akTop, akRight, akBottom]
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
@@ -2070,22 +2095,27 @@ object fmInstall: TfmInstall
           'Click "Run Check" to see if dependancies are up to date!')
         ParentFont = False
         TabOrder = 0
+        ExplicitHeight = 441
       end
       object btnCheckPython: TButton
         Left = 10
-        Top = 466
+        Top = 484
         Width = 75
         Height = 25
         Anchors = [akLeft, akBottom]
         Caption = 'Run Check'
         TabOrder = 1
         OnClick = btnCheckPythonClick
+        ExplicitTop = 466
       end
     end
     object tabPostgres: TTabSheet
       Caption = 'PostgreSQL'
       ImageIndex = 3
-      object lbBinDir: TLabel
+      TabVisible = False
+      ExplicitTop = 24
+      ExplicitHeight = 502
+      object lblBinDir: TLabel
         Left = 14
         Top = 18
         Width = 119
@@ -2093,7 +2123,7 @@ object fmInstall: TfmInstall
         Caption = 'PostgreSQL bin directory'
         FocusControl = edClusterName
       end
-      object Label1: TLabel
+      object lblDataDir: TLabel
         Left = 14
         Top = 66
         Width = 127
@@ -2101,7 +2131,7 @@ object fmInstall: TfmInstall
         Caption = 'PostgreSQL data directory'
         FocusControl = edClusterName
       end
-      object Label2: TLabel
+      object lblReplicattionRole: TLabel
         Left = 14
         Top = 117
         Width = 73
@@ -2109,7 +2139,7 @@ object fmInstall: TfmInstall
         Caption = 'Replication role'
         FocusControl = edClusterName
       end
-      object Label3: TLabel
+      object lblReplicationPwd: TLabel
         Left = 166
         Top = 117
         Width = 101
@@ -2117,7 +2147,7 @@ object fmInstall: TfmInstall
         Caption = 'Replication password'
         FocusControl = edClusterName
       end
-      object Label4: TLabel
+      object lblSuperuserRole: TLabel
         Left = 14
         Top = 165
         Width = 70
@@ -2125,7 +2155,7 @@ object fmInstall: TfmInstall
         Caption = 'Superuser role'
         FocusControl = edClusterName
       end
-      object Label5: TLabel
+      object lblSuperuserPwd: TLabel
         Left = 166
         Top = 165
         Width = 98
@@ -2187,8 +2217,11 @@ object fmInstall: TfmInstall
       end
     end
     object tabNodes: TTabSheet
-      Caption = 'Cluster Nodes'
+      Caption = 'Nodes'
       ImageIndex = 1
+      TabVisible = False
+      ExplicitTop = 24
+      ExplicitHeight = 502
       object lbClusterName: TLabel
         Left = 14
         Top = 10
@@ -2320,6 +2353,9 @@ object fmInstall: TfmInstall
     object tabVIPManager: TTabSheet
       Caption = 'VIP Manager'
       ImageIndex = 4
+      TabVisible = False
+      ExplicitTop = 24
+      ExplicitHeight = 502
       object Label7: TLabel
         Left = 22
         Top = 77
@@ -2398,102 +2434,12 @@ object fmInstall: TfmInstall
         TabOrder = 4
       end
     end
-    object tabServices: TTabSheet
-      Caption = 'Services'
+    object tabConfigs: TTabSheet
+      Caption = 'Configs'
       ImageIndex = 2
-      object SynEdit1: TSynEdit
-        Left = 10
-        Top = 16
-        Width = 545
-        Height = 457
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -13
-        Font.Name = 'Consolas'
-        Font.Style = []
-        Font.Quality = fqClearTypeNatural
-        TabOrder = 0
-        UseCodeFolding = False
-        Gutter.Font.Charset = DEFAULT_CHARSET
-        Gutter.Font.Color = clWindowText
-        Gutter.Font.Height = -11
-        Gutter.Font.Name = 'Consolas'
-        Gutter.Font.Style = []
-        Highlighter = SynJSONSyn1
-        Lines.Strings = (
-          'scope: {self.cluster.clustername}'
-          '#namespace: /service/'
-          'name: {self.nodename}'
-          ''
-          'restapi:'
-          '  listen: {self.listen_address}:8008'
-          '  connect_address: {self.connect_address}:8008'
-          '#  certfile: /etc/ssl/certs/ssl-cert-snakeoil.pem'
-          '#  keyfile: /etc/ssl/private/ssl-cert-snakeoil.key'
-          '#  authentication:'
-          '#    username: username'
-          '#    password: password'
-          ''
-          '{self.dcsconfig}'
-          ''
-          'bootstrap:'
-          
-            '  # this section will be written into Etcd:/<namespace>/<scope>/' +
-            'config after initializing new cluster'
-          
-            '  # and all other cluster members will use it as a `global confi' +
-            'guration`'
-          '  dcs:'
-          '    ttl: 30'
-          '    loop_wait: 10'
-          '    retry_timeout: 10'
-          '    maximum_lag_on_failover: 1048576'
-          '#    master_start_timeout: 300'
-          '#    synchronous_mode: false'
-          '    postgresql:'
-          '      use_pg_rewind: true'
-          '      use_slots: true'
-          '      parameters:'
-          '#        wal_level: hot_standby'
-          '#        hot_standby: "on"'
-          '#        wal_keep_segments: 8'
-          '#        max_wal_senders: 5'
-          '#        max_replication_slots: 5'
-          '#        wal_log_hints: "on"'
-          '#        archive_mode: "on"'
-          '#        archive_timeout: 1800s'
-          
-            '#        archive_command: mkdir -p ../wal_archive && test ! -f .' +
-            './wal_archive/%f && cp %p ../wal_archive/%f'
-          '#      recovery_conf:'
-          '#        restore_command: cp ../wal_archive/%f %p'
-          '{self.bootstrap_config}'
-          ''
-          'postgresql:'
-          '  listen: {self.listen_address}:5432'
-          '  connect_address: {self.connect_address}:5432'
-          '  data_dir: {self.data_dir}'
-          '  bin_dir: {self.bin_dir}'
-          '  pgpass: /tmp/pgpass0'
-          '  authentication:'
-          '    replication:'
-          '      username: {self.cluster.replication_user}'
-          '      password: {self.cluster.replication_pw}'
-          '    superuser:'
-          '      username: {self.cluster.superuser_user}'
-          '      password: {self.cluster.superuser_pw}'
-          '{self.postgresql_parameters}'
-          ''
-          '#watchdog:'
-          '#  mode: automatic # Allowed values: off, automatic, required'
-          '#  device: /dev/watchdog'
-          ''
-          'tags:'
-          '    nofailover: {self.nofailover_tag}'
-          '    noloadbalance: false'
-          '    clonefrom: false'
-          '    nosync: false')
-      end
+      TabVisible = False
+      ExplicitTop = 24
+      ExplicitHeight = 502
     end
   end
   object alActions: TActionList
@@ -2529,14 +2475,6 @@ object fmInstall: TfmInstall
       OnExecute = btnDeleteNodeClick
       OnUpdate = acDeleteNodeUpdate
     end
-  end
-  object SynJSONSyn1: TSynJSONSyn
-    Options.AutoDetectEnabled = False
-    Options.AutoDetectLineLimit = 0
-    Options.LineCommentarStart = '#'
-    Options.Visible = False
-    Left = 648
-    Top = 16
   end
   object tmCheckConnection: TTimer
     Enabled = False

@@ -15,6 +15,7 @@ type
     procedure TetherManagerPairedFromLocal(const Sender: TObject;
       const AManagerInfo: TTetheringManagerInfo);
   public
+    OnConnect: TNotifyEvent;
     procedure Connect();
     procedure SendStream(AStream: TStream);
     procedure SendText(AText: string);
@@ -45,6 +46,8 @@ procedure TdmTether.TetherManagerPairedFromLocal(const Sender: TObject;
   const AManagerInfo: TTetheringManagerInfo);
 begin
   TetherManager.AutoConnect();
+  if Assigned(OnConnect) then
+    OnConnect(TetherManager);
 end;
 
 procedure TdmTether.TetherManagerRequestManagerPassword(const Sender: TObject;

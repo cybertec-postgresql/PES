@@ -2,7 +2,7 @@ object fmInstall: TfmInstall
   Left = 0
   Top = 0
   Caption = 'Patroni Environment Setup'
-  ClientHeight = 594
+  ClientHeight = 672
   ClientWidth = 572
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -1949,14 +1949,13 @@ object fmInstall: TfmInstall
   end
   object pnlNavigation: TPanel
     Left = 0
-    Top = 557
+    Top = 635
     Width = 572
     Height = 37
     Align = alBottom
     BevelOuter = bvNone
     TabOrder = 0
-    ExplicitTop = 624
-    ExplicitWidth = 575
+    ExplicitTop = 557
     DesignSize = (
       572
       37)
@@ -1970,7 +1969,6 @@ object fmInstall: TfmInstall
       Default = True
       ModalResult = 1
       TabOrder = 0
-      ExplicitLeft = 230
     end
     object btnBack: TButton
       Left = 146
@@ -1982,7 +1980,6 @@ object fmInstall: TfmInstall
       Cancel = True
       ModalResult = 2
       TabOrder = 1
-      ExplicitLeft = 149
     end
     object Button1: TButton
       Left = 444
@@ -1994,32 +1991,38 @@ object fmInstall: TfmInstall
       Default = True
       ModalResult = 1
       TabOrder = 2
-      ExplicitLeft = 447
+    end
+    object btnSync: TButton
+      Left = 4
+      Top = 6
+      Width = 90
+      Height = 25
+      Caption = 'Sync Configs'
+      TabOrder = 3
+      OnClick = btnSyncClick
     end
   end
   object pcWizard: TPageControl
     Left = 0
     Top = 105
     Width = 572
-    Height = 452
-    ActivePage = tabPython
+    Height = 530
+    ActivePage = tsTethering
     Align = alClient
     TabOrder = 1
-    ExplicitWidth = 575
-    ExplicitHeight = 519
+    ExplicitHeight = 452
     object tsTethering: TTabSheet
       Caption = 'Tethering'
       ImageIndex = 5
-      ExplicitWidth = 567
-      ExplicitHeight = 491
+      ExplicitHeight = 424
       DesignSize = (
         564
-        424)
+        502)
       object mmRemoteManagers: TMemo
         Left = 10
         Top = 16
         Width = 539
-        Height = 353
+        Height = 431
         Anchors = [akLeft, akTop, akRight, akBottom]
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
@@ -2036,33 +2039,31 @@ object fmInstall: TfmInstall
         ParentFont = False
         ReadOnly = True
         TabOrder = 0
-        ExplicitWidth = 542
-        ExplicitHeight = 417
+        ExplicitHeight = 353
       end
       object btnConnect: TButton
         Left = 10
-        Top = 380
+        Top = 458
         Width = 121
         Height = 35
         Anchors = [akLeft, akBottom]
         Caption = 'Connect'
         TabOrder = 1
         OnClick = btnConnectClick
-        ExplicitTop = 439
+        ExplicitTop = 380
       end
     end
     object tabPython: TTabSheet
       Caption = 'Python'
-      ExplicitWidth = 567
-      ExplicitHeight = 491
+      ExplicitHeight = 424
       DesignSize = (
         564
-        424)
+        502)
       object mmPython: TMemo
         Left = 10
         Top = 16
         Width = 536
-        Height = 363
+        Height = 441
         Anchors = [akLeft, akTop, akRight, akBottom]
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
@@ -2075,26 +2076,24 @@ object fmInstall: TfmInstall
           'Click "Run Check" to see if dependancies are up to date!')
         ParentFont = False
         TabOrder = 0
-        ExplicitWidth = 539
-        ExplicitHeight = 430
+        ExplicitHeight = 363
       end
       object btnCheckPython: TButton
         Left = 10
-        Top = 388
+        Top = 466
         Width = 75
         Height = 25
         Anchors = [akLeft, akBottom]
         Caption = 'Run Check'
         TabOrder = 1
         OnClick = btnCheckPythonClick
-        ExplicitTop = 452
+        ExplicitTop = 388
       end
     end
     object tabPostgres: TTabSheet
       Caption = 'PostgreSQL'
       ImageIndex = 3
-      ExplicitWidth = 567
-      ExplicitHeight = 491
+      ExplicitHeight = 424
       object lbBinDir: TLabel
         Left = 14
         Top = 18
@@ -2199,8 +2198,9 @@ object fmInstall: TfmInstall
     object tabNodes: TTabSheet
       Caption = 'Cluster Nodes'
       ImageIndex = 1
-      ExplicitWidth = 567
-      ExplicitHeight = 491
+      ExplicitLeft = 20
+      ExplicitTop = 64
+      ExplicitHeight = 424
       object lbClusterName: TLabel
         Left = 14
         Top = 10
@@ -2301,39 +2301,29 @@ object fmInstall: TfmInstall
         Action = acDeleteNode
         TabOrder = 4
       end
-      object btnGenerateConfigs: TButton
+      object btnSave: TButton
         Left = 14
-        Top = 451
+        Top = 319
         Width = 95
         Height = 25
-        Caption = 'Generate Configs'
+        Caption = 'Save'
         TabOrder = 5
-        OnClick = btnGenerateConfigsClick
+        OnClick = btnSaveClick
       end
-      object btnLoadConfig: TButton
+      object btnLoad: TButton
         Left = 115
-        Top = 451
+        Top = 319
         Width = 90
         Height = 25
-        Caption = 'Load Configs'
+        Caption = 'Load'
         TabOrder = 6
-        OnClick = btnLoadConfigClick
-      end
-      object btnSync: TButton
-        Left = 211
-        Top = 451
-        Width = 90
-        Height = 25
-        Caption = 'Sync Configs'
-        TabOrder = 7
-        OnClick = btnSyncClick
+        OnClick = btnLoadClick
       end
     end
     object tabVIPManager: TTabSheet
       Caption = 'VIP Manager'
       ImageIndex = 4
-      ExplicitWidth = 567
-      ExplicitHeight = 491
+      ExplicitHeight = 424
       object Label7: TLabel
         Left = 22
         Top = 77
@@ -2415,8 +2405,7 @@ object fmInstall: TfmInstall
     object TabSheet1: TTabSheet
       Caption = 'TabSheet1'
       ImageIndex = 2
-      ExplicitWidth = 567
-      ExplicitHeight = 491
+      ExplicitHeight = 424
       object SynEdit1: TSynEdit
         Left = 17
         Top = 24
@@ -2538,9 +2527,6 @@ object fmInstall: TfmInstall
       Caption = 'Disable VIP Manager'
       OnExecute = acVIPCheck
       OnUpdate = acVIPUpdate
-    end
-    object acGetConfig: TAction
-      Caption = 'acGetConfig'
     end
     object acDeleteNode: TAction
       Caption = 'Delete'

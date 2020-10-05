@@ -57,7 +57,6 @@ type
     tsTethering: TTabSheet;
     mmRemoteManagers: TMemo;
     btnConnect: TButton;
-    acGetConfig: TAction;
     SynEdit1: TSynEdit;
     vstNodes: TVirtualStringTree;
     edBinDir: TEdit;
@@ -65,17 +64,16 @@ type
     btnAddNode: TButton;
     btnDeleteNode: TButton;
     acDeleteNode: TAction;
-    btnGenerateConfigs: TButton;
-    btnLoadConfig: TButton;
-    btnSync: TButton;
+    btnSave: TButton;
+    btnLoad: TButton;
     tmCheckConnection: TTimer;
     btnCheckPython: TButton;
+    btnSync: TButton;
     procedure acFinishUpdate(Sender: TObject);
-    procedure btnGenerateConfigsClick(Sender: TObject);
-    procedure btnLoadConfigClick(Sender: TObject);
+    procedure btnSaveClick(Sender: TObject);
+    procedure btnLoadClick(Sender: TObject);
     procedure acVIPCheck(Sender: TObject);
     procedure btnConnectClick(Sender: TObject);
-    procedure acGetConfigExecute(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure vstNodesGetText(Sender: TBaseVirtualTree; Node: PVirtualNode;
       Column: TColumnIndex; TextType: TVSTTextType; var CellText: string);
@@ -121,11 +119,6 @@ end;
 procedure TfmInstall.acFinishUpdate(Sender: TObject);
 begin
   (Sender as TAction).Enabled := pcWizard.ActivePageIndex = pcWizard.PageCount - 1;
-end;
-
-procedure TfmInstall.acGetConfigExecute(Sender: TObject);
-begin
-  btnGenerateConfigsClick(nil);
 end;
 
 procedure TfmInstall.acVIPCheck(Sender: TObject);
@@ -196,7 +189,7 @@ begin
     pyEngine.FatalAbort := False;
     pyEngine.LoadDll;
     if pyEngine.Initialized then
-      pyEngine.ExecString(TFile.ReadAllText('check_missing_pkgs.py', TEncoding.UTF8));
+      pyEngine.ExecString(AnsiString(TFile.ReadAllText('check_missing_pkgs.py')));
   finally
     FreeAndNil(pyEngine);
     FreeAndNil(pyGUI);
@@ -209,13 +202,13 @@ begin
   tmCheckConnection.Enabled := True;
 end;
 
-procedure TfmInstall.btnGenerateConfigsClick(Sender: TObject);
+procedure TfmInstall.btnSaveClick(Sender: TObject);
 begin
   IOUtils.TDirectory.CreateDirectory(Cluster.Name);
   Cluster.SaveToFile(Cluster.Name + '\cluster.txt');
 end;
 
-procedure TfmInstall.btnLoadConfigClick(Sender: TObject);
+procedure TfmInstall.btnLoadClick(Sender: TObject);
 begin
   vstNodes.Clear; //this will destroy nodes in cluster
   Cluster.VIPManager.Free;
@@ -246,6 +239,7 @@ begin
   Cluster := TCluster.Create(Self);
   UpdateCluster(Cluster);
   dmTether.TetheringAppProfile.OnResourceReceived := OnResourceReceived;
+  dmTether.OnConnect := btnConnectClick;
 end;
 
 procedure TfmInstall.InvalidateCluster(ACluster: TCluster);

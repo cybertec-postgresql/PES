@@ -123,12 +123,26 @@ uses Math, IOUtils, PythonEngine, PythonGUIInputOutput, FileCtrl;
 procedure TfmInstall.acAddTetheredExecute(Sender: TObject);
 var
   S: string;
+
+  procedure AddNodeToTree(conn: string);
+  var
+    N: TNode;
+  begin
+      N := TNode.Create(Cluster);
+      N.IP := conn.Split([':'])[0];
+      vstNodes.AddChild(nil, N);
+  end;
+
 begin
-  vstNodes.Clear;
-  TNode.Create(Cluster).IP := dmTether.GetConnectionString().Split([':'])[0];
-  for S in dmTether.GetPairedConnectionStrings do
-    TNode.Create(Cluster).IP := S.Split([':'])[0];
-  InvalidateCluster(Cluster);
+  vstNodes.BeginUpdate;
+  try
+    vstNodes.Clear;
+    AddNodeToTree(dmTether.GetConnectionString);
+    for S in dmTether.GetPairedConnectionStrings do
+      AddNodeToTree(S);
+  finally
+    vstNodes.EndUpdate;
+  end;
 end;
 
 procedure TfmInstall.acAddTetheredUpdate(Sender: TObject);
@@ -315,9 +329,8 @@ begin
   chkEnableVIP.Checked := ACluster.VIPManager.Enabled;
   vstNodes.BeginUpdate;
   try
-    for i := 0 to ACluster.ComponentCount - 1 do
-      if ACluster.Components[i] is TNode then
-        vstNodes.AddChild(nil, ACluster.Components[i])
+    for i := 0 to ACluster.NodeCount - 1 do
+      vstNodes.AddChild(nil, ACluster.Nodes[I])
   finally
     vstNodes.EndUpdate;
   end;

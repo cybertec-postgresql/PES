@@ -2023,7 +2023,7 @@ object fmInstall: TfmInstall
     Top = 105
     Width = 572
     Height = 530
-    ActivePage = tabVIPManager
+    ActivePage = tabNodes
     Align = alClient
     TabOrder = 1
     object tabTethering: TTabSheet

@@ -20,6 +20,8 @@ type
     procedure SendStream(AStream: TStream);
     procedure SendText(AText: string);
     function IsConnected(): boolean;
+    function GetConnectionString(): string;
+    function GetPairedConnectionStrings(): TArray<string>;
     const ResourceName: string = 'cluster';
   end;
 
@@ -35,6 +37,24 @@ implementation
 procedure TdmTether.Connect();
 begin
   TetherManager.AutoConnect;
+end;
+
+type
+  THackAdapter =  class(TTetheringAdapter);
+
+function TdmTether.GetConnectionString: string;
+begin
+  if TetherManager.Adapters.Count < 1 then Exit;
+  Result := THackAdapter(TetherManager.Adapters[0]).FAdapterConnectionString.Replace('$', ':');
+end;
+
+function TdmTether.GetPairedConnectionStrings: TArray<string>;
+var
+  I: Integer;
+begin
+  SetLength(Result, TetherManager.PairedManagers.Count);
+  for I := 0 to TetherManager.PairedManagers.Count - 1 do
+    Result[I] := TetherManager.PairedManagers[I].ConnectionString.Replace('$', ':');
 end;
 
 function TdmTether.IsConnected: boolean;

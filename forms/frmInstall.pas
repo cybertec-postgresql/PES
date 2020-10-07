@@ -22,7 +22,7 @@ type
     acBack: TPreviousTab;
     acNext: TNextTab;
     tabNodes: TTabSheet;
-    Button1: TButton;
+    ftnFinish: TButton;
     acFinish: TAction;
     tabConfigs: TTabSheet;
     edClusterName: TEdit;
@@ -39,17 +39,17 @@ type
     edSuperuserRole: TEdit;
     lblSuperuserPwd: TLabel;
     edSuperuserPassword: TEdit;
-    Label6: TLabel;
+    lblClusterToken: TLabel;
     edClusterToken: TEdit;
     tabVIPManager: TTabSheet;
-    Label7: TLabel;
+    lblVIPKey: TLabel;
     edVIPKey: TEdit;
     edVIPMask: TEdit;
-    Label8: TLabel;
-    Label9: TLabel;
+    lblVIPMask: TLabel;
+    lblVIPInterface: TLabel;
     edVIPInterface: TEdit;
     edVIP: TEdit;
-    Label10: TLabel;
+    lblVIP: TLabel;
     chkEnableVIP: TCheckBox;
     acVIP: TAction;
     tabTethering: TTabSheet;
@@ -308,10 +308,10 @@ procedure TfmInstall.FormCreate(Sender: TObject);
 begin
   Vcl.Dialogs.ForceCurrentDirectory := True;
   Cluster := TCluster.Create(Self);
-  UpdateCluster(Cluster);
   dmTether.TetheringAppProfile.OnResourceReceived := OnResourceReceived;
   dmTether.OnConnect := btnConnectClick;
   pcWizard.ActivePageIndex := 0;
+  InvalidateCluster(Cluster);
 end;
 
 procedure TfmInstall.InvalidateCluster(ACluster: TCluster);
@@ -476,8 +476,8 @@ begin
   if Assigned(AnObj) and (AnObj is TNode) then
     with TNode(AnObj) do
       case Column of
-        0:
-          IP := NewText;
+        0: IP := NewText;
+        4: Name := NewText;
       end;
 end;
 

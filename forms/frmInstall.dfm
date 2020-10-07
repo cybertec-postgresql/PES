@@ -1997,7 +1997,7 @@ object fmInstall: TfmInstall
       TabOrder = 1
       OnClick = btnBackClick
     end
-    object Button1: TButton
+    object ftnFinish: TButton
       Left = 444
       Top = 6
       Width = 115
@@ -2023,14 +2023,12 @@ object fmInstall: TfmInstall
     Top = 105
     Width = 572
     Height = 530
-    ActivePage = tabNodes
+    ActivePage = tabVIPManager
     Align = alClient
     TabOrder = 1
     object tabTethering: TTabSheet
       Caption = 'Tethering'
       ImageIndex = 5
-      ExplicitTop = 6
-      ExplicitHeight = 520
       DesignSize = (
         564
         502)
@@ -2055,7 +2053,6 @@ object fmInstall: TfmInstall
         ParentFont = False
         ReadOnly = True
         TabOrder = 0
-        ExplicitHeight = 449
       end
       object btnConnect: TButton
         Left = 10
@@ -2066,13 +2063,10 @@ object fmInstall: TfmInstall
         Caption = 'Connect'
         TabOrder = 1
         OnClick = btnConnectClick
-        ExplicitTop = 476
       end
     end
     object tabPython: TTabSheet
       Caption = 'Python'
-      ExplicitTop = 6
-      ExplicitHeight = 520
       DesignSize = (
         564
         502)
@@ -2093,7 +2087,6 @@ object fmInstall: TfmInstall
           'Click "Run Check" to see if dependancies are up to date!')
         ParentFont = False
         TabOrder = 0
-        ExplicitHeight = 459
       end
       object btnCheckPython: TButton
         Left = 10
@@ -2104,14 +2097,11 @@ object fmInstall: TfmInstall
         Caption = 'Run Check'
         TabOrder = 1
         OnClick = btnCheckPythonClick
-        ExplicitTop = 484
       end
     end
     object tabPostgres: TTabSheet
       Caption = 'PostgreSQL'
       ImageIndex = 3
-      ExplicitTop = 6
-      ExplicitHeight = 520
       object lblBinDir: TLabel
         Left = 14
         Top = 18
@@ -2216,8 +2206,6 @@ object fmInstall: TfmInstall
     object tabNodes: TTabSheet
       Caption = 'Nodes'
       ImageIndex = 1
-      ExplicitTop = 6
-      ExplicitHeight = 520
       object lbClusterName: TLabel
         Left = 14
         Top = 10
@@ -2233,7 +2221,7 @@ object fmInstall: TfmInstall
         Height = 13
         Caption = 'Cluster Nodes'
       end
-      object Label6: TLabel
+      object lblClusterToken: TLabel
         Left = 166
         Top = 10
         Width = 167
@@ -2357,9 +2345,7 @@ object fmInstall: TfmInstall
     object tabVIPManager: TTabSheet
       Caption = 'VIP Manager'
       ImageIndex = 4
-      ExplicitTop = 6
-      ExplicitHeight = 520
-      object Label7: TLabel
+      object lblVIPKey: TLabel
         Left = 22
         Top = 77
         Width = 41
@@ -2367,7 +2353,7 @@ object fmInstall: TfmInstall
         Caption = 'DCS Key'
         FocusControl = edVIPKey
       end
-      object Label8: TLabel
+      object lblVIPMask: TLabel
         Left = 302
         Top = 79
         Width = 67
@@ -2375,7 +2361,7 @@ object fmInstall: TfmInstall
         Caption = 'Network Mask'
         FocusControl = edVIPMask
       end
-      object Label9: TLabel
+      object lblVIPInterface: TLabel
         Left = 302
         Top = 125
         Width = 75
@@ -2383,7 +2369,7 @@ object fmInstall: TfmInstall
         Caption = 'Interface Name'
         FocusControl = edVIPInterface
       end
-      object Label10: TLabel
+      object lblVIP: TLabel
         Left = 22
         Top = 125
         Width = 43
@@ -2440,8 +2426,6 @@ object fmInstall: TfmInstall
     object tabConfigs: TTabSheet
       Caption = 'Configs'
       ImageIndex = 2
-      ExplicitTop = 6
-      ExplicitHeight = 520
     end
   end
   object alActions: TActionList

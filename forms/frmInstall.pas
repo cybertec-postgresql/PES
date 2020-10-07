@@ -52,7 +52,7 @@ type
     Label10: TLabel;
     chkEnableVIP: TCheckBox;
     acVIP: TAction;
-    tsTethering: TTabSheet;
+    tabTethering: TTabSheet;
     mmRemoteManagers: TMemo;
     btnConnect: TButton;
     vstNodes: TVirtualStringTree;
@@ -69,6 +69,8 @@ type
     OpenDialog: TOpenDialog;
     SaveDialog: TSaveDialog;
     lblStep: TLabel;
+    btnAddTethered: TButton;
+    acAddTethered: TAction;
     procedure acFinishUpdate(Sender: TObject);
     procedure btnSaveClick(Sender: TObject);
     procedure btnLoadClick(Sender: TObject);
@@ -98,6 +100,8 @@ type
       var Shift: TShiftState; var DoDefault: Boolean);
     procedure btnNextClick(Sender: TObject);
     procedure btnBackClick(Sender: TObject);
+    procedure acAddTetheredUpdate(Sender: TObject);
+    procedure acAddTetheredExecute(Sender: TObject);
   private
     Cluster: TCluster;
   public
@@ -112,9 +116,25 @@ const
 
 implementation
 
-uses Math, IOUtils, PythonEngine, PythonGUIInputOutput;
+uses Math, IOUtils, PythonEngine, PythonGUIInputOutput, FileCtrl;
 
 {$R *.dfm}
+
+procedure TfmInstall.acAddTetheredExecute(Sender: TObject);
+var
+  S: string;
+begin
+  vstNodes.Clear;
+  TNode.Create(Cluster).IP := dmTether.GetConnectionString().Split([':'])[0];
+  for S in dmTether.GetPairedConnectionStrings do
+    TNode.Create(Cluster).IP := S.Split([':'])[0];
+  InvalidateCluster(Cluster);
+end;
+
+procedure TfmInstall.acAddTetheredUpdate(Sender: TObject);
+begin
+  (Sender as TAction).Enabled := dmTether.TetherManager.PairedManagers.Count > 0;
+end;
 
 procedure TfmInstall.acDeleteNodeUpdate(Sender: TObject);
 begin
@@ -125,7 +145,10 @@ procedure TfmInstall.acFinishExecute(Sender: TObject);
 var
   i: Integer;
   ANode: TNode;
+  ADir: string;
 begin
+  if not FileCtrl.SelectDirectory('Select directory to save generated configs', '', ADir) then
+    Exit;
   for i := 0 to Cluster.NodeCount - 1 do
   begin
     ANode := Cluster.Nodes[i];
@@ -274,6 +297,7 @@ begin
   UpdateCluster(Cluster);
   dmTether.TetheringAppProfile.OnResourceReceived := OnResourceReceived;
   dmTether.OnConnect := btnConnectClick;
+  pcWizard.ActivePageIndex := 0;
 end;
 
 procedure TfmInstall.InvalidateCluster(ACluster: TCluster);
@@ -288,20 +312,12 @@ begin
   edSuperuserRole.Text := ACluster.SuperUser;
   edSuperuserPassword.Text := ACluster.SuperUserPassword;
   edClusterToken.Text := ACluster.EtcdClusterToken;
-
-  chkEnableVIP.Checked := False;
-
+  chkEnableVIP.Checked := ACluster.VIPManager.Enabled;
   vstNodes.BeginUpdate;
   try
     for i := 0 to ACluster.ComponentCount - 1 do
       if ACluster.Components[i] is TNode then
         vstNodes.AddChild(nil, ACluster.Components[i])
-      else
-      begin
-        chkEnableVIP.Checked := True;
-        edVIP.Text := TVIPManager(ACluster.Components[i]).IP;
-        edVIPMask.Text := TVIPManager(ACluster.Components[i]).Mask;
-      end;
   finally
     vstNodes.EndUpdate;
   end;
@@ -326,8 +342,11 @@ end;
 
 procedure TfmInstall.tmCheckConnectionTimer(Sender: TObject);
 var
-  AManager: TTetheringManagerInfo;
+  S: string;
+const
+  TAB: string = #9;
 begin
+  if pcWizard.ActivePage <> tabTethering then Exit;
   if not dmTether.IsConnected() then
   begin
     mmRemoteManagers.Lines.Text := 'You are not connected';
@@ -336,8 +355,11 @@ begin
   mmRemoteManagers.Lines.BeginUpdate;
   try
     mmRemoteManagers.Lines.Clear;
-    for AManager in dmTether.TetherManager.RemoteManagers do
-      mmRemoteManagers.Lines.Append(AManager.ConnectionString);
+    mmRemoteManagers.Lines.Add('Local instance:');
+    mmRemoteManagers.Lines.Add(TAB + dmTether.GetConnectionString);
+    mmRemoteManagers.Lines.Add('Paired instances:');
+    for S in dmTether.GetPairedConnectionStrings do
+      mmRemoteManagers.Lines.Add(TAB + S);
   finally
     mmRemoteManagers.Lines.EndUpdate;
   end;

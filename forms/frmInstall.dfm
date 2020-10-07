@@ -2023,23 +2023,22 @@ object fmInstall: TfmInstall
     Top = 105
     Width = 572
     Height = 530
-    ActivePage = tsTethering
+    ActivePage = tabVIPManager
     Align = alClient
     TabOrder = 1
-    object tsTethering: TTabSheet
+    object tabTethering: TTabSheet
       Caption = 'Tethering'
       ImageIndex = 5
-      TabVisible = False
-      ExplicitTop = 24
-      ExplicitHeight = 502
+      ExplicitTop = 6
+      ExplicitHeight = 520
       DesignSize = (
         564
-        520)
+        502)
       object mmRemoteManagers: TMemo
         Left = 10
         Top = 16
         Width = 539
-        Height = 449
+        Height = 431
         Anchors = [akLeft, akTop, akRight, akBottom]
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
@@ -2056,33 +2055,32 @@ object fmInstall: TfmInstall
         ParentFont = False
         ReadOnly = True
         TabOrder = 0
-        ExplicitHeight = 431
+        ExplicitHeight = 449
       end
       object btnConnect: TButton
         Left = 10
-        Top = 476
+        Top = 458
         Width = 121
         Height = 35
         Anchors = [akLeft, akBottom]
         Caption = 'Connect'
         TabOrder = 1
         OnClick = btnConnectClick
-        ExplicitTop = 458
+        ExplicitTop = 476
       end
     end
     object tabPython: TTabSheet
       Caption = 'Python'
-      TabVisible = False
-      ExplicitTop = 24
-      ExplicitHeight = 502
+      ExplicitTop = 6
+      ExplicitHeight = 520
       DesignSize = (
         564
-        520)
+        502)
       object mmPython: TMemo
         Left = 10
         Top = 16
         Width = 536
-        Height = 459
+        Height = 441
         Anchors = [akLeft, akTop, akRight, akBottom]
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
@@ -2095,26 +2093,25 @@ object fmInstall: TfmInstall
           'Click "Run Check" to see if dependancies are up to date!')
         ParentFont = False
         TabOrder = 0
-        ExplicitHeight = 441
+        ExplicitHeight = 459
       end
       object btnCheckPython: TButton
         Left = 10
-        Top = 484
+        Top = 466
         Width = 75
         Height = 25
         Anchors = [akLeft, akBottom]
         Caption = 'Run Check'
         TabOrder = 1
         OnClick = btnCheckPythonClick
-        ExplicitTop = 466
+        ExplicitTop = 484
       end
     end
     object tabPostgres: TTabSheet
       Caption = 'PostgreSQL'
       ImageIndex = 3
-      TabVisible = False
-      ExplicitTop = 24
-      ExplicitHeight = 502
+      ExplicitTop = 6
+      ExplicitHeight = 520
       object lblBinDir: TLabel
         Left = 14
         Top = 18
@@ -2219,9 +2216,8 @@ object fmInstall: TfmInstall
     object tabNodes: TTabSheet
       Caption = 'Nodes'
       ImageIndex = 1
-      TabVisible = False
-      ExplicitTop = 24
-      ExplicitHeight = 502
+      ExplicitTop = 6
+      ExplicitHeight = 520
       object lbClusterName: TLabel
         Left = 14
         Top = 10
@@ -2332,8 +2328,8 @@ object fmInstall: TfmInstall
         TabOrder = 4
       end
       object btnSave: TButton
-        Left = 14
-        Top = 319
+        Left = 352
+        Top = 288
         Width = 95
         Height = 25
         Caption = 'Save'
@@ -2341,21 +2337,28 @@ object fmInstall: TfmInstall
         OnClick = btnSaveClick
       end
       object btnLoad: TButton
-        Left = 115
-        Top = 319
+        Left = 453
+        Top = 288
         Width = 90
         Height = 25
         Caption = 'Load'
         TabOrder = 6
         OnClick = btnLoadClick
       end
+      object btnAddTethered: TButton
+        Left = 176
+        Top = 288
+        Width = 122
+        Height = 25
+        Action = acAddTethered
+        TabOrder = 7
+      end
     end
     object tabVIPManager: TTabSheet
       Caption = 'VIP Manager'
       ImageIndex = 4
-      TabVisible = False
-      ExplicitTop = 24
-      ExplicitHeight = 502
+      ExplicitTop = 6
+      ExplicitHeight = 520
       object Label7: TLabel
         Left = 22
         Top = 77
@@ -2437,9 +2440,8 @@ object fmInstall: TfmInstall
     object tabConfigs: TTabSheet
       Caption = 'Configs'
       ImageIndex = 2
-      TabVisible = False
-      ExplicitTop = 24
-      ExplicitHeight = 502
+      ExplicitTop = 6
+      ExplicitHeight = 520
     end
   end
   object alActions: TActionList
@@ -2475,6 +2477,11 @@ object fmInstall: TfmInstall
       OnExecute = btnDeleteNodeClick
       OnUpdate = acDeleteNodeUpdate
     end
+    object acAddTethered: TAction
+      Caption = 'Add Tethered'
+      OnExecute = acAddTetheredExecute
+      OnUpdate = acAddTetheredUpdate
+    end
   end
   object tmCheckConnection: TTimer
     Enabled = False
@@ -2486,7 +2493,7 @@ object fmInstall: TfmInstall
     DefaultExt = 'pes'
     Filter = 'Patroni Environment Setup Files|*.pes|Any file|*.*'
     InitialDir = '..'
-    Left = 416
+    Left = 376
     Top = 24
   end
   object SaveDialog: TSaveDialog

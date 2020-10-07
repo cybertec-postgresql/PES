@@ -120,6 +120,10 @@ begin
   FVIPManager := TVIPManager.Create(nil);
   FSuperUser := 'postgres';
   FReplicationRole := 'replicator';
+  FReplicationPassword := RandomPassword();
+  FSuperUserPassword := RandomPassword();
+  FPostgresDir := 'pgsql/bin';
+  FDataDir := 'pgsql/data';
 end;
 
 destructor TCluster.Destroy;
@@ -370,6 +374,10 @@ begin
   inherited Create(AOwner);
   Name := 'VIPManager';  { do not localize }
   SetSubComponent(True);
+  FKey := '/service/pgcluster/leader';
+  FIP := '10.0.0.42';
+  FMask := '255.255.255.0';
+  FInterfaceName := 'Ethernet';
 end;
 
 

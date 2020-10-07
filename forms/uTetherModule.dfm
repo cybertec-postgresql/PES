@@ -7,7 +7,7 @@ object dmTether: TdmTether
     OnRequestManagerPassword = TetherManagerRequestManagerPassword
     Password = 'cybertec'
     Text = 'TetherManager'
-    AllowedAdapters = 'Network_V4'
+    AllowedAdapters = 'Network'
     Left = 64
     Top = 24
   end
@@ -15,22 +15,7 @@ object dmTether: TdmTether
     Manager = TetherManager
     Text = 'TetheringAppProfile'
     Group = 'PES'
-    Actions = <
-      item
-        Name = 'acFullShot'
-        IsPublic = True
-        NotifyUpdates = False
-      end
-      item
-        Name = 'acStartCast'
-        IsPublic = True
-        NotifyUpdates = False
-      end
-      item
-        Name = 'acStopCast'
-        IsPublic = True
-        NotifyUpdates = False
-      end>
+    Actions = <>
     Resources = <>
     Left = 64
     Top = 105

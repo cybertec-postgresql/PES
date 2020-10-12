@@ -159,20 +159,29 @@ procedure TfmInstall.acFinishExecute(Sender: TObject);
 var
   i: Integer;
   ANode: TNode;
-  ADir: string;
+  ADir, ANodeDir: string;
+
+  procedure WriteToFile(AFileName, AContent: string);
+  begin
+    if AContent = '' then
+      Exit;
+    TFile.WriteAllText(AFileName, AContent);
+  end;
+
 begin
+  ADir := ExtractFilePath(Application.ExeName);
   if not FileCtrl.SelectDirectory('Select directory to save generated configs', '', ADir) then
     Exit;
   for i := 0 to Cluster.NodeCount - 1 do
   begin
     ANode := Cluster.Nodes[i];
-    IOUtils.TDirectory.CreateDirectory(ANode.Name);
-    TFile.WriteAllText(ANode.Name + '\patroni.yaml', ANode.GetPatroniConfig);
-    TFile.WriteAllText(ANode.Name + '\patronictl.yaml', ANode.GetPatroniCtlConfig);
-    TFile.WriteAllText(ANode.Name + '\etcd.yaml', ANode.GetEtcdConfig);
-    { TODO : Add VIPManager configuration }
+    ANodeDir := TPath.Combine(ADir, ANode.Name);
+    IOUtils.TDirectory.CreateDirectory(ANodeDir);
+    WriteToFile(TPath.Combine(ANodeDir, 'patroni.yaml'), ANode.GetPatroniConfig);
+    WriteToFile(TPath.Combine(ANodeDir, 'patronictl.yaml'), ANode.GetPatroniCtlConfig);
+    WriteToFile(TPath.Combine(ANodeDir, 'etcd.yaml'), ANode.GetEtcdConfig);
+    WriteToFile(TPath.Combine(ANodeDir, 'vipmanager.yaml'), ANode.GetVIPManagerConfig);
   end;
-
 end;
 
 procedure TfmInstall.acFinishUpdate(Sender: TObject);

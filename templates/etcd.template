@@ -6,3 +6,4 @@ initial-cluster: "{cluster.etcd_initial_cluster}"
 initial-cluster-state: "new"
 initial-cluster-token: "{cluster.etcd_cluster_token}"
 advertise-client-urls: "http://{connect_address}:2379"
+enable-v2: true

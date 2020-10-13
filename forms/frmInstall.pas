@@ -204,8 +204,7 @@ begin
       with TLabel(tabVIPManager.Controls[i]) do
       begin
         Enabled := chkEnableVIP.Checked;
-        if Assigned(FocusControl) then
-          FocusControl.Enabled := Enabled;
+        if Assigned(FocusControl) then FocusControl.Enabled := Enabled;
       end;
 end;
 
@@ -339,18 +338,15 @@ begin
   vstNodes.BeginUpdate;
   try
     for i := 0 to ACluster.NodeCount - 1 do
-      vstNodes.AddChild(nil, ACluster.Nodes[I])
+      vstNodes.AddChild(nil, ACluster.Nodes[i])
   finally
     vstNodes.EndUpdate;
   end;
-
 end;
 
-procedure TfmInstall.OnResourceReceived(const Sender: TObject;
-  const AResource: TRemoteResource);
+procedure TfmInstall.OnResourceReceived(const Sender: TObject; const AResource: TRemoteResource);
 begin
-  if AResource.Hint <> dmTether.ResourceName then
-    Exit;
+  if AResource.Hint <> dmTether.ResourceName then Exit;
   tmCheckConnection.Enabled := True;
   vstNodes.Clear; // this will destroy nodes in cluster
   Cluster.VIPManager.Free;
@@ -368,7 +364,8 @@ var
 const
   TAB: string = #9;
 begin
-  if pcWizard.ActivePage <> tabTethering then Exit;
+  if pcWizard.ActivePage <> tabTethering then
+    Exit;
   if not dmTether.IsConnected() then
   begin
     mmRemoteManagers.Lines.Text := 'You are not connected';
@@ -380,8 +377,7 @@ begin
     mmRemoteManagers.Lines.Add('Local instance:');
     mmRemoteManagers.Lines.Add(TAB + dmTether.GetConnectionString);
     mmRemoteManagers.Lines.Add('Paired instances:');
-    for S in dmTether.GetPairedConnectionStrings do
-      mmRemoteManagers.Lines.Add(TAB + S);
+    for S in dmTether.GetPairedConnectionStrings do mmRemoteManagers.Lines.Add(TAB + S);
   finally
     mmRemoteManagers.Lines.EndUpdate;
   end;
@@ -405,14 +401,12 @@ begin
   Cluster.VIPManager.Key := edVIPKey.Text;
 end;
 
-procedure TfmInstall.vstNodesFreeNode(Sender: TBaseVirtualTree;
-  Node: PVirtualNode);
+procedure TfmInstall.vstNodesFreeNode(Sender: TBaseVirtualTree; Node: PVirtualNode);
 var
   AData: pointer;
 begin
   AData := Sender.GetNodeData(Node);
-  if not Assigned(AData) then
-    Exit;
+  if not Assigned(AData) then Exit;
   FreeAndNil(TObject(AData^));
 end;
 
@@ -422,19 +416,16 @@ begin
   NodeDataSize := SizeOf(TNode);
 end;
 
-procedure TfmInstall.vstNodesGetText(Sender: TBaseVirtualTree;
-  Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType;
-  var CellText: string);
+procedure TfmInstall.vstNodesGetText(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex;
+  TextType: TVSTTextType; var CellText: string);
 var
   AnObj: TObject;
   AData: pointer;
 begin
   // Column is -1 if the header is hidden or no columns are defined
-  if Column < 0 then
-    Exit;
+  if Column < 0 then Exit;
   AData := Sender.GetNodeData(Node);
-  if not Assigned(AData) then
-    Exit;
+  if not Assigned(AData) then Exit;
   AnObj := TObject(AData^);
   if Assigned(AnObj) and (AnObj is TNode) then
     case Column of
@@ -446,8 +437,8 @@ begin
     end;
 end;
 
-procedure TfmInstall.vstNodesKeyAction(Sender: TBaseVirtualTree; var CharCode: Word;
-  var Shift: TShiftState; var DoDefault: Boolean);
+procedure TfmInstall.vstNodesKeyAction(Sender: TBaseVirtualTree; var CharCode: Word; var Shift: TShiftState;
+  var DoDefault: Boolean);
 var
   HI: THitInfo;
 begin
@@ -469,18 +460,16 @@ begin
   end;
 end;
 
-procedure TfmInstall.vstNodesNewText(Sender: TBaseVirtualTree;
-  Node: PVirtualNode; Column: TColumnIndex; NewText: string);
+procedure TfmInstall.vstNodesNewText(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex;
+  NewText: string);
 var
   AnObj: TObject;
   AData: pointer;
 begin
   // Column is -1 if the header is hidden or no columns are defined
-  if Column < 0 then
-    Exit;
+  if Column < 0 then Exit;
   AData := Sender.GetNodeData(Node);
-  if not Assigned(AData) then
-    Exit;
+  if not Assigned(AData) then Exit;
   AnObj := TObject(AData^);
   if Assigned(AnObj) and (AnObj is TNode) then
     with TNode(AnObj) do
@@ -490,25 +479,20 @@ begin
       end;
 end;
 
-procedure TfmInstall.vstNodesNodeClick(Sender: TBaseVirtualTree;
-  const HitInfo: THitInfo);
+procedure TfmInstall.vstNodesNodeClick(Sender: TBaseVirtualTree; const HitInfo: THitInfo);
 var
   AnObj: TObject;
   AData: pointer;
 begin
   AData := Sender.GetNodeData(HitInfo.HitNode);
-  if not Assigned(AData) then
-    Exit;
+  if not Assigned(AData) then Exit;
   AnObj := TObject(AData^);
   if Assigned(AnObj) and (AnObj is TNode) then
     with TNode(AnObj) do
       case HitInfo.HitColumn of
-        1:
-          HasDatabase := not HasDatabase;
-        2:
-          HasEtcd := not HasEtcd;
-        3:
-          NoFailover := not NoFailover;
+        1: HasDatabase := not HasDatabase;
+        2: HasEtcd := not HasEtcd;
+        3: NoFailover := not NoFailover;
       end;
 end;
 

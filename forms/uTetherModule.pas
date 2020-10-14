@@ -34,6 +34,8 @@ implementation
 
 {$R *.dfm}
 
+uses IdStack;
+
 procedure TdmTether.Connect();
 begin
   TetherManager.AutoConnect;
@@ -44,8 +46,12 @@ type
 
 function TdmTether.GetConnectionString: string;
 begin
-  if TetherManager.Adapters.Count < 1 then Exit;
-  Result := THackAdapter(TetherManager.Adapters[0]).FAdapterConnectionString.Replace('$', ':');
+  TIdStack.IncUsage;
+  try
+    Result := GStack.LocalAddress;
+  finally
+    TIdStack.DecUsage;
+  end;
 end;
 
 function TdmTether.GetPairedConnectionStrings: TArray<string>;

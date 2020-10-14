@@ -3,8 +3,10 @@ object fmInstall: TfmInstall
   Top = 0
   Caption = 'Patroni Environment Setup'
   ClientHeight = 672
-  ClientWidth = 572
+  ClientWidth = 564
   Color = clBtnFace
+  Constraints.MinHeight = 550
+  Constraints.MinWidth = 580
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11

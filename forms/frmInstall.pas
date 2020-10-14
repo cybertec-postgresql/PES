@@ -3,9 +3,10 @@
 interface
 
 uses
+  Cluster,
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, Vcl.ExtActns, System.Actions,
   System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls,
-  System.StrUtils, PythonVersions, Console, template, Vcl.ComCtrls, Vcl.ActnList, uTetherModule,
+  System.StrUtils, Vcl.ComCtrls, Vcl.ActnList, uTetherModule,
   IPPeerClient, IPPeerServer, System.Tether.Manager, System.Tether.AppProfile, VirtualTrees,
   Vcl.Imaging.jpeg;
 
@@ -113,6 +114,7 @@ type
     procedure acApplyNodeConfigUpdate(Sender: TObject);
     procedure acApplyNodeConfigExecute(Sender: TObject);
     procedure acRunNodeTestsUpdate(Sender: TObject);
+    procedure btnRunNodeTestsClick(Sender: TObject);
   private
     Cluster: TCluster;
     procedure WriteToFile(AFileName, AContent: string);
@@ -128,7 +130,9 @@ const
 
 implementation
 
-uses Math, IOUtils, PythonEngine, PythonGUIInputOutput, FileCtrl;
+uses
+  Math, IOUtils, PythonEngine, PythonGUIInputOutput, PythonVersions, FileCtrl,
+  Service, Console;
 
 {$R *.dfm}
 
@@ -336,6 +340,18 @@ end;
 procedure TfmInstall.btnNextClick(Sender: TObject);
 begin
   pcWizard.SelectNextPage(True, False);
+end;
+
+procedure TfmInstall.btnRunNodeTestsClick(Sender: TObject);
+begin
+  try
+    mmLog.Clear;
+    mmLog.Lines.Append('Starting etcd service...');
+    if Service.ServiceStart('', 'Etcd') then
+      mmLog.Lines.Append('Etcd service successfully started. Please, check "etcd\log" folder for details');
+  except on E: Exception do
+    mmLog.Lines.Append(E.Message);
+  end;
 end;
 
 procedure TfmInstall.btnSyncClick(Sender: TObject);

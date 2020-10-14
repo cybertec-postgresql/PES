@@ -1,14 +1,15 @@
-unit console;
+unit Console;
 
 interface
 
 uses Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes;
 
 function GetDosOutput(CommandLine: string; Work: string = 'C:\'): string;
+function GetPSOutput(CommandLine: string; Work: string = 'C:\'): string;
 
 implementation
 
-function GetDosOutput(CommandLine: string; Work: string = 'C:\'): string;
+function GetConsoleOutput(Console, CommandLine: string; Work: string = 'C:\'): string;
 var
   SA: TSecurityAttributes;
   SI: TStartupInfo;
@@ -39,7 +40,7 @@ begin
       hStdError := StdOutPipeWrite;
     end;
     WorkDir := Work;
-    Handle := CreateProcess(nil, PChar('cmd.exe /C ' + CommandLine),
+    Handle := CreateProcess(nil, PChar(Console + CommandLine),
                             nil, nil, True, 0, nil,
                             PChar(WorkDir), SI, PI);
     CloseHandle(StdOutPipeWrite);
@@ -62,6 +63,16 @@ begin
     CloseHandle(StdOutPipeRead);
   end;
   Result := Trim(Result);
+end;
+
+function GetDosOutput(CommandLine: string; Work: string = 'C:\'): string;
+begin
+  Result := GetConsoleOutput('cmd.exe /C ', CommandLine, Work);
+end;
+
+function GetPSOutput(CommandLine: string; Work: string = 'C:\'): string;
+begin
+  Result := GetConsoleOutput('powershell -Command ', CommandLine, Work);
 end;
 
 end.

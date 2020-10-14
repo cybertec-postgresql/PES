@@ -1971,8 +1971,6 @@ object fmInstall: TfmInstall
     Align = alBottom
     BevelOuter = bvNone
     TabOrder = 0
-    ExplicitTop = 637
-    ExplicitWidth = 572
     DesignSize = (
       564
       37)
@@ -1987,7 +1985,6 @@ object fmInstall: TfmInstall
       ModalResult = 1
       TabOrder = 0
       OnClick = btnNextClick
-      ExplicitLeft = 363
     end
     object btnBack: TButton
       Left = 274
@@ -2000,7 +1997,6 @@ object fmInstall: TfmInstall
       ModalResult = 2
       TabOrder = 1
       OnClick = btnBackClick
-      ExplicitLeft = 282
     end
     object ftnFinish: TButton
       Left = 436
@@ -2012,7 +2008,6 @@ object fmInstall: TfmInstall
       Default = True
       ModalResult = 1
       TabOrder = 2
-      ExplicitLeft = 444
     end
     object btnSync: TButton
       Left = 4
@@ -2050,11 +2045,13 @@ object fmInstall: TfmInstall
     ActivePage = tabTest
     Align = alClient
     TabOrder = 1
-    ExplicitWidth = 572
     object tabTethering: TTabSheet
       Caption = 'Tethering'
       ImageIndex = 5
-      ExplicitWidth = 564
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       DesignSize = (
         556
         502)
@@ -2095,7 +2092,10 @@ object fmInstall: TfmInstall
     end
     object tabPython: TTabSheet
       Caption = 'Python'
-      ExplicitWidth = 564
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       DesignSize = (
         556
         502)
@@ -2136,7 +2136,10 @@ object fmInstall: TfmInstall
     object tabPostgres: TTabSheet
       Caption = 'PostgreSQL'
       ImageIndex = 3
-      ExplicitTop = 22
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object lblBinDir: TLabel
         Left = 10
         Top = 10
@@ -2241,8 +2244,10 @@ object fmInstall: TfmInstall
     object tabNodes: TTabSheet
       Caption = 'Nodes'
       ImageIndex = 1
-      ExplicitTop = 28
-      ExplicitWidth = 564
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       DesignSize = (
         556
         502)
@@ -2368,7 +2373,10 @@ object fmInstall: TfmInstall
     object tabVIPManager: TTabSheet
       Caption = 'VIP Manager'
       ImageIndex = 4
-      ExplicitTop = 28
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object lblVIPKey: TLabel
         Left = 15
         Top = 39
@@ -2451,8 +2459,6 @@ object fmInstall: TfmInstall
       Caption = 'Test'
       ImageIndex = 2
       OnShow = tabTestShow
-      ExplicitTop = 28
-      ExplicitWidth = 564
       DesignSize = (
         556
         502)
@@ -2522,6 +2528,7 @@ object fmInstall: TfmInstall
         Height = 25
         Action = acRunNodeTests
         TabOrder = 3
+        OnClick = btnRunNodeTestsClick
       end
     end
   end

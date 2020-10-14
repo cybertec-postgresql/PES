@@ -1,0 +1,42 @@
+# config for vip-manager by Cybertec Schönig & Schönig GmbH
+
+# time (in milliseconds) after which vip-manager wakes up and checks if it needs to register or release ip addresses.
+interval: 1000
+
+# the etcd or consul key which vip-manager will regularly poll.
+trigger-key: "/service/{cluster.clustername}/leader"
+# if the value of the above key matches the trigger-value (often the hostname of this host), vip-manager will try to add the virtual ip address to the interface specified in Iface
+trigger-value: "{nodename}"
+
+ip: "{ip}" # the virtual ip address to manage
+netmask: "{mask}" # netmask for the virtual ip
+interface: "{interface}" #interface name to which the virtual ip will be added
+
+# how the virtual ip should be managed. we currently support "ip addr add/remove" through shell commands or the Hetzner api
+hosting-type: basic # possible values: basic, or hetzner.
+
+dcs-type: etcd # etcd or consul
+# a list that contains all DCS endpoints to which vip-manager could talk.
+dcs-endpoints:
+{cluster.dcsendpoints}
+  # A single list-item is also fine.
+  # consul will always only use the first entry from this list.
+  # For consul, you'll obviously need to change the port to 8500. Unless you're using a different one. Maybe you're a rebel and are running consul on port 2379? Just to confuse people? Why would you do that? Oh, I get it.
+
+# etcd-user: "patroni"
+# etcd-password: "Julian's secret password"
+# when etcd-ca-file is specified, TLS connections to the etcd endpoints will be used.
+# etcd-ca-file: "/path/to/etcd/trusted/ca/file"
+# when etcd-cert-file and etcd-key-file are specified, we will authenticate at the etcd endpoints using this certificate and key.
+# etcd-cert-file: "/path/to/etcd/client/cert/file"
+# etcd-key-file: "/path/to/etcd/client/key/file"
+
+# don't worry about parameter with a prefix that doesn't match the endpoint_type. You can write anything there, I won't even look at it.
+# consul-token: "Julian's secret token"
+
+# how often things should be retried and how long to wait between retries. (currently only affects arpClient)
+retry-num: 2
+retry-after: 250  #in milliseconds
+
+# verbose logs (currently only supported for hetzner)
+verbose: false

@@ -38,16 +38,19 @@ type
     FNoFailover: boolean;
     FHasDatabase: boolean;
     FListenAddress: string;
+    function GetCluster: TCluster; inline;
     function GetEtcdConnectUrl: string;
     function GetEtcdListenClientUrls: string;
     function GetEtcdListenPeerUrls: string;
-    function GetDCSConfig(): string;
-    function GetBootstrapConfig(): string;
+    function GetDCSConfig: string;
+    function GetBootstrapConfig: string;
   public
     constructor Create(AOwner: TComponent); override;
-    function GetEtcdConfig(): string;
-    function GetPatroniConfig(): string;
-    function GetPatroniCtlConfig(): string;
+    function GetEtcdConfig: string;
+    function GetPatroniConfig: string;
+    function GetPatroniCtlConfig: string;
+    function GetVIPManagerConfig: string;
+    property Cluster: TCluster read GetCluster;
   published
     property IP: string read FIP write FIP;
     property HasDatabase: boolean read FHasDatabase write FHasDatabase;
@@ -221,19 +224,24 @@ end;
 
 function TNode.GetBootstrapConfig: string;
 begin
-  if TCluster(Owner).Existing then
+  if Cluster.Existing then
     Exit;
   Result := TFile.ReadAllText('patroni_bootstrap.template', TEncoding.UTF8);
 end;
 
+function TNode.GetCluster: TCluster;
+begin
+  Result := TCluster(Owner);
+end;
+
 function TNode.GetDCSConfig: string;
 begin
-  Result := 'etcd:'#13#10#9'hosts: ' + TCluster(Owner).GetEtcdHostListPatroni();
+  Result := 'etcd:'#13#10#9'hosts: ' + Cluster.GetEtcdHostListPatroni();
 end;
 
 function TNode.GetEtcdConfig: string;
 begin
-  if not FHasDatabase then
+  if not FHasEtcd then
     Exit;
   Result := TFile.ReadAllText('etcd.template', TEncoding.UTF8);
   Result := ReplaceStr(Result, '{nodename}', Name);
@@ -251,8 +259,6 @@ end;
 
 function TNode.GetEtcdConnectUrl: string;
 begin
-  if not FHasEtcd then
-    raise Exception.Create('Node doesn''n has etcd member');
   Result := 'http://' + FIP + ':2380';
 end;
 
@@ -298,6 +304,33 @@ begin
   Result := TFile.ReadAllText('patroni_ctl.template', TEncoding.UTF8);
   Result := ReplaceStr(Result, '{etcd_address}', 'localhost:2379');
   Result := ReplaceStr(Result, '{cluster.clustername}', TCluster(Owner).Name);
+end;
+
+function TNode.GetVIPManagerConfig: string;
+
+  function GetDCSEndpoints: string;
+  var
+    I: Integer;
+    ANode: TNode;
+  begin
+    for I := 0 to TCluster(Owner).ComponentCount - 1 do
+    begin
+      ANode := TCluster(Owner).Nodes[I];
+      if not ANode.HasEtcd then Continue;
+      if ANode = Self then Result := '  - http://localhost:2379'#13#10 + Result;
+      Result := Result + Format('  - http://%s:2379'#13#10, [ANode.IP]);
+    end;
+  end;
+
+begin
+  if not FHasDatabase OR not Cluster.VIPManager.Enabled then Exit;
+  Result := TFile.ReadAllText('vipmanager.template', TEncoding.UTF8);
+  Result := ReplaceStr(Result, '{cluster.clustername}', Cluster.Name);
+  Result := ReplaceStr(Result, '{nodename}', Name);
+  Result := ReplaceStr(Result, '{ip}', Cluster.VIPManager.IP);
+  Result := ReplaceStr(Result, '{mask}', Cluster.VIPManager.Mask);
+  Result := ReplaceStr(Result, '{interface}', Cluster.VIPManager.InterfaceName);
+  Result := ReplaceStr(Result, '{cluster.dcsendpoints}', GetDCSEndpoints);
 end;
 
 procedure TCluster.LoadFromFile(AFileName: string);

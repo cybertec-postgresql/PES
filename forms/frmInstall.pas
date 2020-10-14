@@ -24,7 +24,7 @@ type
     tabNodes: TTabSheet;
     ftnFinish: TButton;
     acFinish: TAction;
-    tabConfigs: TTabSheet;
+    tabTest: TTabSheet;
     edClusterName: TEdit;
     lbClusterName: TLabel;
     lbNodes: TLabel;
@@ -61,8 +61,6 @@ type
     btnAddNode: TButton;
     btnDeleteNode: TButton;
     acDeleteNode: TAction;
-    btnSave: TButton;
-    btnLoad: TButton;
     tmCheckConnection: TTimer;
     btnCheckPython: TButton;
     btnSync: TButton;
@@ -71,6 +69,15 @@ type
     lblStep: TLabel;
     btnAddTethered: TButton;
     acAddTethered: TAction;
+    cbCurrentNode: TComboBox;
+    lblCurrentNode: TLabel;
+    btnApplyNodeConfig: TButton;
+    acApplyNodeConfig: TAction;
+    mmLog: TMemo;
+    btnRunNodeTests: TButton;
+    acRunNodeTests: TAction;
+    btnSave: TButton;
+    btnLoad: TButton;
     procedure acFinishUpdate(Sender: TObject);
     procedure btnSaveClick(Sender: TObject);
     procedure btnLoadClick(Sender: TObject);
@@ -102,8 +109,13 @@ type
     procedure btnBackClick(Sender: TObject);
     procedure acAddTetheredUpdate(Sender: TObject);
     procedure acAddTetheredExecute(Sender: TObject);
+    procedure tabTestShow(Sender: TObject);
+    procedure acApplyNodeConfigUpdate(Sender: TObject);
+    procedure acApplyNodeConfigExecute(Sender: TObject);
+    procedure acRunNodeTestsUpdate(Sender: TObject);
   private
     Cluster: TCluster;
+    procedure WriteToFile(AFileName, AContent: string);
   public
     procedure InvalidateCluster(ACluster: TCluster);
   end;
@@ -150,35 +162,72 @@ begin
   (Sender as TAction).Enabled := dmTether.TetherManager.PairedManagers.Count > 0;
 end;
 
+procedure TfmInstall.acApplyNodeConfigExecute(Sender: TObject);
+var
+  ANode: TNode;
+begin
+    mmLog.Clear;
+    ANode := cbCurrentNode.Items.Objects[cbCurrentNode.ItemIndex] as TNode;
+    WriteToFile(TPath.Combine('..\patroni', 'patroni.yaml'), ANode.GetPatroniConfig);
+    WriteToFile(TPath.Combine('..\patroni', 'patronictl.yaml'), ANode.GetPatroniCtlConfig);
+    WriteToFile(TPath.Combine('..\etcd', 'etcd.yaml'), ANode.GetEtcdConfig);
+    WriteToFile(TPath.Combine('..\vip-manager', 'vipmanager.yaml'), ANode.GetVIPManagerConfig);
+end;
+
+procedure TfmInstall.acApplyNodeConfigUpdate(Sender: TObject);
+begin
+  TAction(Sender).Enabled := cbCurrentNode.ItemIndex > -1;
+end;
+
 procedure TfmInstall.acDeleteNodeUpdate(Sender: TObject);
 begin
   TAction(Sender).Enabled := vstNodes.SelectedCount > 0;
+end;
+
+procedure TfmInstall.WriteToFile(AFileName, AContent: string);
+begin
+  if AContent = '' then
+    Exit;
+  try
+    TFile.WriteAllText(AFileName, AContent);
+    mmLog.Lines.Append(AFileName + ' successfully written');
+  except on E: Exception do
+    mmLog.Lines.Append(AFileName + ': ' + E.Message);
+  end;
 end;
 
 procedure TfmInstall.acFinishExecute(Sender: TObject);
 var
   i: Integer;
   ANode: TNode;
-  ADir: string;
+  ADir, ANodeDir: string;
 begin
+  ADir := ExtractFilePath(Application.ExeName);
   if not FileCtrl.SelectDirectory('Select directory to save generated configs', '', ADir) then
     Exit;
   for i := 0 to Cluster.NodeCount - 1 do
   begin
     ANode := Cluster.Nodes[i];
-    IOUtils.TDirectory.CreateDirectory(ANode.Name);
-    TFile.WriteAllText(ANode.Name + '\patroni.yaml', ANode.GetPatroniConfig);
-    TFile.WriteAllText(ANode.Name + '\patronictl.yaml', ANode.GetPatroniCtlConfig);
-    TFile.WriteAllText(ANode.Name + '\etcd.yaml', ANode.GetEtcdConfig);
-    { TODO : Add VIPManager configuration }
+    ANodeDir := TPath.Combine(ADir, ANode.Name);
+    IOUtils.TDirectory.CreateDirectory(ANodeDir);
+    WriteToFile(TPath.Combine(ANodeDir, 'patroni.yaml'), ANode.GetPatroniConfig);
+    WriteToFile(TPath.Combine(ANodeDir, 'patronictl.yaml'), ANode.GetPatroniCtlConfig);
+    WriteToFile(TPath.Combine(ANodeDir, 'etcd.yaml'), ANode.GetEtcdConfig);
+    WriteToFile(TPath.Combine(ANodeDir, 'vipmanager.yaml'), ANode.GetVIPManagerConfig);
   end;
-
 end;
 
 procedure TfmInstall.acFinishUpdate(Sender: TObject);
 begin
   lblStep.Caption := pcWizard.ActivePage.Caption;
   (Sender as TAction).Enabled := pcWizard.ActivePageIndex = pcWizard.PageCount - 1;
+end;
+
+procedure TfmInstall.acRunNodeTestsUpdate(Sender: TObject);
+begin
+  TAction(Sender).Enabled := FileExists(TPath.Combine('..\patroni', 'patroni.yaml')) and
+    FileExists(TPath.Combine('..\etcd', 'etcd.yaml')) and
+    FileExists(TPath.Combine('..\vip-manager', 'vipmanager.yaml'));
 end;
 
 procedure TfmInstall.acVIPCheck(Sender: TObject);
@@ -195,8 +244,7 @@ begin
       with TLabel(tabVIPManager.Controls[i]) do
       begin
         Enabled := chkEnableVIP.Checked;
-        if Assigned(FocusControl) then
-          FocusControl.Enabled := Enabled;
+        if Assigned(FocusControl) then FocusControl.Enabled := Enabled;
       end;
 end;
 
@@ -330,18 +378,15 @@ begin
   vstNodes.BeginUpdate;
   try
     for i := 0 to ACluster.NodeCount - 1 do
-      vstNodes.AddChild(nil, ACluster.Nodes[I])
+      vstNodes.AddChild(nil, ACluster.Nodes[i])
   finally
     vstNodes.EndUpdate;
   end;
-
 end;
 
-procedure TfmInstall.OnResourceReceived(const Sender: TObject;
-  const AResource: TRemoteResource);
+procedure TfmInstall.OnResourceReceived(const Sender: TObject; const AResource: TRemoteResource);
 begin
-  if AResource.Hint <> dmTether.ResourceName then
-    Exit;
+  if AResource.Hint <> dmTether.ResourceName then Exit;
   tmCheckConnection.Enabled := True;
   vstNodes.Clear; // this will destroy nodes in cluster
   Cluster.VIPManager.Free;
@@ -353,13 +398,30 @@ begin
   end;
 end;
 
+procedure TfmInstall.tabTestShow(Sender: TObject);
+var
+  I: Integer;
+  ANode: TNode;
+  ASelection: string;
+begin
+  ASelection := cbCurrentNode.Text;
+  cbCurrentNode.Clear;
+  for I := 0 to Cluster.NodeCount - 1 do
+  begin
+    ANode := Cluster.Nodes[I];
+    cbCurrentNode.Items.AddObject(Format('%s: %s', [ANode.Name, ANode.IP]), ANode);
+  end;
+  cbCurrentNode.ItemIndex := cbCurrentNode.Items.IndexOf(ASelection);
+end;
+
 procedure TfmInstall.tmCheckConnectionTimer(Sender: TObject);
 var
   S: string;
 const
   TAB: string = #9;
 begin
-  if pcWizard.ActivePage <> tabTethering then Exit;
+  if pcWizard.ActivePage <> tabTethering then
+    Exit;
   if not dmTether.IsConnected() then
   begin
     mmRemoteManagers.Lines.Text := 'You are not connected';
@@ -371,8 +433,7 @@ begin
     mmRemoteManagers.Lines.Add('Local instance:');
     mmRemoteManagers.Lines.Add(TAB + dmTether.GetConnectionString);
     mmRemoteManagers.Lines.Add('Paired instances:');
-    for S in dmTether.GetPairedConnectionStrings do
-      mmRemoteManagers.Lines.Add(TAB + S);
+    for S in dmTether.GetPairedConnectionStrings do mmRemoteManagers.Lines.Add(TAB + S);
   finally
     mmRemoteManagers.Lines.EndUpdate;
   end;
@@ -396,14 +457,12 @@ begin
   Cluster.VIPManager.Key := edVIPKey.Text;
 end;
 
-procedure TfmInstall.vstNodesFreeNode(Sender: TBaseVirtualTree;
-  Node: PVirtualNode);
+procedure TfmInstall.vstNodesFreeNode(Sender: TBaseVirtualTree; Node: PVirtualNode);
 var
   AData: pointer;
 begin
   AData := Sender.GetNodeData(Node);
-  if not Assigned(AData) then
-    Exit;
+  if not Assigned(AData) then Exit;
   FreeAndNil(TObject(AData^));
 end;
 
@@ -413,19 +472,16 @@ begin
   NodeDataSize := SizeOf(TNode);
 end;
 
-procedure TfmInstall.vstNodesGetText(Sender: TBaseVirtualTree;
-  Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType;
-  var CellText: string);
+procedure TfmInstall.vstNodesGetText(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex;
+  TextType: TVSTTextType; var CellText: string);
 var
   AnObj: TObject;
   AData: pointer;
 begin
   // Column is -1 if the header is hidden or no columns are defined
-  if Column < 0 then
-    Exit;
+  if Column < 0 then Exit;
   AData := Sender.GetNodeData(Node);
-  if not Assigned(AData) then
-    Exit;
+  if not Assigned(AData) then Exit;
   AnObj := TObject(AData^);
   if Assigned(AnObj) and (AnObj is TNode) then
     case Column of
@@ -437,8 +493,8 @@ begin
     end;
 end;
 
-procedure TfmInstall.vstNodesKeyAction(Sender: TBaseVirtualTree; var CharCode: Word;
-  var Shift: TShiftState; var DoDefault: Boolean);
+procedure TfmInstall.vstNodesKeyAction(Sender: TBaseVirtualTree; var CharCode: Word; var Shift: TShiftState;
+  var DoDefault: Boolean);
 var
   HI: THitInfo;
 begin
@@ -460,18 +516,16 @@ begin
   end;
 end;
 
-procedure TfmInstall.vstNodesNewText(Sender: TBaseVirtualTree;
-  Node: PVirtualNode; Column: TColumnIndex; NewText: string);
+procedure TfmInstall.vstNodesNewText(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex;
+  NewText: string);
 var
   AnObj: TObject;
   AData: pointer;
 begin
   // Column is -1 if the header is hidden or no columns are defined
-  if Column < 0 then
-    Exit;
+  if Column < 0 then Exit;
   AData := Sender.GetNodeData(Node);
-  if not Assigned(AData) then
-    Exit;
+  if not Assigned(AData) then Exit;
   AnObj := TObject(AData^);
   if Assigned(AnObj) and (AnObj is TNode) then
     with TNode(AnObj) do
@@ -481,25 +535,20 @@ begin
       end;
 end;
 
-procedure TfmInstall.vstNodesNodeClick(Sender: TBaseVirtualTree;
-  const HitInfo: THitInfo);
+procedure TfmInstall.vstNodesNodeClick(Sender: TBaseVirtualTree; const HitInfo: THitInfo);
 var
   AnObj: TObject;
   AData: pointer;
 begin
   AData := Sender.GetNodeData(HitInfo.HitNode);
-  if not Assigned(AData) then
-    Exit;
+  if not Assigned(AData) then Exit;
   AnObj := TObject(AData^);
   if Assigned(AnObj) and (AnObj is TNode) then
     with TNode(AnObj) do
       case HitInfo.HitColumn of
-        1:
-          HasDatabase := not HasDatabase;
-        2:
-          HasEtcd := not HasEtcd;
-        3:
-          NoFailover := not NoFailover;
+        1: HasDatabase := not HasDatabase;
+        2: HasEtcd := not HasEtcd;
+        3: NoFailover := not NoFailover;
       end;
 end;
 

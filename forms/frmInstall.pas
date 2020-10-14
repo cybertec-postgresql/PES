@@ -24,7 +24,7 @@ type
     tabNodes: TTabSheet;
     ftnFinish: TButton;
     acFinish: TAction;
-    tabConfigs: TTabSheet;
+    tabTest: TTabSheet;
     edClusterName: TEdit;
     lbClusterName: TLabel;
     lbNodes: TLabel;
@@ -61,8 +61,6 @@ type
     btnAddNode: TButton;
     btnDeleteNode: TButton;
     acDeleteNode: TAction;
-    btnSave: TButton;
-    btnLoad: TButton;
     tmCheckConnection: TTimer;
     btnCheckPython: TButton;
     btnSync: TButton;
@@ -71,6 +69,15 @@ type
     lblStep: TLabel;
     btnAddTethered: TButton;
     acAddTethered: TAction;
+    cbCurrentNode: TComboBox;
+    lblCurrentNode: TLabel;
+    btnApplyNodeConfig: TButton;
+    acApplyNodeConfig: TAction;
+    mmLog: TMemo;
+    btnRunNodeTests: TButton;
+    acRunNodeTests: TAction;
+    btnSave: TButton;
+    btnLoad: TButton;
     procedure acFinishUpdate(Sender: TObject);
     procedure btnSaveClick(Sender: TObject);
     procedure btnLoadClick(Sender: TObject);
@@ -102,8 +109,13 @@ type
     procedure btnBackClick(Sender: TObject);
     procedure acAddTetheredUpdate(Sender: TObject);
     procedure acAddTetheredExecute(Sender: TObject);
+    procedure tabTestShow(Sender: TObject);
+    procedure acApplyNodeConfigUpdate(Sender: TObject);
+    procedure acApplyNodeConfigExecute(Sender: TObject);
+    procedure acRunNodeTestsUpdate(Sender: TObject);
   private
     Cluster: TCluster;
+    procedure WriteToFile(AFileName, AContent: string);
   public
     procedure InvalidateCluster(ACluster: TCluster);
   end;
@@ -150,9 +162,38 @@ begin
   (Sender as TAction).Enabled := dmTether.TetherManager.PairedManagers.Count > 0;
 end;
 
+procedure TfmInstall.acApplyNodeConfigExecute(Sender: TObject);
+var
+  ANode: TNode;
+begin
+    mmLog.Clear;
+    ANode := cbCurrentNode.Items.Objects[cbCurrentNode.ItemIndex] as TNode;
+    WriteToFile(TPath.Combine('..\patroni', 'patroni.yaml'), ANode.GetPatroniConfig);
+    WriteToFile(TPath.Combine('..\patroni', 'patronictl.yaml'), ANode.GetPatroniCtlConfig);
+    WriteToFile(TPath.Combine('..\etcd', 'etcd.yaml'), ANode.GetEtcdConfig);
+    WriteToFile(TPath.Combine('..\vip-manager', 'vipmanager.yaml'), ANode.GetVIPManagerConfig);
+end;
+
+procedure TfmInstall.acApplyNodeConfigUpdate(Sender: TObject);
+begin
+  TAction(Sender).Enabled := cbCurrentNode.ItemIndex > -1;
+end;
+
 procedure TfmInstall.acDeleteNodeUpdate(Sender: TObject);
 begin
   TAction(Sender).Enabled := vstNodes.SelectedCount > 0;
+end;
+
+procedure TfmInstall.WriteToFile(AFileName, AContent: string);
+begin
+  if AContent = '' then
+    Exit;
+  try
+    TFile.WriteAllText(AFileName, AContent);
+    mmLog.Lines.Append(AFileName + ' successfully written');
+  except on E: Exception do
+    mmLog.Lines.Append(AFileName + ': ' + E.Message);
+  end;
 end;
 
 procedure TfmInstall.acFinishExecute(Sender: TObject);
@@ -160,14 +201,6 @@ var
   i: Integer;
   ANode: TNode;
   ADir, ANodeDir: string;
-
-  procedure WriteToFile(AFileName, AContent: string);
-  begin
-    if AContent = '' then
-      Exit;
-    TFile.WriteAllText(AFileName, AContent);
-  end;
-
 begin
   ADir := ExtractFilePath(Application.ExeName);
   if not FileCtrl.SelectDirectory('Select directory to save generated configs', '', ADir) then
@@ -188,6 +221,13 @@ procedure TfmInstall.acFinishUpdate(Sender: TObject);
 begin
   lblStep.Caption := pcWizard.ActivePage.Caption;
   (Sender as TAction).Enabled := pcWizard.ActivePageIndex = pcWizard.PageCount - 1;
+end;
+
+procedure TfmInstall.acRunNodeTestsUpdate(Sender: TObject);
+begin
+  TAction(Sender).Enabled := FileExists(TPath.Combine('..\patroni', 'patroni.yaml')) and
+    FileExists(TPath.Combine('..\etcd', 'etcd.yaml')) and
+    FileExists(TPath.Combine('..\vip-manager', 'vipmanager.yaml'));
 end;
 
 procedure TfmInstall.acVIPCheck(Sender: TObject);
@@ -356,6 +396,22 @@ begin
   except
     vstNodes.Clear;
   end;
+end;
+
+procedure TfmInstall.tabTestShow(Sender: TObject);
+var
+  I: Integer;
+  ANode: TNode;
+  ASelection: string;
+begin
+  ASelection := cbCurrentNode.Text;
+  cbCurrentNode.Clear;
+  for I := 0 to Cluster.NodeCount - 1 do
+  begin
+    ANode := Cluster.Nodes[I];
+    cbCurrentNode.Items.AddObject(Format('%s: %s', [ANode.Name, ANode.IP]), ANode);
+  end;
+  cbCurrentNode.ItemIndex := cbCurrentNode.Items.IndexOf(ASelection);
 end;
 
 procedure TfmInstall.tmCheckConnectionTimer(Sender: TObject);

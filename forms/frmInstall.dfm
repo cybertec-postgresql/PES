@@ -20,7 +20,7 @@ object fmInstall: TfmInstall
   object imgHeader: TImage
     Left = 0
     Top = 0
-    Width = 572
+    Width = 564
     Height = 105
     Align = alTop
     Picture.Data = {
@@ -1945,9 +1945,8 @@ object fmInstall: TfmInstall
       126DC8127F7188C911C43BE3FA2C69C5A20CE31F7C123EEDA2FF004F4A81C0A1
       7EBF4C161FFFD9}
     Stretch = True
-    ExplicitLeft = 272
-    ExplicitTop = 184
-    ExplicitWidth = 105
+    ExplicitTop = 8
+    ExplicitWidth = 572
   end
   object lblStep: TLabel
     Left = 8
@@ -1967,16 +1966,18 @@ object fmInstall: TfmInstall
   object pnlNavigation: TPanel
     Left = 0
     Top = 635
-    Width = 572
+    Width = 564
     Height = 37
     Align = alBottom
     BevelOuter = bvNone
     TabOrder = 0
+    ExplicitTop = 637
+    ExplicitWidth = 572
     DesignSize = (
-      572
+      564
       37)
     object btnNext: TButton
-      Left = 227
+      Left = 355
       Top = 6
       Width = 75
       Height = 25
@@ -1986,9 +1987,10 @@ object fmInstall: TfmInstall
       ModalResult = 1
       TabOrder = 0
       OnClick = btnNextClick
+      ExplicitLeft = 363
     end
     object btnBack: TButton
-      Left = 146
+      Left = 274
       Top = 6
       Width = 75
       Height = 25
@@ -1998,9 +2000,10 @@ object fmInstall: TfmInstall
       ModalResult = 2
       TabOrder = 1
       OnClick = btnBackClick
+      ExplicitLeft = 282
     end
     object ftnFinish: TButton
-      Left = 444
+      Left = 436
       Top = 6
       Width = 115
       Height = 25
@@ -2009,36 +2012,57 @@ object fmInstall: TfmInstall
       Default = True
       ModalResult = 1
       TabOrder = 2
+      ExplicitLeft = 444
     end
     object btnSync: TButton
       Left = 4
       Top = 6
-      Width = 90
+      Width = 75
       Height = 25
-      Caption = 'Sync Configs'
+      Caption = 'Sync Nodes'
       TabOrder = 3
       OnClick = btnSyncClick
+    end
+    object btnSave: TButton
+      Left = 85
+      Top = 6
+      Width = 75
+      Height = 25
+      Caption = '&Save'
+      TabOrder = 4
+      OnClick = btnSaveClick
+    end
+    object btnLoad: TButton
+      Left = 166
+      Top = 6
+      Width = 75
+      Height = 25
+      Caption = '&Load'
+      TabOrder = 5
+      OnClick = btnLoadClick
     end
   end
   object pcWizard: TPageControl
     Left = 0
     Top = 105
-    Width = 572
+    Width = 564
     Height = 530
-    ActivePage = tabVIPManager
+    ActivePage = tabTest
     Align = alClient
     TabOrder = 1
+    ExplicitWidth = 572
     object tabTethering: TTabSheet
       Caption = 'Tethering'
       ImageIndex = 5
+      ExplicitWidth = 564
       DesignSize = (
-        564
+        556
         502)
       object mmRemoteManagers: TMemo
         Left = 10
-        Top = 16
-        Width = 539
-        Height = 431
+        Top = 10
+        Width = 530
+        Height = 440
         Anchors = [akLeft, akTop, akRight, akBottom]
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
@@ -2051,15 +2075,17 @@ object fmInstall: TfmInstall
             'network to sync '
           'settings with them and test cluster health online.'
           ''
-          'Connected PES instances and their IPs will appear here.')
+          'Connected PES instances and their IPs will appear here.'
+          ''
+          'You may skip this step and add nodes manually.')
         ParentFont = False
         ReadOnly = True
         TabOrder = 0
       end
       object btnConnect: TButton
         Left = 10
-        Top = 458
-        Width = 121
+        Top = 460
+        Width = 120
         Height = 35
         Anchors = [akLeft, akBottom]
         Caption = 'Connect'
@@ -2069,14 +2095,15 @@ object fmInstall: TfmInstall
     end
     object tabPython: TTabSheet
       Caption = 'Python'
+      ExplicitWidth = 564
       DesignSize = (
-        564
+        556
         502)
       object mmPython: TMemo
         Left = 10
-        Top = 16
-        Width = 536
-        Height = 441
+        Top = 10
+        Width = 530
+        Height = 440
         Anchors = [akLeft, akTop, akRight, akBottom]
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
@@ -2086,15 +2113,20 @@ object fmInstall: TfmInstall
         Lines.Strings = (
           'Patroni depends on Python and several packages. '
           ''
-          'Click "Run Check" to see if dependancies are up to date!')
+          'Click "Run Check" to see if dependencies are up to date!'
+          ''
+          
+            'You may skip this step if this machine is not supposed to be a n' +
+            'ode in the future '
+          'cluster and used for configuration only.')
         ParentFont = False
         TabOrder = 0
       end
       object btnCheckPython: TButton
         Left = 10
-        Top = 466
-        Width = 75
-        Height = 25
+        Top = 460
+        Width = 120
+        Height = 35
         Anchors = [akLeft, akBottom]
         Caption = 'Run Check'
         TabOrder = 1
@@ -2104,101 +2136,102 @@ object fmInstall: TfmInstall
     object tabPostgres: TTabSheet
       Caption = 'PostgreSQL'
       ImageIndex = 3
+      ExplicitTop = 22
       object lblBinDir: TLabel
-        Left = 14
-        Top = 18
+        Left = 10
+        Top = 10
         Width = 119
         Height = 13
         Caption = 'PostgreSQL bin directory'
         FocusControl = edClusterName
       end
       object lblDataDir: TLabel
-        Left = 14
-        Top = 66
+        Left = 290
+        Top = 10
         Width = 127
         Height = 13
         Caption = 'PostgreSQL data directory'
         FocusControl = edClusterName
       end
       object lblReplicattionRole: TLabel
-        Left = 14
-        Top = 117
+        Left = 10
+        Top = 61
         Width = 73
         Height = 13
         Caption = 'Replication role'
         FocusControl = edClusterName
       end
       object lblReplicationPwd: TLabel
-        Left = 166
-        Top = 117
+        Left = 290
+        Top = 61
         Width = 101
         Height = 13
         Caption = 'Replication password'
         FocusControl = edClusterName
       end
       object lblSuperuserRole: TLabel
-        Left = 14
-        Top = 165
+        Left = 10
+        Top = 114
         Width = 70
         Height = 13
         Caption = 'Superuser role'
         FocusControl = edClusterName
       end
       object lblSuperuserPwd: TLabel
-        Left = 166
-        Top = 165
+        Left = 290
+        Top = 114
         Width = 98
         Height = 13
         Caption = 'Superuser password'
         FocusControl = edClusterName
       end
       object edReplicationRole: TEdit
-        Left = 14
-        Top = 136
-        Width = 121
+        Left = 10
+        Top = 80
+        Width = 240
         Height = 21
         TabOrder = 1
         Text = 'replicator'
         OnChange = UpdateCluster
       end
       object edReplicationPassword: TEdit
-        Left = 166
-        Top = 136
-        Width = 121
+        Left = 290
+        Top = 80
+        Width = 240
         Height = 21
         TabOrder = 3
         OnChange = UpdateCluster
       end
       object edSuperuserRole: TEdit
-        Left = 14
-        Top = 184
-        Width = 121
+        Left = 10
+        Top = 133
+        Width = 240
         Height = 21
         TabOrder = 0
         Text = 'postgres'
         OnChange = UpdateCluster
       end
       object edSuperuserPassword: TEdit
-        Left = 166
-        Top = 184
-        Width = 121
+        Left = 290
+        Top = 133
+        Width = 240
         Height = 21
         TabOrder = 2
         OnChange = UpdateCluster
       end
       object edBinDir: TEdit
-        Left = 14
-        Top = 39
-        Width = 121
+        Left = 10
+        Top = 29
+        Width = 240
         Height = 21
         TabOrder = 4
         Text = 'pgsql/bin'
         OnChange = UpdateCluster
       end
       object edDataDir: TEdit
-        Left = 14
-        Top = 85
-        Width = 121
+        Left = 290
+        Top = 29
+        Width = 240
         Height = 21
         TabOrder = 5
         Text = 'DataDir'
@@ -2208,8 +2241,13 @@ object fmInstall: TfmInstall
     object tabNodes: TTabSheet
       Caption = 'Nodes'
       ImageIndex = 1
+      ExplicitTop = 28
+      ExplicitWidth = 564
+      DesignSize = (
+        556
+        502)
       object lbClusterName: TLabel
-        Left = 14
+        Left = 10
         Top = 10
         Width = 64
         Height = 13
@@ -2217,7 +2255,7 @@ object fmInstall: TfmInstall
         FocusControl = edClusterName
       end
       object lbNodes: TLabel
-        Left = 14
+        Left = 10
         Top = 61
         Width = 67
         Height = 13
@@ -2232,7 +2270,7 @@ object fmInstall: TfmInstall
         FocusControl = edClusterToken
       end
       object edClusterName: TEdit
-        Left = 14
+        Left = 10
         Top = 29
         Width = 121
         Height = 21
@@ -2250,10 +2288,11 @@ object fmInstall: TfmInstall
         OnChange = UpdateCluster
       end
       object vstNodes: TVirtualStringTree
-        Left = 14
+        Left = 10
         Top = 80
         Width = 529
         Height = 194
+        Anchors = [akLeft, akTop, akRight]
         Header.AutoSizeIndex = 0
         Header.Options = [hoColumnResize, hoDrag, hoShowImages, hoShowSortGlyphs, hoVisible]
         Indent = 5
@@ -2301,7 +2340,7 @@ object fmInstall: TfmInstall
         DefaultText = 'foobla'
       end
       object btnAddNode: TButton
-        Left = 14
+        Left = 10
         Top = 288
         Width = 75
         Height = 25
@@ -2317,71 +2356,54 @@ object fmInstall: TfmInstall
         Action = acDeleteNode
         TabOrder = 4
       end
-      object btnSave: TButton
-        Left = 352
-        Top = 288
-        Width = 95
-        Height = 25
-        Caption = 'Save'
-        TabOrder = 5
-        OnClick = btnSaveClick
-      end
-      object btnLoad: TButton
-        Left = 453
-        Top = 288
-        Width = 90
-        Height = 25
-        Caption = 'Load'
-        TabOrder = 6
-        OnClick = btnLoadClick
-      end
       object btnAddTethered: TButton
         Left = 176
         Top = 288
         Width = 122
         Height = 25
         Action = acAddTethered
-        TabOrder = 7
+        TabOrder = 5
       end
     end
     object tabVIPManager: TTabSheet
       Caption = 'VIP Manager'
       ImageIndex = 4
+      ExplicitTop = 28
       object lblVIPKey: TLabel
-        Left = 22
-        Top = 77
+        Left = 15
+        Top = 39
         Width = 41
         Height = 13
         Caption = 'DCS Key'
         FocusControl = edVIPKey
       end
       object lblVIPMask: TLabel
-        Left = 302
-        Top = 79
+        Left = 296
+        Top = 39
         Width = 67
         Height = 13
         Caption = 'Network Mask'
         FocusControl = edVIPMask
       end
       object lblVIPInterface: TLabel
-        Left = 302
-        Top = 125
+        Left = 296
+        Top = 85
         Width = 75
         Height = 13
         Caption = 'Interface Name'
         FocusControl = edVIPInterface
       end
       object lblVIP: TLabel
-        Left = 22
-        Top = 125
+        Left = 15
+        Top = 87
         Width = 43
         Height = 13
         Caption = 'Virtual IP'
         FocusControl = edVIP
       end
       object edVIPKey: TEdit
-        Left = 22
-        Top = 96
+        Left = 15
+        Top = 58
         Width = 240
         Height = 21
         TabOrder = 0
@@ -2389,8 +2411,8 @@ object fmInstall: TfmInstall
         OnChange = UpdateCluster
       end
       object edVIPMask: TEdit
-        Left = 302
-        Top = 98
+        Left = 296
+        Top = 58
         Width = 240
         Height = 21
         TabOrder = 1
@@ -2398,8 +2420,8 @@ object fmInstall: TfmInstall
         OnChange = UpdateCluster
       end
       object edVIPInterface: TEdit
-        Left = 302
-        Top = 146
+        Left = 296
+        Top = 106
         Width = 240
         Height = 21
         TabOrder = 2
@@ -2407,8 +2429,8 @@ object fmInstall: TfmInstall
         OnChange = UpdateCluster
       end
       object edVIP: TEdit
-        Left = 22
-        Top = 144
+        Left = 15
+        Top = 106
         Width = 240
         Height = 21
         TabOrder = 3
@@ -2416,8 +2438,8 @@ object fmInstall: TfmInstall
         OnChange = UpdateCluster
       end
       object chkEnableVIP: TCheckBox
-        Left = 16
-        Top = 32
+        Left = 10
+        Top = 10
         Width = 185
         Height = 17
         Action = acVIP
@@ -2425,9 +2447,82 @@ object fmInstall: TfmInstall
         TabOrder = 4
       end
     end
-    object tabConfigs: TTabSheet
-      Caption = 'Configs'
+    object tabTest: TTabSheet
+      Caption = 'Test'
       ImageIndex = 2
+      OnShow = tabTestShow
+      ExplicitTop = 28
+      ExplicitWidth = 564
+      DesignSize = (
+        556
+        502)
+      object lblCurrentNode: TLabel
+        Left = 10
+        Top = 10
+        Width = 101
+        Height = 13
+        Caption = 'Choose current node'
+      end
+      object cbCurrentNode: TComboBox
+        Left = 10
+        Top = 32
+        Width = 251
+        Height = 21
+        TabOrder = 0
+      end
+      object btnApplyNodeConfig: TButton
+        Left = 288
+        Top = 30
+        Width = 113
+        Height = 25
+        Action = acApplyNodeConfig
+        TabOrder = 1
+      end
+      object mmLog: TMemo
+        Left = 10
+        Top = 61
+        Width = 530
+        Height = 401
+        Anchors = [akLeft, akTop, akRight, akBottom]
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Consolas'
+        Font.Style = []
+        Lines.Strings = (
+          
+            'On this tab you can apply the configuration to the current node ' +
+            'and run tests.'
+          ''
+          
+            'Choose the current node from the list, then generate and put gen' +
+            'eration files in '
+          'proper '
+          'places by clicking "Apply Config Now".'
+          ''
+          
+            'Run tests to see if every service of the node is working as expe' +
+            'cted.'
+          ''
+          
+            'You should apply configurations for every node in the cluster, e' +
+            'ither using PES '
+          
+            'tethered instances or copying generated configuration files and ' +
+            'starting services '
+          'manually.')
+        ParentFont = False
+        ReadOnly = True
+        TabOrder = 2
+      end
+      object btnRunNodeTests: TButton
+        Left = 426
+        Top = 30
+        Width = 114
+        Height = 25
+        Action = acRunNodeTests
+        TabOrder = 3
+      end
     end
   end
   object alActions: TActionList
@@ -2448,7 +2543,7 @@ object fmInstall: TfmInstall
     end
     object acFinish: TAction
       Category = 'Tab'
-      Caption = '&Finish'
+      Caption = '&Generate Configs'
       OnExecute = acFinishExecute
       OnUpdate = acFinishUpdate
     end
@@ -2467,6 +2562,15 @@ object fmInstall: TfmInstall
       Caption = 'Add Tethered'
       OnExecute = acAddTetheredExecute
       OnUpdate = acAddTetheredUpdate
+    end
+    object acApplyNodeConfig: TAction
+      Caption = 'Apply Config Now'
+      OnExecute = acApplyNodeConfigExecute
+      OnUpdate = acApplyNodeConfigUpdate
+    end
+    object acRunNodeTests: TAction
+      Caption = 'Run Node Tests'
+      OnUpdate = acRunNodeTestsUpdate
     end
   end
   object tmCheckConnection: TTimer

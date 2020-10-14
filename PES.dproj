@@ -151,13 +151,13 @@
             <Form>fmInstall</Form>
             <FormType>dfm</FormType>
         </DCCReference>
-        <DCCReference Include="helpers\console.pas"/>
-        <DCCReference Include="templates\template.pas"/>
         <DCCReference Include="forms\uTetherModule.pas">
             <Form>dmTether</Form>
-            <FormType>dfm</FormType>
             <DesignClass>TDataModule</DesignClass>
         </DCCReference>
+        <DCCReference Include="helpers\Cluster.pas"/>
+        <DCCReference Include="helpers\Console.pas"/>
+        <DCCReference Include="helpers\Service.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>
@@ -190,13 +190,13 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="_output\PES.rsm" Configuration="Debug" Class="DebugSymbols">
+                <DeployFile LocalName="_output\pes\PES.rsm" Configuration="Debug" Class="DebugSymbols">
                     <Platform Name="Win64">
                         <RemoteName>PES.rsm</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="_output\PES.exe" Configuration="Debug" Class="ProjectOutput">
+                <DeployFile LocalName="_output\pes\PES.exe" Configuration="Debug" Class="ProjectOutput">
                     <Platform Name="Win64">
                         <RemoteName>PES.exe</RemoteName>
                         <Overwrite>true</Overwrite>

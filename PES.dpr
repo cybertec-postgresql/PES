@@ -3,9 +3,10 @@ program PES;
 uses
   Vcl.Forms,
   frmInstall in 'forms\frmInstall.pas' {fmInstall},
-  console in 'helpers\console.pas',
-  template in 'templates\template.pas',
-  uTetherModule in 'forms\uTetherModule.pas' {dmTether: TDataModule};
+  uTetherModule in 'forms\uTetherModule.pas' {dmTether: TDataModule},
+  Cluster in 'helpers\Cluster.pas',
+  Console in 'helpers\Console.pas',
+  Service in 'helpers\Service.pas';
 
 {$R *.res}
 

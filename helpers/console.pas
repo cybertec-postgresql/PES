@@ -4,21 +4,21 @@ interface
 
 uses Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes;
 
-function GetDosOutput(CommandLine: string; Work: string = 'C:\'): string;
-function GetPSOutput(CommandLine: string; Work: string = 'C:\'): string;
+function GetDosOutput(CommandLine: string; Work: string = ''): string;
+function GetPSOutput(CommandLine: string; Work: string = ''): string;
 
 implementation
 
-function GetConsoleOutput(Console, CommandLine: string; Work: string = 'C:\'): string;
+function GetConsoleOutput(Console, CommandLine: string; Work: string = ''): string;
 var
   SA: TSecurityAttributes;
   SI: TStartupInfo;
   PI: TProcessInformation;
   StdOutPipeRead, StdOutPipeWrite: THandle;
   WasOK: Boolean;
-  Buffer: array[0..255] of AnsiChar;
+  Buffer: array[0..8192] of AnsiChar;
   BytesRead: Cardinal;
-  WorkDir: string;
+  WorkDir: PChar;
   Handle: Boolean;
 begin
   Result := '';
@@ -39,38 +39,40 @@ begin
       hStdOutput := StdOutPipeWrite;
       hStdError := StdOutPipeWrite;
     end;
-    WorkDir := Work;
+    if Work = '' then WorkDir := nil else WorkDir := PChar(Work);
     Handle := CreateProcess(nil, PChar(Console + CommandLine),
                             nil, nil, True, 0, nil,
-                            PChar(WorkDir), SI, PI);
+                            WorkDir, SI, PI);
     CloseHandle(StdOutPipeWrite);
     if Handle then
       try
         repeat
-          WasOK := ReadFile(StdOutPipeRead, Buffer, 255, BytesRead, nil);
+          WasOK := ReadFile(StdOutPipeRead, Buffer, 8192, BytesRead, nil);
           if BytesRead > 0 then
           begin
             Buffer[BytesRead] := #0;
-            Result := Result + string(Buffer);
+            Result := Result + AdjustLineBreaks(string(Buffer), tlbsCRLF);
           end;
         until not WasOK or (BytesRead = 0);
         WaitForSingleObject(PI.hProcess, INFINITE);
       finally
         CloseHandle(PI.hThread);
         CloseHandle(PI.hProcess);
-      end;
+      end
+    else
+      RaiseLastOSError;
   finally
     CloseHandle(StdOutPipeRead);
   end;
   Result := Trim(Result);
 end;
 
-function GetDosOutput(CommandLine: string; Work: string = 'C:\'): string;
+function GetDosOutput(CommandLine: string; Work: string = ''): string;
 begin
   Result := GetConsoleOutput('cmd.exe /C ', CommandLine, Work);
 end;
 
-function GetPSOutput(CommandLine: string; Work: string = 'C:\'): string;
+function GetPSOutput(CommandLine: string; Work: string = ''): string;
 begin
   Result := GetConsoleOutput('powershell -Command ', CommandLine, Work);
 end;

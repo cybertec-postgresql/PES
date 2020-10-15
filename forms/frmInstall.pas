@@ -118,6 +118,7 @@ type
   private
     Cluster: TCluster;
     procedure WriteToFile(AFileName, AContent: string);
+    function GetSelectedNode: TNode;
   public
     procedure InvalidateCluster(ACluster: TCluster);
   end;
@@ -171,7 +172,7 @@ var
   ANode: TNode;
 begin
     mmLog.Clear;
-    ANode := cbCurrentNode.Items.Objects[cbCurrentNode.ItemIndex] as TNode;
+    ANode := GetSelectedNode();
     WriteToFile(TPath.Combine('..\patroni', 'patroni.yaml'), ANode.GetPatroniConfig);
     WriteToFile(TPath.Combine('..\patroni', 'patronictl.yaml'), ANode.GetPatroniCtlConfig);
     WriteToFile(TPath.Combine('..\etcd', 'etcd.yaml'), ANode.GetEtcdConfig);
@@ -228,10 +229,21 @@ begin
 end;
 
 procedure TfmInstall.acRunNodeTestsUpdate(Sender: TObject);
+var
+  ANode: TNode;
+  Res: Boolean;
 begin
-  TAction(Sender).Enabled := FileExists(TPath.Combine('..\patroni', 'patroni.yaml')) and
-    FileExists(TPath.Combine('..\etcd', 'etcd.yaml')) and
-    FileExists(TPath.Combine('..\vip-manager', 'vipmanager.yaml'));
+  ANode := GetSelectedNode();
+  Res := Assigned(ANode);
+  if Res and ANode.HasDatabase then
+  begin
+    Res := FileExists(TPath.Combine('..\patroni', 'patroni.yaml'));
+    if Res and Cluster.VIPManager.Enabled then
+      Res := FileExists(TPath.Combine('..\vip-manager', 'vipmanager.yaml'));
+  end;
+  if Res and ANode.HasEtcd then
+    Res := FileExists(TPath.Combine('..\etcd', 'etcd.yaml'));
+  TAction(Sender).Enabled := Res;
 end;
 
 procedure TfmInstall.acVIPCheck(Sender: TObject);
@@ -376,6 +388,14 @@ begin
   dmTether.OnConnect := btnConnectClick;
   pcWizard.ActivePageIndex := 0;
   InvalidateCluster(Cluster);
+end;
+
+function TfmInstall.GetSelectedNode: TNode;
+begin
+  if cbCurrentNode.ItemIndex = -1 then
+    Result := nil
+  else
+    Result := cbCurrentNode.Items.Objects[cbCurrentNode.ItemIndex] as TNode;
 end;
 
 procedure TfmInstall.InvalidateCluster(ACluster: TCluster);

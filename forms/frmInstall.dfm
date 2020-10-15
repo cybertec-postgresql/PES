@@ -2048,10 +2048,6 @@ object fmInstall: TfmInstall
     object tabTethering: TTabSheet
       Caption = 'Tethering'
       ImageIndex = 5
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       DesignSize = (
         556
         502)
@@ -2092,10 +2088,6 @@ object fmInstall: TfmInstall
     end
     object tabPython: TTabSheet
       Caption = 'Python'
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       DesignSize = (
         556
         502)
@@ -2136,10 +2128,6 @@ object fmInstall: TfmInstall
     object tabPostgres: TTabSheet
       Caption = 'PostgreSQL'
       ImageIndex = 3
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object lblBinDir: TLabel
         Left = 10
         Top = 10
@@ -2244,10 +2232,6 @@ object fmInstall: TfmInstall
     object tabNodes: TTabSheet
       Caption = 'Nodes'
       ImageIndex = 1
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       DesignSize = (
         556
         502)
@@ -2373,10 +2357,6 @@ object fmInstall: TfmInstall
     object tabVIPManager: TTabSheet
       Caption = 'VIP Manager'
       ImageIndex = 4
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object lblVIPKey: TLabel
         Left = 15
         Top = 39

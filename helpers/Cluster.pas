@@ -104,7 +104,7 @@ type
 
 implementation
 
-uses IOUtils, Winapi.WinSock2;
+uses IOUtils;
 
 function RandomPassword(const Len: Integer = 12): string;
 var
@@ -295,7 +295,7 @@ begin
   Result := ReplaceStr(Result, '{cluster.superuser_user}', TCluster(Owner).SuperUser);
   Result := ReplaceStr(Result, '{cluster.superuser_pw}', TCluster(Owner).SuperUserPassword);
   Result := ReplaceStr(Result, '{postgresql_parameters}', TCluster(Owner).PostgresParameters);
-  Result := ReplaceStr(Result, '{nofailover_tag}', FNoFailover.ToString(True));
+  Result := ReplaceStr(Result, '{nofailover_tag}', ifthen(FNoFailover, 'true', 'false'));
 end;
 
 function TNode.GetPatroniCtlConfig: string;

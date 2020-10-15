@@ -114,11 +114,12 @@ type
     procedure acApplyNodeConfigUpdate(Sender: TObject);
     procedure acApplyNodeConfigExecute(Sender: TObject);
     procedure acRunNodeTestsUpdate(Sender: TObject);
-    procedure btnRunNodeTestsClick(Sender: TObject);
+    procedure acRunNodeTestsClick(Sender: TObject);
   private
     Cluster: TCluster;
     procedure WriteToFile(AFileName, AContent: string);
     function GetSelectedNode: TNode;
+    function RootDir: string;
   public
     procedure InvalidateCluster(ACluster: TCluster);
   end;
@@ -207,7 +208,7 @@ var
   ANode: TNode;
   ADir, ANodeDir: string;
 begin
-  ADir := ExtractFilePath(Application.ExeName);
+  ADir := RootDir();
   if not FileCtrl.SelectDirectory('Select directory to save generated configs', '', ADir) then
     Exit;
   for i := 0 to Cluster.NodeCount - 1 do
@@ -354,15 +355,24 @@ begin
   pcWizard.SelectNextPage(True, False);
 end;
 
-procedure TfmInstall.btnRunNodeTestsClick(Sender: TObject);
+procedure TfmInstall.acRunNodeTestsClick(Sender: TObject);
+  procedure Log(S: string);
+  begin
+    mmLog.Lines.Append(S);
+    Application.ProcessMessages;
+  end;
+
 begin
   try
     mmLog.Clear;
-    mmLog.Lines.Append('Starting etcd service...');
-    if Service.ServiceStart('', 'Etcd') then
-      mmLog.Lines.Append('Etcd service successfully started. Please, check "etcd\log" folder for details');
-  except on E: Exception do
-    mmLog.Lines.Append(E.Message);
+    Log('Starting etcd service...');
+    GetDosOutput('..\etcd\etcd_service.exe start');
+    Log('Service status: ' + GetDosOutput('..\etcd\etcd_service.exe status'));
+    Log(GetDosOutput('..\etcd\etcdctl.exe --debug cluster-health'));
+    Log('Log files available at ' + RootDir + 'etcd\log');
+  except
+    on E: Exception do
+      Log(E.Message);
   end;
 end;
 
@@ -432,6 +442,11 @@ begin
   except
     vstNodes.Clear;
   end;
+end;
+
+function TfmInstall.RootDir: string;
+begin
+  Result := ExtractFilePath(Application.ExeName);
 end;
 
 procedure TfmInstall.tabTestShow(Sender: TObject);

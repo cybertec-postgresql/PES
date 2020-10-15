@@ -2470,6 +2470,7 @@ object fmInstall: TfmInstall
         Width = 530
         Height = 401
         Anchors = [akLeft, akTop, akRight, akBottom]
+        DoubleBuffered = True
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
         Font.Height = -11
@@ -2497,6 +2498,7 @@ object fmInstall: TfmInstall
             'tethered instances or copying generated configuration files and ' +
             'starting services '
           'manually.')
+        ParentDoubleBuffered = False
         ParentFont = False
         ReadOnly = True
         TabOrder = 2
@@ -2508,7 +2510,6 @@ object fmInstall: TfmInstall
         Height = 25
         Action = acRunNodeTests
         TabOrder = 3
-        OnClick = btnRunNodeTestsClick
       end
     end
   end
@@ -2557,6 +2558,7 @@ object fmInstall: TfmInstall
     end
     object acRunNodeTests: TAction
       Caption = 'Run Node Tests'
+      OnExecute = acRunNodeTestsClick
       OnUpdate = acRunNodeTestsUpdate
     end
   end

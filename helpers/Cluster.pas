@@ -236,7 +236,7 @@ end;
 
 function TNode.GetDCSConfig: string;
 begin
-  Result := 'etcd:'#13#10#9'hosts: ' + Cluster.GetEtcdHostListPatroni();
+  Result := 'etcd:'#13#10'  hosts: ' + Cluster.GetEtcdHostListPatroni();
 end;
 
 function TNode.GetEtcdConfig: string;

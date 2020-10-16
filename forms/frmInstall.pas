@@ -472,18 +472,24 @@ end;
 
 procedure TfmInstall.tabTestShow(Sender: TObject);
 var
-  I: Integer;
+  I, ASelIdx: Integer;
   ANode: TNode;
   ASelection: string;
 begin
   ASelection := cbCurrentNode.Text;
   cbCurrentNode.Clear;
+  ASelIdx := -1;
   for I := 0 to Cluster.NodeCount - 1 do
   begin
     ANode := Cluster.Nodes[I];
     cbCurrentNode.Items.AddObject(Format('%s: %s', [ANode.Name, ANode.IP]), ANode);
+    if ANode.IP = dmTether.GetConnectionString then
+      ASelIdx := I;
   end;
-  cbCurrentNode.ItemIndex := cbCurrentNode.Items.IndexOf(ASelection);
+  if ASelection > '' then
+    cbCurrentNode.ItemIndex := cbCurrentNode.Items.IndexOf(ASelection)
+  else
+    cbCurrentNode.ItemIndex := ASelIdx;
 end;
 
 procedure TfmInstall.tmCheckConnectionTimer(Sender: TObject);

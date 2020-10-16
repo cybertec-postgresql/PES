@@ -125,8 +125,8 @@ begin
   FReplicationRole := 'replicator';
   FReplicationPassword := RandomPassword();
   FSuperUserPassword := RandomPassword();
-  FPostgresDir := 'pgsql/bin';
-  FDataDir := 'pgsql/data';
+  FPostgresDir := '../pgsql/bin';
+  FDataDir := '../pgsql/data';
 end;
 
 destructor TCluster.Destroy;

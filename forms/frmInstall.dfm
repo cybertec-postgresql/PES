@@ -2479,8 +2479,11 @@ object fmInstall: TfmInstall
         Lines.Strings = (
           
             'On this tab you can apply the configuration to the current node ' +
-            'and start node '
-          'services.'
+            'only and start node '
+          
+            'services. For other nodes in cluster you should do the same with' +
+            ' GUI or manually using '
+          'console.'
           ''
           
             'Choose the current node from the list, then generate and put gen' +
@@ -2488,8 +2491,8 @@ object fmInstall: TfmInstall
           'proper places by clicking "Apply Config Now".'
           ''
           
-            'Run tests to see if every service of the node is working as expe' +
-            'cted.'
+            'Start node services and check if every service of the node is wo' +
+            'rking as expected.'
           ''
           
             'You should apply configurations for every node in the cluster, e' +

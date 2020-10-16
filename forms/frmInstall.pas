@@ -116,11 +116,11 @@ type
     procedure acRunNodeTestsUpdate(Sender: TObject);
     procedure acRunNodeTestsClick(Sender: TObject);
   private
+    NodeServicesRunning: Boolean; //indicates if services been started
     Cluster: TCluster;
     procedure WriteToFile(AFileName, AContent: string);
     function GetSelectedNode: TNode;
     function RootDir: string;
-  public
     procedure InvalidateCluster(ACluster: TCluster);
   end;
 
@@ -234,6 +234,12 @@ var
   ANode: TNode;
   Res: Boolean;
 begin
+  TAction(Sender).Caption := ifthen(NodeServicesRunning, 'Stop', 'Start') + ' Node Services';
+  if NodeServicesRunning then
+  begin
+    TAction(Sender).Enabled := True;
+    Exit;
+  end;
   ANode := GetSelectedNode();
   Res := Assigned(ANode);
   if Res and ANode.HasDatabase then
@@ -356,17 +362,16 @@ begin
 end;
 
 procedure TfmInstall.acRunNodeTestsClick(Sender: TObject);
+var
+  ANode: TNode;
+
   procedure Log(S: string);
   begin
     mmLog.Lines.Append(S);
     Application.ProcessMessages;
   end;
-var ANode: TNode;
-begin
-  ANode := GetSelectedNode();
-  if not Assigned(ANode) then Exit;
-  try
-    mmLog.Clear;
+  procedure StartServices();
+  begin
     if ANode.HasEtcd then
     begin
       Log('Starting etcd service...');
@@ -374,6 +379,7 @@ begin
       Log('Service status: ' + GetDosOutput('..\etcd\etcd_service.exe status'));
       Log(GetDosOutput('..\etcd\etcdctl.exe --debug cluster-health'));
       Log('Log files available at ' + RootDir + 'etcd\log'#13#10);
+      NodeServicesRunning := True;
     end;
     if ANode.HasDatabase then
     begin
@@ -389,10 +395,49 @@ begin
         Log('Service status: ' + GetDosOutput('..\vip-manager\vip_service.exe status'));
         Log('Log files available at ' + RootDir + 'vip-manager\log');
       end;
+      NodeServicesRunning := True;
     end;
+  end;
+
+  procedure StopServices();
+  begin
+    if ANode.HasEtcd then
+    begin
+      Log('Stoping etcd service...');
+      GetDosOutput('..\etcd\etcd_service.exe stop');
+      Log('Service status: ' + GetDosOutput('..\etcd\etcd_service.exe status'));
+      Log('Log files available at ' + RootDir + 'etcd\log'#13#10);
+      NodeServicesRunning := False;
+    end;
+    if ANode.HasDatabase then
+    begin
+      Log('Stoping patroni service...');
+      GetDosOutput('..\patroni\patroni_service.exe stopwait');
+      Log('Service status: ' + GetDosOutput('..\patroni\patroni_service.exe status'));
+      Log('Log files available at ' + RootDir + 'patroni\log'#13#10);
+      if Cluster.VIPManager.Enabled then
+      begin
+        Log('Stoping vip-manager service...');
+        GetDosOutput('..\vip-manager\vip_service.exe stopwait');
+        Log('Service status: ' + GetDosOutput('..\vip-manager\vip_service.exe status'));
+        Log('Log files available at ' + RootDir + 'vip-manager\log');
+      end;
+      NodeServicesRunning := False;
+    end;
+  end;
+
+begin
+  ANode := GetSelectedNode();
+  if not Assigned(ANode) then
+    Exit;
+  try
+    mmLog.Clear;
+    if not NodeServicesRunning then
+      StartServices()
+    else
+      StopServices();
   except
-    on E: Exception do
-      Log(E.Message);
+    on E: Exception do Log(E.Message);
   end;
 end;
 

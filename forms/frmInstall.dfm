@@ -2479,13 +2479,13 @@ object fmInstall: TfmInstall
         Lines.Strings = (
           
             'On this tab you can apply the configuration to the current node ' +
-            'and run tests.'
+            'and start node '
+          'services.'
           ''
           
             'Choose the current node from the list, then generate and put gen' +
             'eration files in '
-          'proper '
-          'places by clicking "Apply Config Now".'
+          'proper places by clicking "Apply Config Now".'
           ''
           
             'Run tests to see if every service of the node is working as expe' +
@@ -2557,7 +2557,7 @@ object fmInstall: TfmInstall
       OnUpdate = acApplyNodeConfigUpdate
     end
     object acRunNodeTests: TAction
-      Caption = 'Run Node Tests'
+      Caption = 'Start Node Services'
       OnExecute = acRunNodeTestsClick
       OnUpdate = acRunNodeTestsUpdate
     end

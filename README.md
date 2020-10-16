@@ -1,5 +1,5 @@
 <p align="center">
-<img src="res/pes.svg" width="128"/>
+<img src="res/pes.svg" title="PES logo by Vitaly Gorbachev" width="128"/>
 </p>
 
 # PES: Patroni Environment Setup
@@ -45,3 +45,7 @@ witness
   - patronictl.yml
   - etcd.yml
 ```
+
+---
+
+Icon made by [Vitaly Gorbachev](https://www.flaticon.com/authors/vitaly-gorbachev)

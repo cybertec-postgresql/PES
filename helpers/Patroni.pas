@@ -18,7 +18,7 @@ begin
   try
     tmpJson := TJsonObject.ParseJSONValue(http.Get(url));
     try
-      Result := TJson.Format(tmpJson);
+      Result := tmpJson.Format();
     finally
       tmpJson.Free;
     end;

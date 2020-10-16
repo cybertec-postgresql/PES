@@ -2216,7 +2216,7 @@ object fmInstall: TfmInstall
         Width = 240
         Height = 21
         TabOrder = 4
-        Text = 'pgsql/bin'
+        Text = '../pgsql/bin'
         OnChange = UpdateCluster
       end
       object edDataDir: TEdit
@@ -2436,7 +2436,7 @@ object fmInstall: TfmInstall
       end
     end
     object tabTest: TTabSheet
-      Caption = 'Test'
+      Caption = 'Run && Test'
       ImageIndex = 2
       OnShow = tabTestShow
       DesignSize = (

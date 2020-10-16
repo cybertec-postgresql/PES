@@ -6,7 +6,8 @@ uses
   uTetherModule in 'forms\uTetherModule.pas' {dmTether: TDataModule},
   Cluster in 'helpers\Cluster.pas',
   Console in 'helpers\Console.pas',
-  Service in 'helpers\Service.pas';
+  Service in 'helpers\Service.pas',
+  Patroni in 'helpers\Patroni.pas';
 
 {$R *.res}
 

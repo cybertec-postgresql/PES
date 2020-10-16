@@ -134,7 +134,7 @@ implementation
 
 uses
   Math, IOUtils, PythonEngine, PythonGUIInputOutput, PythonVersions, FileCtrl,
-  Service, Console;
+  Service, Console, Patroni;
 
 {$R *.dfm}
 
@@ -361,15 +361,35 @@ procedure TfmInstall.acRunNodeTestsClick(Sender: TObject);
     mmLog.Lines.Append(S);
     Application.ProcessMessages;
   end;
-
+var ANode: TNode;
 begin
+  ANode := GetSelectedNode();
+  if not Assigned(ANode) then Exit;
   try
     mmLog.Clear;
-    Log('Starting etcd service...');
-    GetDosOutput('..\etcd\etcd_service.exe start');
-    Log('Service status: ' + GetDosOutput('..\etcd\etcd_service.exe status'));
-    Log(GetDosOutput('..\etcd\etcdctl.exe --debug cluster-health'));
-    Log('Log files available at ' + RootDir + 'etcd\log');
+    if ANode.HasEtcd then
+    begin
+      Log('Starting etcd service...');
+      GetDosOutput('..\etcd\etcd_service.exe start');
+      Log('Service status: ' + GetDosOutput('..\etcd\etcd_service.exe status'));
+      Log(GetDosOutput('..\etcd\etcdctl.exe --debug cluster-health'));
+      Log('Log files available at ' + RootDir + 'etcd\log'#13#10);
+    end;
+    if ANode.HasDatabase then
+    begin
+      Log('Starting patroni service...');
+      GetDosOutput('..\patroni\patroni_service.exe start');
+      Log('Service status: ' + GetDosOutput('..\patroni\patroni_service.exe status'));
+      Log(Patroni.PatroniGet());
+      Log('Log files available at ' + RootDir + 'patroni\log'#13#10);
+      if Cluster.VIPManager.Enabled then
+      begin
+        Log('Starting vip-manager service...');
+        GetDosOutput('..\vip-manager\vip_service.exe start');
+        Log('Service status: ' + GetDosOutput('..\vip-manager\vip_service.exe status'));
+        Log('Log files available at ' + RootDir + 'vip-manager\log');
+      end;
+    end;
   except
     on E: Exception do
       Log(E.Message);
@@ -424,10 +444,11 @@ begin
   vstNodes.BeginUpdate;
   try
     for i := 0 to ACluster.NodeCount - 1 do
-      vstNodes.AddChild(nil, ACluster.Nodes[i])
+      vstNodes.AddChild(nil, ACluster.Nodes[i]);
   finally
     vstNodes.EndUpdate;
   end;
+  if tabTest.TabVisible then tabTestShow(tabTest);
 end;
 
 procedure TfmInstall.OnResourceReceived(const Sender: TObject; const AResource: TRemoteResource);

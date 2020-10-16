@@ -1,5 +1,8 @@
-# PES
-Patroni Environment Setup
+<p align="center">
+<img src="res/pes.svg" width="128"/>
+</p>
+
+# PES: Patroni Environment Setup
 
 ![](res/PES-Init.png)
 

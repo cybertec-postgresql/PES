@@ -34,7 +34,7 @@ VIP Manager (if enabled) should run on every database node. Right now all settin
 
 **Load** button will open previously saved cluster in internal format for further edit.
 
-**Finish** button will produce all needed configurations file for every node participated. The hierarchy will contain folders with node names containing `.yml` configuration files, e.g.
+**Generate  Configs** button will produce all needed configurations file for every node participated. The hierarchy will contain folders with node names containing `.yaml` configuration files depending on the node role (has db, has etcd, is vip-manager enabled), e.g.
 
 ```
 db1
@@ -47,6 +47,9 @@ db2
   - etcd.yaml
 witness
   - etcd.yaml
+db_only
+  - patroni.yaml
+  - patronictl.yaml
 ```
 
 ---

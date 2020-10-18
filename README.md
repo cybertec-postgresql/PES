@@ -2,7 +2,7 @@
 <img src="res/pes.svg" title="PES logo by Vitaly Gorbachev" width="128"/>
 </p>
 
-# PES: Patroni Environment Setup
+# PES: Patroni Environment Setup for Windows
 
 ![](res/PES-Init.png)
 

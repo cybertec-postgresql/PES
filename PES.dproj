@@ -96,6 +96,9 @@
         <Icon_MainIcon>res\pes.ico</Icon_MainIcon>
         <UWP_DelphiLogo44>res\pes.png</UWP_DelphiLogo44>
         <UWP_DelphiLogo150>res\pes.png</UWP_DelphiLogo150>
+        <PostBuildEvent><![CDATA[copy /b/v/y $(PROJECTDIR)\templates\*.* $(OUTPUTDIR)
+copy /v/y $(PROJECTDIR)\helpers\*.py $(OUTPUTDIR)
+$(PostBuildEvent)]]></PostBuildEvent>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1)'!=''">
         <DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
@@ -122,8 +125,8 @@
         <VerInfo_MajorVer>0</VerInfo_MajorVer>
         <VerInfo_MinorVer>1</VerInfo_MinorVer>
         <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
-        <VerInfo_Build>15</VerInfo_Build>
-        <VerInfo_Keys>CompanyName=Cybertec;FileDescription=$(MSBuildProjectName);FileVersion=0.1.0.15;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=0.1.0.0;Comments=</VerInfo_Keys>
+        <VerInfo_Build>20</VerInfo_Build>
+        <VerInfo_Keys>CompanyName=Cybertec;FileDescription=$(MSBuildProjectName);FileVersion=0.1.0.20;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=0.1.0.0;Comments=</VerInfo_Keys>
         <UWP_DelphiLogo44>res\pes.png</UWP_DelphiLogo44>
         <UWP_DelphiLogo150>res\pes.png</UWP_DelphiLogo150>
         <Icon_MainIcon>res\pes.ico</Icon_MainIcon>
@@ -148,6 +151,7 @@
         <VerInfo_MinorVer>1</VerInfo_MinorVer>
         <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
         <VerInfo_Keys>CompanyName=Cybertec;FileDescription=$(MSBuildProjectName);FileVersion=0.1.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=0.1.0.0;Comments=</VerInfo_Keys>
+        <Icon_MainIcon>res\pes.ico</Icon_MainIcon>
     </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">
@@ -191,6 +195,18 @@
                 </Excluded_Packages>
             </Delphi.Personality>
             <Deployment Version="3">
+                <DeployFile LocalName="templates\patroni_ctl.template" Configuration="Debug" Class="File">
+                    <Platform Name="Win64">
+                        <RemoteName>patroni_ctl.template</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="templates\patroni_ctl.template" Configuration="Release" Class="File">
+                    <Platform Name="Win64">
+                        <RemoteName>patroni_ctl.template</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
                 <DeployFile LocalName="_output\pes\PES.exe" Configuration="Debug" Class="ProjectOutput">
                     <Platform Name="Win64">
                         <RemoteName>PES.exe</RemoteName>
@@ -203,9 +219,27 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="_output\pes\PES.rsm" Configuration="Debug" Class="DebugSymbols">
+                <DeployFile LocalName="templates\vipmanager.template" Configuration="Release" Class="File">
                     <Platform Name="Win64">
-                        <RemoteName>PES.rsm</RemoteName>
+                        <RemoteName>vipmanager.template</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="templates\patroni_bootstrap.template" Configuration="Debug" Class="File">
+                    <Platform Name="Win64">
+                        <RemoteName>patroni_bootstrap.template</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="templates\patroni_bootstrap.template" Configuration="Release" Class="File">
+                    <Platform Name="Win64">
+                        <RemoteName>patroni_bootstrap.template</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="templates\patroni.template" Configuration="Debug" Class="File">
+                    <Platform Name="Win64">
+                        <RemoteName>patroni.template</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
@@ -213,6 +247,36 @@
                     <Platform Name="Win64">
                         <RemoteDir>Assets\</RemoteDir>
                         <RemoteName>Logo44x44.png</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="templates\etcd.template" Configuration="Release" Class="File">
+                    <Platform Name="Win64">
+                        <RemoteName>etcd.template</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="templates\vipmanager.template" Configuration="Debug" Class="File">
+                    <Platform Name="Win64">
+                        <RemoteName>vipmanager.template</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="templates\patroni.template" Configuration="Release" Class="File">
+                    <Platform Name="Win64">
+                        <RemoteName>patroni.template</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="_output\pes\PES.exe" Configuration="Release" Class="ProjectOutput">
+                    <Platform Name="Win64">
+                        <RemoteName>PES.exe</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="templates\etcd.template" Configuration="Debug" Class="File">
+                    <Platform Name="Win64">
+                        <RemoteName>etcd.template</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
@@ -1259,4 +1323,20 @@
     <Import Project="$(BDS)\Bin\CodeGear.Delphi.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Delphi.Targets')"/>
     <Import Project="$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj" Condition="Exists('$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj')"/>
     <Import Project="$(MSBuildProjectName).deployproj" Condition="Exists('$(MSBuildProjectName).deployproj')"/>
+    <PropertyGroup Condition="'$(Config)'=='Debug' And '$(Platform)'=='Win64'">
+        <PreBuildEvent/>
+        <PreBuildEventIgnoreExitCode>False</PreBuildEventIgnoreExitCode>
+        <PreLinkEvent/>
+        <PreLinkEventIgnoreExitCode>False</PreLinkEventIgnoreExitCode>
+        <PostBuildEvent>copy /b/v/y $(PROJECTDIR)\templates\*.* $(OUTPUTDIR)&amp;&amp;copy /v/y $(PROJECTDIR)\helpers\*.py $(OUTPUTDIR)</PostBuildEvent>
+        <PostBuildEventIgnoreExitCode>False</PostBuildEventIgnoreExitCode>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Config)'=='Release' And '$(Platform)'=='Win64'">
+        <PreBuildEvent/>
+        <PreBuildEventIgnoreExitCode>False</PreBuildEventIgnoreExitCode>
+        <PreLinkEvent/>
+        <PreLinkEventIgnoreExitCode>False</PreLinkEventIgnoreExitCode>
+        <PostBuildEvent>copy /b/v/y $(PROJECTDIR)\templates\*.* $(OUTPUTDIR)&amp;&amp;copy /v/y $(PROJECTDIR)\helpers\*.py $(OUTPUTDIR)</PostBuildEvent>
+        <PostBuildEventIgnoreExitCode>False</PostBuildEventIgnoreExitCode>
+    </PropertyGroup>
 </Project>

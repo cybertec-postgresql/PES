@@ -8,7 +8,8 @@ uses
   System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls,
   System.StrUtils, Vcl.ComCtrls, Vcl.ActnList, uTetherModule,
   IPPeerClient, IPPeerServer, System.Tether.Manager, System.Tether.AppProfile, VirtualTrees,
-  Vcl.Imaging.jpeg;
+  Vcl.Imaging.jpeg, VirtualTrees.BaseAncestorVCL, VirtualTrees.BaseTree,
+  VirtualTrees.AncestorVCL;
 
 type
   TfmInstall = class(TForm)
